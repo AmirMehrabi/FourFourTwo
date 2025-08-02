@@ -15,3 +15,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* RTL Support */
+html[dir="rtl"] {
+  font-family: "Tanha", sans-serif;
+}
+
+/* Custom RTL utilities */
+.rtl\:text-right {
+  text-align: right;
+}
+
+.rtl\:text-left {
+  text-align: left;
+}

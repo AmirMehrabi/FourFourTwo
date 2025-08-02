@@ -37,6 +37,10 @@ Route::get('/my-predictions', [MyPredictionsController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('my-predictions.index');
 
+Route::put('/my-predictions/{prediction}', [MyPredictionsController::class, 'update'])
+    ->middleware(['auth', 'verified'])
+    ->name('my-predictions.update');
+
 Route::middleware('auth')->group(function () {
 
     Route::post('/predictions', [PredictionController::class, 'store'])

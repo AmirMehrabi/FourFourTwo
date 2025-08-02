@@ -36,12 +36,12 @@ function getTimeUntilLock(fixture) {
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head title="داشبورد" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800">
-                Dashboard
+                داشبورد
             </h2>
         </template>
 
@@ -52,9 +52,9 @@ function getTimeUntilLock(fixture) {
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold text-gray-900">🔷 Upcoming Fixtures</h3>
+                            <h3 class="text-lg font-semibold text-gray-900">🔷 مسابقات آتی</h3>
                             <Link :href="route('fixtures.index')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                View All Fixtures →
+                                مشاهده همه مسابقات ←
                             </Link>
                         </div>
                         
@@ -86,13 +86,13 @@ function getTimeUntilLock(fixture) {
                                 <div class="flex justify-between items-center">
                                     <div class="text-xs">
                                         <span v-if="fixture.prediction" class="text-green-600 font-medium">
-                                            Predicted: {{ fixture.prediction.home_score_predicted }}-{{ fixture.prediction.away_score_predicted }}
+                                            پیش‌بینی شده: {{ fixture.prediction.home_score_predicted }}-{{ fixture.prediction.away_score_predicted }}
                                         </span>
                                         <span v-else-if="fixture.is_locked" class="text-red-500 font-medium">
-                                            Missed
+                                            از دست رفته
                                         </span>
                                         <span v-else class="text-yellow-600 font-medium">
-                                            Not predicted
+                                            پیش‌بینی نشده
                                         </span>
                                     </div>
                                     
@@ -108,7 +108,7 @@ function getTimeUntilLock(fixture) {
                                                 ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' 
                                                 : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'"
                                         >
-                                            {{ fixture.prediction ? 'Edit' : 'Predict' }}
+                                            {{ fixture.prediction ? 'ویرایش' : 'پیش‌بینی' }}
                                         </Link>
                                     </div>
                                 </div>
@@ -116,7 +116,7 @@ function getTimeUntilLock(fixture) {
                         </div>
                         
                         <div v-if="upcomingFixtures.length === 0" class="text-center py-8 text-gray-500">
-                            No upcoming fixtures found.
+                            هیچ مسابقه آتی پیدا نشد.
                         </div>
                     </div>
                 </div>
@@ -127,7 +127,7 @@ function getTimeUntilLock(fixture) {
                     <!-- Your Recent Predictions -->
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">🔷 Your Recent Predictions</h3>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">🔷 پیش‌بینی‌های اخیر شما</h3>
                             
                             <div class="space-y-3">
                                 <div 
@@ -156,7 +156,7 @@ function getTimeUntilLock(fixture) {
                             </div>
                             
                             <div v-if="recentPredictions.length === 0" class="text-center py-4 text-gray-500">
-                                No predictions yet. Start predicting!
+                                هنوز پیش‌بینی‌ای نداشته‌اید. شروع کنید!
                             </div>
                         </div>
                     </div>
@@ -165,9 +165,9 @@ function getTimeUntilLock(fixture) {
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6">
                             <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-lg font-semibold text-gray-900">🔷 Leaderboard</h3>
+                                <h3 class="text-lg font-semibold text-gray-900">🔷 جدول امتیازات</h3>
                                 <Link :href="route('leaderboard.index')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                    Full Leaderboard →
+                                    جدول کامل امتیازات ←
                                 </Link>
                             </div>
                             
@@ -175,9 +175,9 @@ function getTimeUntilLock(fixture) {
                             <div class="mb-4 p-3 bg-blue-50 rounded-md">
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-blue-600">{{userRank}}</div>
-                                    <div class="text-sm text-gray-600">Your Current Rank</div>
-                                    <div class="text-lg font-semibold text-blue-800">{{ userPoints }} Points</div>
-                                    <div class="text-xs text-gray-500">out of {{ totalUsers }} players</div>
+                                    <div class="text-sm text-gray-600">رتبه فعلی شما</div>
+                                    <div class="text-lg font-semibold text-blue-800">{{ userPoints }} امتیاز</div>
+                                    <div class="text-xs text-gray-500">از {{ totalUsers }} بازیکن</div>
                                 </div>
                             </div>
 

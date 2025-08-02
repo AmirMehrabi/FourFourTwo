@@ -37,32 +37,32 @@ const showingNavigationDropdown = ref(false);
                                     :href="route('dashboard')"
                                     :active="route().current('dashboard')"
                                 >
-                                    Dashboard
+                                    داشبورد
                                 </NavLink>
 
                                 <NavLink
                                     :href="route('fixtures.index')"
                                     :active="route().current('fixtures.index')"
                                 >
-                                    Fixtures
+                                    مسابقات
                                 </NavLink>
                                 <NavLink
                                     :href="route('my-predictions.index')"
                                     :active="route().current('my-predictions.index')"
                                 >
-                                    My Predictions
+                                    پیش‌بینی‌های من
                                 </NavLink>
                                 <NavLink
                                     :href="route('gameweek.index')"
                                     :active="route().current('gameweek.index')"
                                 >
-                                    Gameweek
+                                    هفته‌های بازی
                                 </NavLink>
                                 <NavLink
                                     :href="route('leaderboard.index')"
                                     :active="route().current('leaderboard.index')"
                                 >
-                                    Leaderboard
+                                    جدول امتیازات
                                 </NavLink>
                             </div>
                         </div>
@@ -99,14 +99,14 @@ const showingNavigationDropdown = ref(false);
                                         <DropdownLink
                                             :href="route('profile.edit')"
                                         >
-                                            Profile
+                                            پروفایل
                                         </DropdownLink>
                                         <DropdownLink
                                             :href="route('logout')"
                                             method="post"
                                             as="button"
                                         >
-                                            Log Out
+                                            خروج
                                         </DropdownLink>
                                     </template>
                                 </Dropdown>
@@ -169,31 +169,31 @@ const showingNavigationDropdown = ref(false);
                             :href="route('dashboard')"
                             :active="route().current('dashboard')"
                         >
-                            Dashboard
+                            داشبورد
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('fixtures.index')"
                             :active="route().current('fixtures.index')"
                         >
-                            Fixtures
+                            مسابقات
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('my-predictions.index')"
                             :active="route().current('my-predictions.index')"
                         >
-                            My Predictions
+                            پیش‌بینی‌های من
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('gameweek.index')"
                             :active="route().current('gameweek.index')"
                         >
-                            Gameweek
+                            هفته‌های بازی
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('leaderboard.index')"
                             :active="route().current('leaderboard.index')"
                         >
-                            Leaderboard
+                            جدول امتیازات
                         </ResponsiveNavLink>
                     </div>
 
@@ -214,14 +214,14 @@ const showingNavigationDropdown = ref(false);
 
                         <div class="mt-3 space-y-1">
                             <ResponsiveNavLink :href="route('profile.edit')">
-                                Profile
+                                پروفایل
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 :href="route('logout')"
                                 method="post"
                                 as="button"
                             >
-                                Log Out
+                                خروج
                             </ResponsiveNavLink>
                         </div>
                     </div>
