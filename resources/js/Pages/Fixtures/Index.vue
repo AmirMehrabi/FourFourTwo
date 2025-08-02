@@ -31,7 +31,26 @@ function submitPredictions() {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Matchweek {{ matchweek }} Predictions</h2>
+            <div class="flex justify-between items-center">
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">Matchweek {{ matchweek }} Predictions</h2>
+                <div class="space-x-2">
+                    <Link
+                        v-if="matchweek > 1"
+                        :href="route('fixtures.index', { matchweek: matchweek - 1 })"
+                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md text-sm"
+                    >
+                        &larr; Previous Week
+                    </Link>
+                    <Link
+                        v-if="matchweek < 38"
+                        :href="route('fixtures.index', { matchweek: matchweek + 1 })"
+                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md text-sm"
+                    >
+                        Next Week &rarr;
+                    </Link>
+                </div>
+            </div>
+
         </template>
 
         <div class="py-12">
