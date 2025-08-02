@@ -30,6 +30,11 @@ class Fixture extends Model
         return $this->belongsTo(Season::class);
     }
 
+    public function venue()
+    {
+        return $this->belongsTo(Venue::class);
+    }
+
     public function homeTeam()
     {
         return $this->belongsTo(Team::class, 'home_team_id');
