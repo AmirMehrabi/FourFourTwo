@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Fixture extends Model
 {
@@ -43,5 +45,10 @@ class Fixture extends Model
     public function awayTeam()
     {
         return $this->belongsTo(Team::class, 'away_team_id');
+    }
+
+    public function predictions(): HasMany
+    {
+        return $this->hasMany(Prediction::class);
     }
 }
