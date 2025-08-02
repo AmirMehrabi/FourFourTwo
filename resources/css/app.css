@@ -1,3 +1,17 @@
+        @font-face {
+            font-family: Tanha;
+            src: url('css/fonts/Tanha/Tanha.eot');
+            src: url('css/fonts/Tanha/Tanha.eot?#iefix') format('embedded-opentype'),
+                url('css/fonts/Tanha/Tanha.woff') format('woff'),
+                url('css/fonts/Tanha/Tanha.ttf') format('truetype');
+            font-weight: normal;
+        }
+
+@theme {
+  --font-sans: "Tanha", "sans-serif"; 
+  --font-tanha: "Tanha", "sans-serif"; 
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

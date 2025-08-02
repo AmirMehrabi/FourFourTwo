@@ -22,6 +22,10 @@ Route::get('/dashboard', [FixtureController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+Route::get('/fixtures', [FixtureController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('fixtures.index');
+
 Route::middleware('auth')->group(function () {
 
     Route::post('/predictions', [PredictionController::class, 'store'])

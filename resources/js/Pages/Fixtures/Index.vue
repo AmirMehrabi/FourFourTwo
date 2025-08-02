@@ -32,7 +32,7 @@ function submitPredictions() {
     <AuthenticatedLayout>
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">Matchweek {{ matchweek }} Predictions</h2>
+                <h2 class="font-semibold text-xl text-gray-800">Matchweek {{ matchweek }} Predictions</h2>
                 <div class="space-x-2">
                     <Link
                         v-if="matchweek > 1"
