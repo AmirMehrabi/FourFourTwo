@@ -32,10 +32,10 @@ function submitPredictions() {
     <AuthenticatedLayout>
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800">Matchweek {{ matchweek }} Predictions</h2>
+                <h2 class="font-semibold text-xl text-gray-800">Matchweek {{ matchweek }} Prediction</h2>
                 <div class="space-x-2">
                     <Link
-                        v-if="matchweek > 1"
+                        v-if="matchweek >= 1"
                         :href="route('fixtures.index', { matchweek: matchweek - 1 })"
                         class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md text-sm"
                     >
