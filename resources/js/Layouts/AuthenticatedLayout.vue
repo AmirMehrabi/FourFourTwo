@@ -47,6 +47,12 @@ const showingNavigationDropdown = ref(false);
                                     Fixtures
                                 </NavLink>
                                 <NavLink
+                                    :href="route('my-predictions.index')"
+                                    :active="route().current('my-predictions.index')"
+                                >
+                                    My Predictions
+                                </NavLink>
+                                <NavLink
                                     :href="route('gameweek.index')"
                                     :active="route().current('gameweek.index')"
                                 >
@@ -170,6 +176,12 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('fixtures.index')"
                         >
                             Fixtures
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('my-predictions.index')"
+                            :active="route().current('my-predictions.index')"
+                        >
+                            My Predictions
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('gameweek.index')"

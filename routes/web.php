@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\FixtureController;
 use App\Http\Controllers\GameweekController;
+use App\Http\Controllers\MyPredictionsController;
 use App\Http\Controllers\PredictionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
@@ -32,10 +33,17 @@ Route::get('/gameweek', [GameweekController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('gameweek.index');
 
+Route::get('/my-predictions', [MyPredictionsController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('my-predictions.index');
+
 Route::middleware('auth')->group(function () {
 
     Route::post('/predictions', [PredictionController::class, 'store'])
         ->name('predictions.store');
+
+    Route::put('/my-predictions/{prediction}', [MyPredictionsController::class, 'update'])
+        ->name('my-predictions.update');
 
     Route::get('/leaderboard', [LeaderboardController::class, 'index'])
         ->name('leaderboard.index');
