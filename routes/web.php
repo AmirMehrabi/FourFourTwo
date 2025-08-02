@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\FixtureController;
+use App\Http\Controllers\GameweekController;
 use App\Http\Controllers\PredictionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
@@ -26,6 +27,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::get('/fixtures', [FixtureController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('fixtures.index');
+
+Route::get('/gameweek', [GameweekController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('gameweek.index');
 
 Route::middleware('auth')->group(function () {
 
