@@ -74,9 +74,9 @@ function getOutcomeIcon(outcome) {
 
 function getOutcomeText(outcome) {
     switch (outcome) {
-        case 'exact': return 'Exact Score';
-        case 'correct_outcome': return 'Correct Winner';
-        case 'wrong': return 'Wrong';
+        case 'exact': return 'نتیجه‌ی دقیق';
+        case 'correct_outcome': return 'برنده درست';
+        case 'wrong': return 'غلط';
         default: return '';
     }
 }
@@ -110,25 +110,25 @@ const currentGameweekData = computed(() => {
 </script>
 
 <template>
-    <Head title="My Predictions" />
+    <Head title="پیش‌بینی‌های من" />
 
     <AuthenticatedLayout>
         <template #header>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h2 class="font-semibold text-xl text-gray-800 mb-1">
-                        My Predictions
+                        پیش‌بینی‌های من
                     </h2>
                     <p class="text-sm text-gray-600">
-                        You've predicted {{ overallStats.total_predictions }} matches • 
-                        Average {{ overallStats.avg_points_per_match }} points per match
+                        شما {{ overallStats.total_predictions }} بازی را پیش‌بینی کرده‌اید. • 
+                        میانگین {{ overallStats.avg_points_per_match }} امتیاز در هر بازی
                     </p>
                 </div>
                 <button 
                     @click="showMobileStats = !showMobileStats"
                     class="mt-2 sm:hidden text-sm text-blue-600 font-medium"
                 >
-                    {{ showMobileStats ? 'Hide' : 'Show' }} Stats
+                    {{ showMobileStats ? 'پنهان‌کردن' : 'نمایش' }} آمار
                 </button>
             </div>
         </template>
@@ -142,19 +142,19 @@ const currentGameweekData = computed(() => {
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                             <div class="text-center">
                                 <div class="text-2xl font-bold text-blue-600">{{ overallStats.total_points }}</div>
-                                <div class="text-sm text-gray-600">Total Points</div>
+                                <div class="text-sm text-gray-600">امتیاز کل</div>
                             </div>
                             <div class="text-center">
                                 <div class="text-2xl font-bold text-green-600">{{ overallStats.outcome_accuracy }}%</div>
-                                <div class="text-sm text-gray-600">Outcome Accuracy</div>
+                                <div class="text-sm text-gray-600">دقت پیش‌بینی</div>
                             </div>
                             <div class="text-center">
                                 <div class="text-2xl font-bold text-orange-600">{{ overallStats.exact_accuracy }}%</div>
-                                <div class="text-sm text-gray-600">Exact Score Rate</div>
+                                <div class="text-sm text-gray-600">نرخ امتیاز دقیق</div>
                             </div>
                             <div class="text-center">
                                 <div class="text-2xl font-bold text-purple-600">{{ overallStats.completed_predictions }}</div>
-                                <div class="text-sm text-gray-600">Completed</div>
+                                <div class="text-sm text-gray-600">پیش‌بینی‌های انجام شده</div>
                             </div>
                         </div>
                     </div>
@@ -166,19 +166,19 @@ const currentGameweekData = computed(() => {
                         <div class="grid grid-cols-2 gap-4">
                             <div class="text-center">
                                 <div class="text-xl font-bold text-blue-600">{{ overallStats.total_points }}</div>
-                                <div class="text-xs text-gray-600">Total Points</div>
+                                <div class="text-xs text-gray-600">امتیاز کل</div>
                             </div>
                             <div class="text-center">
                                 <div class="text-xl font-bold text-green-600">{{ overallStats.outcome_accuracy }}%</div>
-                                <div class="text-xs text-gray-600">Accuracy</div>
+                                <div class="text-xs text-gray-600">دقت پیش‌بینی</div>
                             </div>
                             <div class="text-center">
                                 <div class="text-xl font-bold text-orange-600">{{ overallStats.exact_accuracy }}%</div>
-                                <div class="text-xs text-gray-600">Exact Scores</div>
+                                <div class="text-xs text-gray-600">نرخ امتیاز دقیق</div>
                             </div>
                             <div class="text-center">
                                 <div class="text-xl font-bold text-purple-600">{{ overallStats.completed_predictions }}</div>
-                                <div class="text-xs text-gray-600">Completed</div>
+                                <div class="text-xs text-gray-600">پیش‌بینی‌های انجام شده</div>
                             </div>
                         </div>
                     </div>
@@ -188,18 +188,18 @@ const currentGameweekData = computed(() => {
                 <div class="mb-6">
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                         <div class="flex items-center justify-between mb-3">
-                            <h3 class="font-medium text-gray-900">Gameweek</h3>
+                            <h3 class="font-medium text-gray-900">هفته‌ی بازی</h3>
                             <div v-if="currentGameweekData" class="text-sm text-gray-600">
-                                {{ currentGameweekData.predictions_made }}/{{ currentGameweekData.total_fixtures }} predicted
+                                {{ currentGameweekData.predictions_made }}/{{ currentGameweekData.total_fixtures }} پیش‌بینی شده
                                 <span v-if="currentGameweekData.points_earned > 0">
-                                    • {{ currentGameweekData.points_earned }} pts
+                                    • {{ currentGameweekData.points_earned }} امتیاز
                                 </span>
                             </div>
                         </div>
                         
                         <!-- Horizontal scroll gameweek selector -->
                         <div class="overflow-x-auto">
-                            <div class="flex space-x-2 pb-2" style="min-width: max-content;">
+                            <div class="flex gap-4 pb-2" style="min-width: max-content;">
                                 <button
                                     v-for="gameweek in gameweeks"
                                     :key="gameweek.matchweek"
@@ -211,7 +211,7 @@ const currentGameweekData = computed(() => {
                                 >
                                     <div class="flex flex-col items-center">
                                         <span>GW{{ gameweek.matchweek }}</span>
-                                        <div class="flex items-center space-x-1 mt-1">
+                                        <div class="flex items-center gap-1 mt-1">
                                             <div 
                                                 class="w-1.5 h-1.5 rounded-full"
                                                 :class="{
@@ -254,9 +254,9 @@ const currentGameweekData = computed(() => {
                                     
                                     <!-- Match Info -->
                                     <div class="flex-1 mb-4 sm:mb-0">
-                                        <div class="flex items-center justify-between sm:justify-start sm:space-x-8">
+                                        <div class="flex items-center justify-between sm:justify-start sm:gap-4">
                                             <!-- Teams -->
-                                            <div class="flex items-center space-x-4">
+                                            <div class="flex items-center gap-4">
                                                 <div class="text-right">
                                                     <div class="font-medium text-gray-900">{{ prediction.fixture.home_team.name }}</div>
                                                 </div>
@@ -277,7 +277,7 @@ const currentGameweekData = computed(() => {
                                     </div>
 
                                     <!-- Prediction & Status -->
-                                    <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-6">
+                                    <div class="flex flex-col sm:flex-row sm:items-center sm:gap-6">
                                         
                                         <!-- User Prediction -->
                                         <div class="mb-3 sm:mb-0">
@@ -286,11 +286,11 @@ const currentGameweekData = computed(() => {
                                                 <div class="text-lg font-bold text-blue-600">
                                                     {{ prediction.prediction.home_score_predicted }} - {{ prediction.prediction.away_score_predicted }}
                                                 </div>
-                                                <div class="text-xs text-gray-500">Your Prediction</div>
+                                                <div class="text-xs text-gray-500">پیش‌بینی شما</div>
                                             </div>
                                             
                                             <!-- Edit Form -->
-                                            <!-- <div v-else-if="editingPrediction === prediction.prediction.id" 
+                                            <!--<div v-else-if="prediction.prediction && editingPrediction === prediction.prediction.id" 
                                                  class="flex items-center space-x-2">
                                                 <select v-model="editForm.home_score_predicted" 
                                                         class="w-16 px-2 py-1 border border-gray-300 rounded text-center">
@@ -313,7 +313,7 @@ const currentGameweekData = computed(() => {
                                             </div> -->
                                             
                                             <div v-else class="text-center text-gray-400">
-                                                <div class="text-sm">No Prediction</div>
+                                                <div class="text-sm">بدون پیش‌بینی</div>
                                             </div>
                                         </div>
 
@@ -322,7 +322,7 @@ const currentGameweekData = computed(() => {
                                             <div class="text-lg font-bold text-gray-800">
                                                 {{ prediction.fixture.home_score }} - {{ prediction.fixture.away_score }}
                                             </div>
-                                            <div class="text-xs text-gray-500">Actual Result</div>
+                                            <div class="text-xs text-gray-500">نتیجه‌ی نهایی</div>
                                         </div>
 
                                         <!-- Status & Actions -->
@@ -334,7 +334,7 @@ const currentGameweekData = computed(() => {
                                                       :class="getOutcomeColor(prediction.outcome)">
                                                     {{ getOutcomeIcon(prediction.outcome) }} {{ getOutcomeText(prediction.outcome) }}
                                                     <span v-if="prediction.prediction" class="ml-1">
-                                                        ({{ prediction.prediction.points_awarded }}pts)
+                                                        ({{ prediction.prediction.points_awarded }} امتیاز)
                                                     </span>
                                                 </span>
                                             </div>
@@ -345,7 +345,7 @@ const currentGameweekData = computed(() => {
                                                     {{ getTimeUntilLock(prediction.time_until_lock) }}
                                                 </div>
                                                 
-                                                <div class="flex space-x-2">
+                                                <!-- <div class="flex space-x-2">
                                                     <button v-if="prediction.can_edit && prediction.prediction && editingPrediction !== prediction.prediction.id"
                                                             @click="startEditing(prediction)"
                                                             class="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
@@ -357,7 +357,7 @@ const currentGameweekData = computed(() => {
                                                           class="px-3 py-1 text-xs bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200">
                                                         Predict Now
                                                     </Link>
-                                                </div>
+                                                </div> -->
                                             </div>
                                         </div>
                                     </div>

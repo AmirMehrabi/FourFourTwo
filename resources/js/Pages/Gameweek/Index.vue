@@ -71,7 +71,7 @@ function getStatusText(status) {
     <AuthenticatedLayout>
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800">
-                🔷 Gameweek Timeline
+                زمان‌بندی هفتگی لیگ
             </h2>
         </template>
 
@@ -81,7 +81,7 @@ function getStatusText(status) {
                 <!-- Quick Navigation -->
                 <div class="mb-6 bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Navigation</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">جابجایی سریع</h3>
                         <div class="flex flex-wrap gap-2">
                             <Link 
                                 v-for="gameweek in gameweeks" 
@@ -133,14 +133,14 @@ function getStatusText(status) {
                                         {{ formatDateRange(gameweek.start_date, gameweek.end_date) }}
                                     </p>
                                     <p class="text-xs opacity-75">
-                                        {{ gameweek.fixture_count }} fixtures
+                                        {{ gameweek.fixture_count }} بازی
                                     </p>
                                 </div>
 
                                 <!-- Prediction Stats -->
                                 <div class="mb-4">
                                     <div class="flex justify-between items-center text-sm mb-1">
-                                        <span>Predictions:</span>
+                                        <span>پیش‌بینی‌ها:</span>
                                         <span class="font-medium">{{ gameweek.predictions_made }}/{{ gameweek.fixture_count }}</span>
                                     </div>
                                     
@@ -155,13 +155,13 @@ function getStatusText(status) {
 
                                     <div class="flex justify-between items-center text-xs">
                                         <span v-if="gameweek.predictions_completed > 0">
-                                            Points: <span class="font-bold">{{ gameweek.points_earned }}</span>
+                                            امتیازات: <span class="font-bold">{{ gameweek.points_earned }}</span>
                                         </span>
                                         <span v-else-if="gameweek.status === 'completed' && gameweek.predictions_made === 0" class="text-red-600">
-                                            Missed
+                                            از دست داده
                                         </span>
                                         <span v-else-if="gameweek.status === 'upcoming'" class="text-blue-600">
-                                            {{ gameweek.predictions_open ? 'Open' : 'Locked' }}
+                                            {{ gameweek.predictions_open ? 'باز' : 'بسته' }}
                                         </span>
                                     </div>
                                 </div>
@@ -179,7 +179,7 @@ function getStatusText(status) {
                                             {{ gameweek.predictions_made > 0 ? 'Complete Predictions' : 'Make Predictions' }}
                                         </span>
                                         <span v-else>
-                                            View Fixtures
+                                            نمایش این هفته
                                         </span>
                                     </Link>
                                 </div>
@@ -198,8 +198,8 @@ function getStatusText(status) {
                                     ⚽
                                 </div>
                                 <div>
-                                    <p class="font-medium text-green-800">Active</p>
-                                    <p class="text-xs text-gray-600">Gameweek in progress</p>
+                                    <p class="font-medium text-green-800">فعال</p>
+                                    <p class="text-xs text-gray-600">هفته‌ی جاری</p>
                                 </div>
                             </div>
                             <div class="flex items-center space-x-3">
@@ -207,8 +207,8 @@ function getStatusText(status) {
                                     📅
                                 </div>
                                 <div>
-                                    <p class="font-medium text-blue-700">Upcoming</p>
-                                    <p class="text-xs text-gray-600">Future gameweek</p>
+                                    <p class="font-medium text-blue-700">پیش رو</p>
+                                    <p class="text-xs text-gray-600">هفته‌ی آینده</p>
                                 </div>
                             </div>
                             <div class="flex items-center space-x-3">
@@ -216,8 +216,8 @@ function getStatusText(status) {
                                     ✅
                                 </div>
                                 <div>
-                                    <p class="font-medium text-gray-700">Completed</p>
-                                    <p class="text-xs text-gray-600">Past gameweek</p>
+                                    <p class="font-medium text-gray-700">تکمیل شده</p>
+                                    <p class="text-xs text-gray-600">هفته‌ی گذشته</p>
                                 </div>
                             </div>
                         </div>

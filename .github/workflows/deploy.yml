@@ -1,0 +1,43 @@
+name: Deploy Laravel App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Deploy via SSH
+        run: |
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          ssh -o StrictHostKeyChecking=no ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
+            set -e
+            RELEASE=/var/www/html/fourfourtwo/releases/$TIMESTAMP
+            echo "Deploying to \$RELEASE..."
+
+            git clone --depth=1 git@github.com:<your-username>/<your-repo>.git \$RELEASE
+            cd \$RELEASE
+
+            cp /var/www/html/fourfourtwo/shared/.env .env
+            ln -s /var/www/html/fourfourtwo/shared/storage storage
+            composer install --no-dev --optimize-autoloader
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan migrate --force
+
+            ln -sfn \$RELEASE /var/www/html/fourfourtwo/current
+            sudo systemctl reload php8.4-fpm
+            sudo systemctl reload nginx
+            echo "Deployment to \$RELEASE completed."
