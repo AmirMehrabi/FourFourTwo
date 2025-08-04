@@ -7,22 +7,12 @@ use App\Http\Controllers\GameweekController;
 use App\Http\Controllers\MyPredictionsController;
 use App\Http\Controllers\PredictionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WelcomeController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect()->route('dashboard');
-    }
-    
-    return Inertia::render('Welcome', [
-        'canLogin'       => Route::has('login'),
-        'canRegister'    => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion'     => PHP_VERSION,
-    ]);
-});
+Route::get('/', [WelcomeController::class, 'index']);
 
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
