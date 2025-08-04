@@ -78,18 +78,26 @@ function submitPredictions() {
                         >
                             <p class="text-sm text-center text-gray-500">
                                 {{
-                                    new Date(
-                                        fixture.match_datetime
-                                    ).toLocaleString("nl-NL")
+                                        new Date(
+                                            fixture.match_datetime
+                                        ).toLocaleString("fa-IR")
                                 }}
                             </p>
 
                             <div
                                 class="grid grid-cols-3 items-center mt-2 text-center"
                             >
-                                <span class="font-bold text-right">{{
-                                    fixture.home_team.name
-                                }}</span>
+                                <div class="flex items-center justify-end gap-3">
+                                    <span class="font-bold">{{
+                                        fixture.home_team.name
+                                    }}</span>
+                                    <img 
+                                        :src="`/assets/team-logos/${fixture.home_team.name}.png`"
+                                        :alt="fixture.home_team.name"
+                                        class="w-8 h-8 object-contain"
+                                        @error="$event.target.style.display = 'none'"
+                                    />
+                                </div>
                                 <div
                                     class="flex items-center justify-center gap-2 mx-4"
                                 >
@@ -113,9 +121,17 @@ function submitPredictions() {
                                         :disabled="fixture.is_locked"
                                     />
                                 </div>
-                                <span class="font-bold text-left">{{
-                                    fixture.away_team.name
-                                }}</span>
+                                <div class="flex items-center justify-start gap-3">
+                                    <img 
+                                        :src="`/assets/team-logos/${fixture.away_team.name}.png`"
+                                        :alt="fixture.away_team.name"
+                                        class="w-8 h-8 object-contain"
+                                        @error="$event.target.style.display = 'none'"
+                                    />
+                                    <span class="font-bold">{{
+                                        fixture.away_team.name
+                                    }}</span>
+                                </div>
                             </div>
                             <p
                                 v-if="fixture.is_locked"
