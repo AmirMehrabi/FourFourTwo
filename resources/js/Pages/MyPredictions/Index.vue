@@ -29,7 +29,7 @@ function selectGameweek(gameweek) {
 }
 
 function formatDateTime(dateString) {
-    return new Date(dateString).toLocaleString('en-US', {
+    return new Date(dateString).toLocaleString('fa-IR', {
         weekday: 'short',
         day: 'numeric',
         month: 'short',
@@ -39,7 +39,7 @@ function formatDateTime(dateString) {
 }
 
 function formatDate(dateString) {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('fa-IR', {
         weekday: 'long',
         day: 'numeric',
         month: 'long'
@@ -96,14 +96,20 @@ function getOutcomeColor(outcome) {
 function getTimeUntilLock(timeUntilLock) {
     if (timeUntilLock <= 0) return t('locked');
     
+    // Helper function to convert numbers to Persian
+    const toPersianNumbers = (num) => {
+        const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        return num.toString().replace(/\d/g, (digit) => persianDigits[digit]);
+    };
+    
     if (timeUntilLock > 24) {
         const days = Math.floor(timeUntilLock / 24);
         const hours = Math.floor(timeUntilLock % 24);
-        return `${days}d ${hours}h left`;
+        return `${toPersianNumbers(days)} روز ${toPersianNumbers(hours)} ساعت باقی‌مانده`;
     } else if (timeUntilLock > 1) {
-        return `${Math.floor(timeUntilLock)}h left`;
+        return `${toPersianNumbers(Math.floor(timeUntilLock))} ساعت باقی‌مانده`;
     } else {
-        return `${Math.floor(timeUntilLock * 60)}min left`;
+        return `${toPersianNumbers(Math.floor(timeUntilLock * 60))} دقیقه باقی‌مانده`;
     }
 }
 
