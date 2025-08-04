@@ -1,6 +1,9 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
+import { useTranslations } from '@/composables/useTranslations.js';
+
+const { translateTeamName, t } = useTranslations();
 
 const props = defineProps({
     upcomingFixtures: Array,
@@ -80,7 +83,7 @@ function getTimeUntilLock(fixture) {
                                 >
                                     <div class="flex items-center justify-end gap-3">
                                         <span class="font-bold">{{
-                                            fixture.home_team.name
+                                            translateTeamName(fixture.home_team.name)
                                         }}</span>
                                         <img 
                                             :src="`/assets/team-logos/${fixture.home_team.name}.png`"
@@ -119,7 +122,7 @@ function getTimeUntilLock(fixture) {
                                             @error="$event.target.style.display = 'none'"
                                         />
                                         <span class="font-bold">{{
-                                            fixture.away_team.name
+                                            translateTeamName(fixture.away_team.name)
                                         }}</span>
                                     </div>
                                 </div>
@@ -128,13 +131,13 @@ function getTimeUntilLock(fixture) {
                                 <div class="mt-3 flex justify-between items-center">
                                     <div class="text-xs">
                                         <span v-if="fixture.prediction" class="text-green-600 font-medium">
-                                            پیش‌بینی شده
+                                            {{ t('prediction_made') }}
                                         </span>
                                         <span v-else-if="fixture.is_locked" class="text-red-500 font-medium">
-                                            قفل شده
+                                            {{ t('locked') }}
                                         </span>
                                         <span v-else class="text-yellow-600 font-medium">
-                                            پیش‌بینی نشده
+                                            {{ t('not_predicted') }}
                                         </span>
                                     </div>
                                     
@@ -169,7 +172,7 @@ function getTimeUntilLock(fixture) {
                     <!-- Your Recent Predictions -->
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">🔷 پیش‌بینی‌های اخیر شما</h3>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ t('your_recent_predictions') }}</h3>
                             
                             <div class="space-y-3">
                                 <div 
@@ -179,7 +182,7 @@ function getTimeUntilLock(fixture) {
                                 >
                                     <div class="flex-1">
                                         <div class="text-sm font-medium">
-                                            {{ prediction.fixture.home_team.name }} vs {{ prediction.fixture.away_team.name }}
+                                            {{ translateTeamName(prediction.fixture.home_team.name) }} vs {{ translateTeamName(prediction.fixture.away_team.name) }}
                                         </div>
                                         <div class="text-xs text-gray-500">
                                             {{ formatDateTime(prediction.fixture.match_datetime) }}
@@ -191,7 +194,7 @@ function getTimeUntilLock(fixture) {
                                     <div v-if="prediction.points_awarded !== null" class="ml-2 text-xs">
                                         <span class="px-2 py-1 rounded-full" 
                                               :class="prediction.points_awarded > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                                            {{ prediction.points_awarded }}pts
+                                            {{ prediction.points_awarded }}{{ t('pts') }}
                                         </span>
                                     </div>
                                 </div>
@@ -207,7 +210,7 @@ function getTimeUntilLock(fixture) {
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6">
                             <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-lg font-semibold text-gray-900">🔷 جدول امتیازات</h3>
+                                <h3 class="text-lg font-semibold text-gray-900">{{ t('leaderboard') }}</h3>
                                 <Link :href="route('leaderboard.index')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                     جدول کامل امتیازات ←
                                 </Link>
@@ -217,9 +220,9 @@ function getTimeUntilLock(fixture) {
                             <div class="mb-4 p-3 bg-blue-50 rounded-md">
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-blue-600">{{userRank}}</div>
-                                    <div class="text-sm text-gray-600">رتبه فعلی شما</div>
-                                    <div class="text-lg font-semibold text-blue-800">{{ userPoints }} امتیاز</div>
-                                    <div class="text-xs text-gray-500">از {{ totalUsers }} بازیکن</div>
+                                    <div class="text-sm text-gray-600">{{ t('your_current_rank') }}</div>
+                                    <div class="text-lg font-semibold text-blue-800">{{ userPoints }} {{ t('points') }}</div>
+                                    <div class="text-xs text-gray-500">از {{ totalUsers }} {{ t('of_players') }}</div>
                                 </div>
                             </div>
 
@@ -245,7 +248,7 @@ function getTimeUntilLock(fixture) {
                                             <span v-if="user.id === $page.props.auth.user.id" class="text-xs">(You)</span>
                                         </span>
                                     </div>
-                                    <span class="text-sm font-bold text-gray-600">{{ user.total_points }}pts</span>
+                                    <span class="text-sm font-bold text-gray-600">{{ user.total_points }}{{ t('pts') }}</span>
                                 </div>
                             </div>
                         </div>

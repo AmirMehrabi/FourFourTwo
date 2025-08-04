@@ -1,6 +1,9 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";
+import { useTranslations } from '@/composables/useTranslations.js';
+
+const { translateTeamName, t } = useTranslations();
 
 const props = defineProps({
     fixtures: Array,
@@ -89,7 +92,7 @@ function submitPredictions() {
                             >
                                 <div class="flex items-center justify-end gap-3">
                                     <span class="font-bold">{{
-                                        fixture.home_team.name
+                                        translateTeamName(fixture.home_team.name)
                                     }}</span>
                                     <img 
                                         :src="`/assets/team-logos/${fixture.home_team.name}.png`"
@@ -129,7 +132,7 @@ function submitPredictions() {
                                         @error="$event.target.style.display = 'none'"
                                     />
                                     <span class="font-bold">{{
-                                        fixture.away_team.name
+                                        translateTeamName(fixture.away_team.name)
                                     }}</span>
                                 </div>
                             </div>
@@ -147,7 +150,7 @@ function submitPredictions() {
                                 :disabled="form.processing"
                                 class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300"
                             >
-                                ذخیره‌ی تغییرات
+                                {{ t('save_changes') }}
                             </button>
                         </div>
                     </div>
