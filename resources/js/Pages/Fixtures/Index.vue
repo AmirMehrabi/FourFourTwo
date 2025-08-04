@@ -94,7 +94,7 @@ function submitPredictions() {
                                     <img 
                                         :src="`/assets/team-logos/${fixture.home_team.name}.png`"
                                         :alt="fixture.home_team.name"
-                                        class="w-8 h-8 object-contain"
+                                        class="w-8 lg:w-20 h-8 lg:h-20 object-contain"
                                         @error="$event.target.style.display = 'none'"
                                     />
                                 </div>
@@ -125,7 +125,7 @@ function submitPredictions() {
                                     <img 
                                         :src="`/assets/team-logos/${fixture.away_team.name}.png`"
                                         :alt="fixture.away_team.name"
-                                        class="w-8 h-8 object-contain"
+                                        class="w-8 lg:w-20 h-8 lg:h-20 object-contain"
                                         @error="$event.target.style.display = 'none'"
                                     />
                                     <span class="font-bold">{{
