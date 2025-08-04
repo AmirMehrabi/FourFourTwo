@@ -2,7 +2,7 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";
 import { useTranslations } from '@/composables/useTranslations.js';
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const { translateTeamName, t } = useTranslations();
 
@@ -10,6 +10,10 @@ const props = defineProps({
     fixtures: Array,
     matchweek: Number,
 });
+
+// Auto-save functionality
+const isAutoSaving = ref(false);
+const lastSaved = ref(null);
 
 // useForm will wrap our prediction data, making submission easy
 const form = useForm({
@@ -20,11 +24,45 @@ const form = useForm({
     })),
 });
 
+// Auto-save predictions when they change
+let autoSaveTimeout = null;
+watch(() => form.predictions, () => {
+    clearTimeout(autoSaveTimeout);
+    autoSaveTimeout = setTimeout(() => {
+        autoSavePredictions();
+    }, 2000); // Auto-save after 2 seconds of inactivity
+}, { deep: true });
+
+function autoSavePredictions() {
+    // Only auto-save if there are actual predictions
+    const hasValues = form.predictions.some(p => p.home_score !== null && p.away_score !== null);
+    if (!hasValues) return;
+
+    isAutoSaving.value = true;
+    form.post(route("predictions.store"), {
+        preserveScroll: true,
+        onSuccess: () => {
+            lastSaved.value = new Date().toLocaleTimeString('fa-IR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            isAutoSaving.value = false;
+        },
+        onError: () => {
+            isAutoSaving.value = false;
+        },
+    });
+}
+
 function submitPredictions() {
     form.post(route("predictions.store"), {
         preserveScroll: true,
         onSuccess: () => {
-            // Handle success message, maybe show a toast notification
+            lastSaved.value = new Date().toLocaleTimeString('fa-IR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            // Show success message or toast notification
         },
     });
 }
@@ -50,8 +88,20 @@ const fixturesByDate = computed(() => {
     return grouped;
 });
 
+// Enhanced date formatting
 function formatDate(dateString) {
-    return new Date(dateString).toLocaleDateString('fa-IR', {
+    const date = new Date(dateString);
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    if (date.toDateString() === today.toDateString()) {
+        return 'امروز';
+    } else if (date.toDateString() === tomorrow.toDateString()) {
+        return 'فردا';
+    }
+    
+    return date.toLocaleDateString('fa-IR', {
         weekday: 'long',
         day: 'numeric',
         month: 'long'
@@ -64,6 +114,15 @@ function formatTime(dateString) {
         minute: '2-digit'
     });
 }
+
+// Statistics
+const completedPredictions = computed(() => {
+    return form.predictions.filter(p => p.home_score !== null && p.away_score !== null).length;
+});
+
+const totalFixtures = computed(() => {
+    return props.fixtures.filter(f => !f.is_locked).length;
+});
 </script>
 
 <template>
@@ -71,11 +130,16 @@ function formatTime(dateString) {
 
     <AuthenticatedLayout>
         <template #header>
-            <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800">
-                    پیش‌بینی هفته‌ی {{ matchweek }}
-                </h2>
-                <div class="gap-2">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">
+                        هفته‌ی {{ matchweek }}
+                    </h1>
+                    <p class="text-sm text-gray-600 mt-1">
+                        پیش‌بینی نتایج مسابقات
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
                     <Link
                         v-if="matchweek > 1"
                         :href="
@@ -83,10 +147,14 @@ function formatTime(dateString) {
                                 matchweek: matchweek - 1,
                             })
                         "
-                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md text-sm"
+                        class="nav-btn inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200"
                     >
-                        &rarr; هفته‌ی قبل
+                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        هفته‌ی قبل
                     </Link>
+                    <span class="text-sm text-gray-500 px-2">{{ matchweek }} از 38</span>
                     <Link
                         v-if="matchweek < 38"
                         :href="
@@ -94,111 +162,252 @@ function formatTime(dateString) {
                                 matchweek: matchweek + 1,
                             })
                         "
-                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md text-sm"
+                        class="nav-btn inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200"
                     >
-                        هفته‌ی بعد &larr;
+                        هفته‌ی بعد
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
                     </Link>
                 </div>
             </div>
         </template>
 
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="py-8">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Progress Indicator -->
+                <div class="mb-8 bg-white rounded-lg border border-gray-100 p-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center space-x-4 space-x-reverse">
+                            <span class="text-gray-600">پیشرفت:</span>
+                            <span class="font-semibold text-gray-900">{{ completedPredictions }} از {{ totalFixtures }}</span>
+                            <div class="w-32 bg-gray-200 rounded-full h-2">
+                                <div 
+                                    class="progress-bar h-2 rounded-full transition-all duration-300"
+                                    :style="{ width: totalFixtures > 0 ? (completedPredictions / totalFixtures * 100) + '%' : '0%' }"
+                                ></div>
+                            </div>
+                        </div>
+                        <div class="auto-save-indicator flex items-center space-x-2 space-x-reverse text-xs text-gray-500">
+                            <svg v-if="isAutoSaving" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span v-if="isAutoSaving">در حال ذخیره...</span>
+                            <span v-else-if="lastSaved">آخرین ذخیره: {{ lastSaved }}</span>
+                            <span v-else>خودکار ذخیره می‌شود</span>
+                        </div>
+                    </div>
+                </div>
+
                 <form @submit.prevent="submitPredictions">
                     <!-- Fixtures grouped by date -->
-                    <div class="space-y-6">
+                    <div class="space-y-8">
                         <div 
                             v-for="(dayFixtures, date) in fixturesByDate" 
                             :key="date"
-                            class="bg-white rounded-lg shadow-sm border border-gray-200"
+                            class="fixture-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
                         >
                             <!-- Date Header -->
-                            <div class="px-6 py-3 border-b border-gray-200 bg-gray-50">
-                                <h4 class="font-medium text-gray-900">{{ formatDate(date) }}</h4>
+                            <div class="date-header px-6 py-4 border-b border-gray-100">
+                                <h3 class="text-lg font-semibold text-gray-900">{{ formatDate(date) }}</h3>
+                                <p class="text-sm text-gray-600 mt-1">{{ dayFixtures.length }} مسابقه</p>
                             </div>
 
                             <!-- Fixtures for this date -->
-                            <div class="divide-y divide-gray-200">
+                            <div class="divide-y divide-gray-100">
                                 <div
                                     v-for="fixture in dayFixtures"
                                     :key="fixture.id"
-                                    class="p-6"
+                                    class="relative"
                                     :class="{
-                                        'bg-gray-100 opacity-75': fixture.is_locked,
+                                        'fixture-card locked bg-gray-50': fixture.is_locked,
+                                        'fixture-card': !fixture.is_locked
                                     }"
                                 >
-                                    <!-- Time display -->
-                                    <p class="text-sm text-center text-gray-500 mb-4">
-                                        {{ formatTime(fixture.match_datetime) }}
-                                    </p>
-
-                                    <div class="grid grid-cols-3 items-center text-center">
-                                        <!-- Home Team -->
-                                        <div class="flex items-center justify-end gap-3">
-                                            <span class="font-bold">{{
-                                                translateTeamName(fixture.home_team.name)
-                                            }}</span>
-                                            <img 
-                                                :src="`/assets/team-logos/${fixture.home_team.name}.png`"
-                                                :alt="fixture.home_team.name"
-                                                class="w-8 lg:w-20 h-8 lg:h-20 object-contain"
-                                                @error="$event.target.style.display = 'none'"
-                                            />
-                                        </div>
-
-                                        <!-- Score Inputs -->
-                                        <div class="flex items-center justify-center gap-2 mx-4">
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                class="w-16 text-center font-bold"
-                                                v-model="form.predictions[fixture.originalIndex].home_score"
-                                                :disabled="fixture.is_locked"
-                                            />
-                                            <span class="m-0 px-2">-</span>
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                class="w-16 text-center font-bold"
-                                                v-model="form.predictions[fixture.originalIndex].away_score"
-                                                :disabled="fixture.is_locked"
-                                            />
-                                        </div>
-
-                                        <!-- Away Team -->
-                                        <div class="flex items-center justify-start gap-3">
-                                            <img 
-                                                :src="`/assets/team-logos/${fixture.away_team.name}.png`"
-                                                :alt="fixture.away_team.name"
-                                                class="w-8 lg:w-20 h-8 lg:h-20 object-contain"
-                                                @error="$event.target.style.display = 'none'"
-                                            />
-                                            <span class="font-bold">{{
-                                                translateTeamName(fixture.away_team.name)
-                                            }}</span>
-                                        </div>
+                                    <!-- Locked overlay -->
+                                    <div
+                                        v-if="fixture.is_locked"
+                                        class="absolute top-2 left-2 z-10"
+                                    >
+                                        <span class="status-badge inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                            <svg class="lock-icon w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                                            </svg>
+                                            قفل شده
+                                        </span>
                                     </div>
 
-                                    <!-- Locked message -->
-                                    <p
-                                        v-if="fixture.is_locked"
-                                        class="text-xs text-center text-red-500 mt-2"
-                                    >
-                                        {{ t('locked') }}
-                                    </p>
+                                    <div class="p-6">
+                                        <!-- Time display -->
+                                        <div class="text-center mb-6">
+                                            <span class="status-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-blue-700">
+                                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                {{ formatTime(fixture.match_datetime) }}
+                                            </span>
+                                        </div>
+
+                                        <!-- Desktop Layout -->
+                                        <div class="hidden sm:grid sm:grid-cols-5 sm:items-center sm:gap-4">
+                                            <!-- Home Team -->
+                                            <div class="col-span-2 flex items-center justify-end gap-3">
+                                                <div class="text-right">
+                                                    <h4 class="team-name text-gray-900">{{
+                                                        translateTeamName(fixture.home_team.name)
+                                                    }}</h4>
+                                                </div>
+                                                <div class="flex-shrink-0">
+                                                    <img 
+                                                        :src="`/assets/team-logos/${fixture.home_team.name}.png`"
+                                                        :alt="fixture.home_team.name"
+                                                        class="team-logo w-12 h-12 object-contain"
+                                                        @error="$event.target.style.display = 'none'"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <!-- Score Inputs -->
+                                            <div class="flex items-center justify-center gap-3">
+                                                <div class="relative">
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        max="20"
+                                                        class="score-input"
+                                                        :class="{
+                                                            'bg-gray-100 cursor-not-allowed': fixture.is_locked
+                                                        }"
+                                                        v-model="form.predictions[fixture.originalIndex].home_score"
+                                                        :disabled="fixture.is_locked"
+                                                        placeholder="0"
+                                                    />
+                                                </div>
+                                                <span class="text-xl font-bold text-gray-400">×</span>
+                                                <div class="relative">
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        max="20"
+                                                        class="score-input"
+                                                        :class="{
+                                                            'bg-gray-100 cursor-not-allowed': fixture.is_locked
+                                                        }"
+                                                        v-model="form.predictions[fixture.originalIndex].away_score"
+                                                        :disabled="fixture.is_locked"
+                                                        placeholder="0"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <!-- Away Team -->
+                                            <div class="col-span-2 flex items-center justify-start gap-3">
+                                                <div class="flex-shrink-0">
+                                                    <img 
+                                                        :src="`/assets/team-logos/${fixture.away_team.name}.png`"
+                                                        :alt="fixture.away_team.name"
+                                                        class="team-logo w-12 h-12 object-contain"
+                                                        @error="$event.target.style.display = 'none'"
+                                                    />
+                                                </div>
+                                                <div class="text-left">
+                                                    <h4 class="team-name text-gray-900">{{
+                                                        translateTeamName(fixture.away_team.name)
+                                                    }}</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Mobile Layout -->
+                                        <div class="sm:hidden space-y-4">
+                                            <!-- Teams -->
+                                            <div class="flex items-center justify-between">
+                                                <!-- Home Team -->
+                                                <div class="flex items-center gap-3 flex-1">
+                                                    <img 
+                                                        :src="`/assets/team-logos/${fixture.home_team.name}.png`"
+                                                        :alt="fixture.home_team.name"
+                                                        class="team-logo w-8 h-8 object-contain flex-shrink-0"
+                                                        @error="$event.target.style.display = 'none'"
+                                                    />
+                                                    <span class="team-name text-gray-900">{{
+                                                        translateTeamName(fixture.home_team.name)
+                                                    }}</span>
+                                                </div>
+                                                
+                                                <span class="text-gray-400 font-bold mx-3">VS</span>
+                                                
+                                                <!-- Away Team -->
+                                                <div class="flex items-center gap-3 flex-1 justify-end">
+                                                    <span class="team-name text-gray-900">{{
+                                                        translateTeamName(fixture.away_team.name)
+                                                    }}</span>
+                                                    <img 
+                                                        :src="`/assets/team-logos/${fixture.away_team.name}.png`"
+                                                        :alt="fixture.away_team.name"
+                                                        class="team-logo w-8 h-8 object-contain flex-shrink-0"
+                                                        @error="$event.target.style.display = 'none'"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <!-- Score Inputs Mobile -->
+                                            <div class="flex items-center justify-center gap-4">
+                                                <div class="text-center">
+                                                    <label class="block text-xs font-medium text-gray-600 mb-2">خانه</label>
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        max="20"
+                                                        class="score-input score-input-mobile"
+                                                        :class="{
+                                                            'bg-gray-100 cursor-not-allowed': fixture.is_locked
+                                                        }"
+                                                        v-model="form.predictions[fixture.originalIndex].home_score"
+                                                        :disabled="fixture.is_locked"
+                                                        placeholder="0"
+                                                    />
+                                                </div>
+                                                <span class="text-xl font-bold text-gray-400 mt-6">×</span>
+                                                <div class="text-center">
+                                                    <label class="block text-xs font-medium text-gray-600 mb-2">مهمان</label>
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        max="20"
+                                                        class="score-input score-input-mobile"
+                                                        :class="{
+                                                            'bg-gray-100 cursor-not-allowed': fixture.is_locked
+                                                        }"
+                                                        v-model="form.predictions[fixture.originalIndex].away_score"
+                                                        :disabled="fixture.is_locked"
+                                                        placeholder="0"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Submit Button -->
-                    <div class="mt-6 flex justify-end">
+                    <div class="mt-8 flex justify-center">
                         <button
                             type="submit"
                             :disabled="form.processing"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+                            class="btn-primary inline-flex items-center px-6 py-3 text-base font-medium text-white bg-blue-600 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                         >
-                            {{ t('save_changes') }}
+                            <svg v-if="form.processing" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <svg v-else class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            {{ form.processing ? 'در حال ذخیره...' : t('save_changes') }}
                         </button>
                     </div>
                 </form>

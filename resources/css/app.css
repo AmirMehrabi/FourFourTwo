@@ -16,6 +16,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import our custom fixtures styles */
+@import './fixtures.css';
+
 /* RTL Support */
 html[dir="rtl"] {
   font-family: "Tanha", sans-serif;

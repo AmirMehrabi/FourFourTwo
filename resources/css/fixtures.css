@@ -1,0 +1,156 @@
+/* FiveThirtyEight-inspired Fixtures Styling */
+
+/* Custom input styling for score inputs */
+.score-input {
+    @apply w-14 h-14 text-center text-lg font-bold border-2 border-gray-200 rounded-lg transition-all duration-200;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.score-input:focus {
+    @apply border-blue-500 ring-2 ring-blue-200;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.score-input:disabled {
+    @apply bg-gray-100 border-gray-200 cursor-not-allowed;
+    background: #f9fafb;
+}
+
+/* Fixture card hover effects */
+.fixture-card {
+    @apply transition-all duration-200;
+}
+
+.fixture-card:hover:not(.locked) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.fixture-card.locked {
+    @apply relative;
+}
+
+.fixture-card.locked::before {
+    content: '';
+    @apply absolute inset-0 bg-gray-50 opacity-50 rounded-xl pointer-events-none;
+}
+
+/* Team logo styling */
+.team-logo {
+    @apply transition-transform duration-200;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.team-logo:hover {
+    transform: scale(1.05);
+}
+
+/* Date header styling */
+.date-header {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Progress bar styling */
+.progress-bar {
+    background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+    box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Auto-save indicator */
+.auto-save-indicator {
+    @apply transition-all duration-300;
+}
+
+/* Button enhancements */
+.btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    @apply transition-all duration-200;
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Navigation button styling */
+.nav-btn {
+    @apply transition-all duration-200;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.nav-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Status badge styling */
+.status-badge {
+    @apply transition-all duration-200;
+    backdrop-filter: blur(10px);
+}
+
+/* Responsive typography adjustments */
+@media (min-width: 640px) {
+    .team-name {
+        @apply text-lg font-semibold;
+    }
+}
+
+@media (max-width: 639px) {
+    .team-name {
+        @apply text-sm font-semibold;
+    }
+}
+
+/* Loading skeleton */
+.skeleton {
+    @apply animate-pulse bg-gray-200 rounded;
+}
+
+/* Score input mobile enhancements */
+@media (max-width: 639px) {
+    .score-input-mobile {
+        @apply w-16 h-12;
+        touch-action: manipulation;
+    }
+}
+
+/* Accessibility improvements */
+.score-input:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Dark mode support (if needed in future) */
+@media (prefers-color-scheme: dark) {
+    .fixture-card {
+        @apply bg-gray-800 border-gray-700;
+    }
+    
+    .score-input {
+        @apply bg-gray-700 border-gray-600 text-white;
+    }
+}
+
+/* Animation for lock icon */
+@keyframes lockPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.lock-icon {
+    animation: lockPulse 2s infinite;
+}
+
+/* Improved focus states for accessibility */
+*:focus-visible {
+    @apply outline-2 outline-blue-500 outline-offset-2;
+}
