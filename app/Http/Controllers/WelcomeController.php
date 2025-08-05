@@ -101,10 +101,11 @@ class WelcomeController extends Controller
     private function getAccuracyStats(): array
     {
         $totalCompleted = Prediction::whereNotNull('points_awarded')->count();
-        $exactMatches = Prediction::where('points_awarded', '>=', 3)->count();
+        $correctPredictions = Prediction::where('points_awarded', '>', 0)->count(); // Any points means correct outcome or exact
+        $exactMatches = Prediction::where('points_awarded', '=', 5)->count(); // Exact score matches
         
         return [
-            'accuracy_rate' => $totalCompleted > 0 ? round(($exactMatches / $totalCompleted) * 100, 1) : 0,
+            'accuracy_rate' => $totalCompleted > 0 ? round(($correctPredictions / $totalCompleted) * 100, 1) : 0,
             'exact_matches' => $exactMatches
         ];
     }

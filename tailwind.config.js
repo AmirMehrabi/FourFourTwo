@@ -14,6 +14,7 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Tanha', ...defaultTheme.fontFamily.sans],
+                serif: ['Gandom', ...defaultTheme.fontFamily.serif],
                 tanha: ['Tanha', ...defaultTheme.fontFamily.sans],
             },
             fontWeight: {

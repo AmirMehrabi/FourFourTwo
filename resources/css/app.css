@@ -12,14 +12,26 @@
     font-style: normal;
 }
 
-@theme {
-  --font-sans: "Tanha", "sans-serif"; 
-  --font-tanha: "Tanha", "sans-serif"; 
+@font-face {
+  font-family: Gandom;
+  src: url('/css/fonts/Gandom/Gandom.eot');
+  src: url('/css/fonts/Gandom/Gandom.eot?#iefix') format('embedded-opentype'),
+       url('/css/fonts/Gandom/Gandom.woff') format('woff'),
+       url('/css/fonts/Gandom/Gandom.ttf') format('truetype');
+  font-weight: normal;
 }
 
-/* RTL Support */
-html[dir="rtl"] {
-  font-family: "Tanha", sans-serif;
+@theme {
+  --font-sans: "Tanha", "sans-serif"; 
+  --font-serif: "Tanha", "Tanha", "sans-serif"; 
+  --font-tanha: "Tanha", "sans-serif"; 
+  --font-gandom: "Gandom", "sans-serif";
+}
+
+
+
+h1, h2, h3, h4, h5 {
+    font-family: "Gandom", "Tanha", sans-serif;
 }
 
 /* Custom RTL utilities */

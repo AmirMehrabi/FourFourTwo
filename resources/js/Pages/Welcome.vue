@@ -57,14 +57,14 @@ const demoAwayScore = ref(1);
 const heroSlides = [
     {
         title: 'پیش‌بینی مبتنی بر داده',
-        subtitle: 'بر اساس ۱۰,۰۰۰+ پیش‌بینی جامعه',
-        stat: `${props.stats?.accuracy_rate || 78}% دقت`,
+        subtitle: 'بر اساس پیش‌بینی‌های جامعه‌ی کاربری',
+        stat: `${props.stats?.accuracy_rate || 0}% دقت`,
         description: 'کاربران ما عملکرد بهتری از متوسط بازار دارند'
     },
     {
         title: 'جامعه‌ای از تحلیلگران',
-        subtitle: `${props.stats?.total_users || 2000}+ پیش‌بین فعال`,
-        stat: `${props.stats?.weekly_predictions || 450} پیش‌بینی این هفته`,
+        subtitle: `${props.stats?.total_users || 0}+ پیش‌بین فعال`,
+        stat: `${props.stats?.weekly_predictions || 0} پیش‌بینی این هفته`,
         description: 'به جامعه‌ای از علاقه‌مندان تحلیل فوتبال بپیوندید'
     },
     {
@@ -180,7 +180,6 @@ onMounted(() => {
 
 <template>
     <Head title="FourFourTwo - پیش‌بینی مبتنی بر داده">
-        <link href="https://fonts.googleapis.com/css2?family=Tanha:wght@300;400;600;800&display=swap" rel="stylesheet">
     </Head>
     
     <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 font-tanha" dir="rtl">
@@ -194,19 +193,34 @@ onMounted(() => {
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center py-6">
                     <div class="flex items-center">
-                        <h1 class="text-3xl font-800 text-slate-900">FourFourTwo</h1>
-                        <div class="mr-3 flex items-center">
-                            <span class="text-sm text-slate-600 bg-orange-100 text-orange-800 px-3 py-1 rounded-full font-600">پیش‌بینی</span>
-                            <div class="mr-2 w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <h1 class="text-3xl font-800 text-slate-900">چهار چهار دو</h1>
+                        <div class="mr-3 flex items-center space-x-2 space-x-reverse">
+                            <span class="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full font-600 border border-blue-200">BETA</span>
                         </div>
                     </div>
-                    <div v-if="$page.props.auth.user" class="flex items-center space-x-4 space-x-reverse">
-                        <Link 
-                            :href="route('dashboard')"
-                            class="text-slate-900 hover:text-orange-600 transition-colors font-600 px-4 py-2 rounded-lg hover:bg-orange-50"
-                        >
-                            داشبورد
-                        </Link>
+                    <div class="flex items-center space-x-4 space-x-reverse">
+                        <div v-if="$page.props.auth.user">
+                            <Link 
+                                :href="route('dashboard')"
+                                class="text-slate-900 hover:text-orange-600 transition-colors font-600 px-4 py-2 rounded-lg hover:bg-orange-50"
+                            >
+                                داشبورد
+                            </Link>
+                        </div>
+                        <div v-else class="flex items-center space-x-3 space-x-reverse">
+                            <button 
+                                @click="activeTab = 'login'"
+                                class="text-slate-700 hover:text-orange-600 transition-colors font-600 px-4 py-2 rounded-lg hover:bg-orange-50"
+                            >
+                                ورود
+                            </button>
+                            <button 
+                                @click="activeTab = 'register'"
+                                class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-600 px-6 py-2 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                            >
+                                ثبت‌نام
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -705,15 +719,15 @@ onMounted(() => {
                         </p>
                         <div class="flex space-x-4 space-x-reverse">
                             <div class="bg-white rounded-lg p-3 border border-slate-200">
-                                <div class="text-lg font-800 text-orange-600">{{ stats?.accuracy_rate || 78 }}%</div>
+                                <div class="text-lg font-800 text-orange-600">{{ stats?.accuracy_rate || 0 }}%</div>
                                 <div class="text-xs text-slate-500">دقت</div>
                             </div>
                             <div class="bg-white rounded-lg p-3 border border-slate-200">
-                                <div class="text-lg font-800 text-blue-600">{{ stats?.total_users?.toLocaleString() || '2K' }}+</div>
+                                <div class="text-lg font-800 text-blue-600">{{ stats?.total_users?.toLocaleString() || '0' }}+</div>
                                 <div class="text-xs text-slate-500">کاربر</div>
                             </div>
                             <div class="bg-white rounded-lg p-3 border border-slate-200">
-                                <div class="text-lg font-800 text-green-600">{{ stats?.total_predictions?.toLocaleString() || '10K' }}+</div>
+                                <div class="text-lg font-800 text-green-600">{{ stats?.total_predictions?.toLocaleString() || '0' }}+</div>
                                 <div class="text-xs text-slate-500">پیش‌بینی</div>
                             </div>
                         </div>
