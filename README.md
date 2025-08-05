@@ -66,22 +66,6 @@ Visit our platform at [https://fourfourtwo.ir](https://fourfourtwo.ir)
 
 We welcome contributions to improve the platform! Here's how you can help:
 
-### Development Guidelines
-- Follow PSR-12 coding standards for PHP
-- Use Vue 3 Composition API for new components
-- Write meaningful commit messages
-- Add tests for new features
-- Update documentation as needed
-
-### Areas for Contribution
-- Additional sports/leagues support
-- Enhanced statistical analysis
-- Mobile application development
-- Performance optimizations
-- UI/UX improvements
-- Translation to other languages
-
-
 
 ## 📄 License
 
