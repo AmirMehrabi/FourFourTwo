@@ -34,9 +34,13 @@ watch(() => form.predictions, () => {
 }, { deep: true });
 
 function autoSavePredictions() {
-    // Only auto-save if there are actual predictions
-    const hasValues = form.predictions.some(p => p.home_score !== null && p.away_score !== null);
-    if (!hasValues) return;
+    // Only auto-save if there are complete predictions (both home and away scores filled)
+    const completeValidPredictions = form.predictions.filter(p => 
+        p.home_score !== null && p.home_score !== '' && 
+        p.away_score !== null && p.away_score !== ''
+    );
+    
+    if (completeValidPredictions.length === 0) return;
 
     isAutoSaving.value = true;
     form.post(route("predictions.store"), {
@@ -55,6 +59,24 @@ function autoSavePredictions() {
 }
 
 function submitPredictions() {
+    // Validate that all non-empty predictions have both scores
+    const incompleteIndexes = [];
+    form.predictions.forEach((prediction, index) => {
+        const hasHomeScore = prediction.home_score !== null && prediction.home_score !== '';
+        const hasAwayScore = prediction.away_score !== null && prediction.away_score !== '';
+        
+        // If one score is filled but not the other, it's incomplete
+        if ((hasHomeScore && !hasAwayScore) || (!hasHomeScore && hasAwayScore)) {
+            incompleteIndexes.push(index);
+        }
+    });
+    
+    if (incompleteIndexes.length > 0) {
+        // Show error for incomplete predictions
+        alert('لطفاً برای همه پیش‌بینی‌ها هر دو نتیجه (خانه و مهمان) را وارد کنید یا خالی بگذارید.');
+        return;
+    }
+
     form.post(route("predictions.store"), {
         preserveScroll: true,
         onSuccess: () => {
@@ -117,12 +139,25 @@ function formatTime(dateString) {
 
 // Statistics
 const completedPredictions = computed(() => {
-    return form.predictions.filter(p => p.home_score !== null && p.away_score !== null).length;
+    return form.predictions.filter(p => 
+        p.home_score !== null && p.home_score !== '' && 
+        p.away_score !== null && p.away_score !== ''
+    ).length;
 });
 
 const totalFixtures = computed(() => {
     return props.fixtures.filter(f => !f.is_locked).length;
 });
+
+// Helper function to check if a prediction is incomplete
+function isPredictionIncomplete(index) {
+    const prediction = form.predictions[index];
+    const hasHomeScore = prediction.home_score !== null && prediction.home_score !== '';
+    const hasAwayScore = prediction.away_score !== null && prediction.away_score !== '';
+    
+    // Incomplete if one score is filled but not the other
+    return (hasHomeScore && !hasAwayScore) || (!hasHomeScore && hasAwayScore);
+}
 </script>
 
 <template>
@@ -175,6 +210,32 @@ const totalFixtures = computed(() => {
 
         <div class="py-8">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Error Display -->
+                <div v-if="$page.props.errors && Object.keys($page.props.errors).length > 0" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-red-600 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                        <div class="text-red-800">
+                            <div v-for="(error, key) in $page.props.errors" :key="key" class="text-sm">
+                                {{ Array.isArray(error) ? error[0] : error }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Success Message -->
+                <div v-if="$page.props.flash && $page.props.flash.success" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-green-600 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        <div class="text-green-800 text-sm">
+                            {{ $page.props.flash.success }}
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Progress Indicator -->
                 <div class="mb-8 bg-white rounded-lg border border-gray-100 p-4">
                     <div class="flex items-center justify-between text-sm">
@@ -195,7 +256,7 @@ const totalFixtures = computed(() => {
                             </svg>
                             <span v-if="isAutoSaving">در حال ذخیره...</span>
                             <span v-else-if="lastSaved">آخرین ذخیره: {{ lastSaved }}</span>
-                            <span v-else>خودکار ذخیره می‌شود</span>
+                            <span v-else>فقط پیش‌بینی‌های کامل خودکار ذخیره می‌شوند</span>
                         </div>
                     </div>
                 </div>
@@ -277,12 +338,16 @@ const totalFixtures = computed(() => {
                                                         max="20"
                                                         class="score-input"
                                                         :class="{
-                                                            'bg-gray-100 cursor-not-allowed': fixture.is_locked
+                                                            'bg-gray-100 cursor-not-allowed': fixture.is_locked,
+                                                            'border-red-300 bg-red-50': isPredictionIncomplete(fixture.originalIndex)
                                                         }"
                                                         v-model="form.predictions[fixture.originalIndex].home_score"
                                                         :disabled="fixture.is_locked"
                                                         placeholder="0"
                                                     />
+                                                    <div v-if="isPredictionIncomplete(fixture.originalIndex)" class="absolute -bottom-6 left-0 text-xs text-red-600">
+                                                        لطفاً هر دو نتیجه را وارد کنید
+                                                    </div>
                                                 </div>
                                                 <span class="text-xl font-bold text-gray-400">×</span>
                                                 <div class="relative">
@@ -292,7 +357,8 @@ const totalFixtures = computed(() => {
                                                         max="20"
                                                         class="score-input"
                                                         :class="{
-                                                            'bg-gray-100 cursor-not-allowed': fixture.is_locked
+                                                            'bg-gray-100 cursor-not-allowed': fixture.is_locked,
+                                                            'border-red-300 bg-red-50': isPredictionIncomplete(fixture.originalIndex)
                                                         }"
                                                         v-model="form.predictions[fixture.originalIndex].away_score"
                                                         :disabled="fixture.is_locked"
@@ -362,7 +428,8 @@ const totalFixtures = computed(() => {
                                                         max="20"
                                                         class="score-input score-input-mobile"
                                                         :class="{
-                                                            'bg-gray-100 cursor-not-allowed': fixture.is_locked
+                                                            'bg-gray-100 cursor-not-allowed': fixture.is_locked,
+                                                            'border-red-300 bg-red-50': isPredictionIncomplete(fixture.originalIndex)
                                                         }"
                                                         v-model="form.predictions[fixture.originalIndex].home_score"
                                                         :disabled="fixture.is_locked"
@@ -378,13 +445,19 @@ const totalFixtures = computed(() => {
                                                         max="20"
                                                         class="score-input score-input-mobile"
                                                         :class="{
-                                                            'bg-gray-100 cursor-not-allowed': fixture.is_locked
+                                                            'bg-gray-100 cursor-not-allowed': fixture.is_locked,
+                                                            'border-red-300 bg-red-50': isPredictionIncomplete(fixture.originalIndex)
                                                         }"
                                                         v-model="form.predictions[fixture.originalIndex].away_score"
                                                         :disabled="fixture.is_locked"
                                                         placeholder="0"
                                                     />
                                                 </div>
+                                            </div>
+                                            
+                                            <!-- Mobile validation message -->
+                                            <div v-if="isPredictionIncomplete(fixture.originalIndex)" class="text-center text-xs text-red-600 mt-2">
+                                                لطفاً هر دو نتیجه را وارد کنید
                                             </div>
                                         </div>
                                     </div>

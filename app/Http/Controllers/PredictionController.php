@@ -15,34 +15,53 @@ class PredictionController extends Controller
         $validated = $request->validate([
             'predictions' => 'required|array',
             'predictions.*.fixture_id' => 'required|exists:fixtures,id',
-            'predictions.*.home_score' => 'nullable|integer|min:0',
-            'predictions.*.away_score' => 'nullable|integer|min:0',
+            'predictions.*.home_score' => 'nullable|integer|min:0|max:20',
+            'predictions.*.away_score' => 'nullable|integer|min:0|max:20',
         ]);
 
-        foreach ($validated['predictions'] as $predictionData) {
+        $savedCount = 0;
+        $errors = [];
+
+        foreach ($validated['predictions'] as $index => $predictionData) {
             // Ensure fixture is not locked before saving
             $fixture = Fixture::find($predictionData['fixture_id']);
             if (Carbon::parse($fixture->match_datetime)->isBefore(now()->addHour())) {
                 continue; // Skip locked fixtures
             }
 
-            // If both scores are null, skip saving
+            // Skip if both scores are null/empty
             if (is_null($predictionData['home_score']) && is_null($predictionData['away_score'])) {
                 continue;
             }
 
-            Prediction::updateOrCreate(
-                [
-                    'user_id' => Auth::id(),
-                    'fixture_id' => $predictionData['fixture_id'],
-                ],
-                [
-                    'home_score_predicted' => $predictionData['home_score'],
-                    'away_score_predicted' => $predictionData['away_score'],
-                ]
-            );
+            // Validate that both scores are provided for saving
+            if (is_null($predictionData['home_score']) || is_null($predictionData['away_score'])) {
+                $errors[] = "برای ثبت پیش‌بینی، باید هر دو نتیجه تیم خانه و مهمان را وارد کنید.";
+                continue;
+            }
+
+            try {
+                Prediction::updateOrCreate(
+                    [
+                        'user_id' => Auth::id(),
+                        'fixture_id' => $predictionData['fixture_id'],
+                    ],
+                    [
+                        'home_score_predicted' => $predictionData['home_score'],
+                        'away_score_predicted' => $predictionData['away_score'],
+                    ]
+                );
+                $savedCount++;
+            } catch (\Exception $e) {
+                $errors[] = "خطا در ذخیره پیش‌بینی.";
+            }
         }
 
-        return back()->with('success', 'Predictions saved!');
+        if (!empty($errors)) {
+            return back()->withErrors(['validation' => $errors[0]]);
+        }
+
+        $message = $savedCount > 0 ? "پیش‌بینی‌های شما با موفقیت ذخیره شد!" : "هیچ پیش‌بینی جدیدی برای ذخیره وجود نداشت.";
+        return back()->with('success', $message);
     }
 }
