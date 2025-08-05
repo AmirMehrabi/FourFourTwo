@@ -163,16 +163,7 @@ html[dir="rtl"] {
     outline-offset: 2px;
 }
 
-/* Dark mode support (if needed in future) */
-@media (prefers-color-scheme: dark) {
-    .fixture-card {
-        @apply bg-gray-800 border-gray-700;
-    }
-    
-    .score-input {
-        @apply bg-gray-700 border-gray-600 text-white;
-    }
-}
+
 
 /* Animation for lock icon */
 @keyframes lockPulse {
@@ -362,18 +353,5 @@ html[dir="rtl"] {
     .form-input-enhanced,
     .btn-primary-enhanced {
         transition: none;
-    }
-}
-
-/* Dark mode support (if implemented later) */
-@media (prefers-color-scheme: dark) {
-    .form-input-enhanced {
-        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-        color: #f9fafb;
-        border-color: #374151;
-    }
-    
-    .text-enhanced {
-        color: #d1d5db;
     }
 }
