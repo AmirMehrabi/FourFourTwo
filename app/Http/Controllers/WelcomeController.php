@@ -186,7 +186,7 @@ class WelcomeController extends Controller
         
         $totalFixtures = Fixture::whereBetween('match_datetime', [$weekStart, $weekEnd])->count();
         $completedFixtures = Fixture::whereBetween('match_datetime', [$weekStart, $weekEnd])
-            ->whereNotNull('home_score_actual')
+            ->whereNotNull('home_score')
             ->count();
         
         return [
