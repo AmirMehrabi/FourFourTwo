@@ -74,11 +74,6 @@ This project is open-source software licensed under the [MIT License](LICENSE).
 
 ## 🙏 Acknowledgments
 
-- Laravel team for the amazing framework
-- Vue.js team for the reactive frontend framework
-- TailwindCSS for the utility-first CSS framework
-- Football API providers for match data
-- The open-source community for invaluable tools and libraries
 - Saber Rastikerdar for the amazing standard Farsi fonts
 
 ---
