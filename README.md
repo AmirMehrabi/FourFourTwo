@@ -4,7 +4,7 @@
   <img src="https://img.shields.io/badge/Laravel-12.x-red.svg" alt="Laravel Version">
   <img src="https://img.shields.io/badge/Vue.js-3.x-green.svg" alt="Vue.js Version">
   <img src="https://img.shields.io/badge/Inertia.js-2.x-purple.svg" alt="Inertia.js Version">
-  <img src="https://img.shields.io/badge/TailwindCSS-4.x-blue.svg" alt="TailwindCSS Version">
+  <img src="https://img.shields.io/badge/TailwindCSS-3.x-blue.svg" alt="TailwindCSS Version">
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
 </p>
 
