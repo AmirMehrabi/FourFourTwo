@@ -1,10 +1,10 @@
 # چهار چهار دو (FourFourTwo) - Football Prediction Platform
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Laravel-11.x-red.svg" alt="Laravel Version">
+  <img src="https://img.shields.io/badge/Laravel-12.x-red.svg" alt="Laravel Version">
   <img src="https://img.shields.io/badge/Vue.js-3.x-green.svg" alt="Vue.js Version">
   <img src="https://img.shields.io/badge/Inertia.js-2.x-purple.svg" alt="Inertia.js Version">
-  <img src="https://img.shields.io/badge/TailwindCSS-3.x-blue.svg" alt="TailwindCSS Version">
+  <img src="https://img.shields.io/badge/TailwindCSS-4.x-blue.svg" alt="TailwindCSS Version">
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
 </p>
 
@@ -59,11 +59,6 @@ Visit our platform at [https://fourfourtwo.ir](https://fourfourtwo.ir)
 3. **Make Predictions**: Enter your score predictions for matches
 4. **Track Performance**: Monitor your accuracy and ranking
 5. **Compete**: Compare your performance with other users
-
-### For Administrators
-1. **Manage Fixtures**: Add/update match fixtures and results
-2. **Calculate Points**: Run automated point calculation after matches
-3. **Monitor Platform**: View platform statistics and user engagement
 
 
 
