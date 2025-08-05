@@ -9,10 +9,11 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 
 class WelcomeController extends Controller
 {
-    public function index(): Response
+    public function index(): Response|RedirectResponse
     {
         if (auth()->check()) {
             return redirect()->route('dashboard');
