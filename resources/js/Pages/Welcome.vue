@@ -2,6 +2,7 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref, onMounted, computed } from 'vue';
 import { Bar, Doughnut, Line } from 'vue-chartjs';
+import { useTranslations } from '@/composables/useTranslations.js';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -28,6 +29,8 @@ ChartJS.register(
     LineElement,
     Filler
 );
+
+const { translateTeamName, t } = useTranslations();
 
 const props = defineProps({
     canLogin: Boolean,
@@ -454,8 +457,7 @@ onMounted(() => {
                 </div>
 
                 <!-- Data Visualization Section -->
-                <div class="grid lg:grid-cols-3 gap-8">
-                    <!-- Accuracy Breakdown Chart -->
+                <!-- <div class="grid lg:grid-cols-3 gap-8">
                     <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
                         <h4 class="text-lg font-700 text-slate-900 mb-4">توزیع دقت پیش‌بینی‌ها</h4>
                         <div class="h-64">
@@ -463,7 +465,6 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <!-- Confidence vs Accuracy -->
                     <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
                         <h4 class="text-lg font-700 text-slate-900 mb-4">اعتماد در مقابل دقت</h4>
                         <div class="h-64">
@@ -471,7 +472,6 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <!-- Weekly Challenge Progress -->
                     <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
                         <h4 class="text-lg font-700 text-slate-900 mb-4">پیشرفت چالش هفتگی</h4>
                         <div class="h-64">
@@ -482,15 +482,14 @@ onMounted(() => {
                             <div class="text-sm text-slate-600">هفته {{ weeklyChallenge?.week_number || 1 }} تکمیل شده</div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </section>
 
         <!-- Live Mini-Leaderboard & Featured Content -->
-        <section class="py-20 bg-slate-50">
+        <!-- <section class="py-20 bg-slate-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid lg:grid-cols-3 gap-8">
-                    <!-- Top Predictors -->
                     <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
                         <div class="flex items-center justify-between mb-6">
                             <h4 class="text-xl font-700 text-slate-900">🏆 برترین پیش‌بین‌ها</h4>
@@ -521,7 +520,6 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <!-- Prediction of the Day -->
                     <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
                         <h4 class="text-xl font-700 text-slate-900 mb-6">⚽ پیش‌بینی روز</h4>
                         <div v-if="predictionOfTheDay" class="space-y-4">
@@ -561,7 +559,6 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <!-- Weekly Challenge -->
                     <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
                         <h4 class="text-xl font-700 text-slate-900 mb-6">📅 چالش هفتگی</h4>
                         <div class="space-y-4">
@@ -592,96 +589,8 @@ onMounted(() => {
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
 
-        <!-- Interactive Prediction Simulator -->
-        <section class="py-20 bg-white">
-            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h3 class="text-4xl font-800 text-slate-900 mb-4">شبیه‌ساز پیش‌بینی</h3>
-                <p class="text-xl text-slate-600 font-300 mb-12">تجربه کنید که چگونه پیش‌بینی کار می‌کند</p>
-                
-                <div class="bg-slate-50 rounded-2xl p-8 border border-slate-200">
-                    <div class="grid md:grid-cols-3 gap-8 items-center">
-                        <!-- Home Team -->
-                        <div class="text-center">
-                            <div class="w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-800">
-                                MUN
-                            </div>
-                            <div class="font-600 text-slate-900 mb-4">منچستر یونایتد</div>
-                            <input 
-                                v-model="demoHomeScore"
-                                type="number" 
-                                min="0" 
-                                max="10"
-                                class="w-16 h-16 border-2 border-slate-300 rounded-xl text-center text-2xl font-800 text-slate-900 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all"
-                            >
-                        </div>
-                        
-                        <!-- VS & Confidence -->
-                        <div class="text-center space-y-6">
-                            <div class="text-3xl font-800 text-slate-400">VS</div>
-                            
-                            <div class="space-y-3">
-                                <label class="block text-sm font-600 text-slate-700">سطح اعتماد</label>
-                                <div class="relative">
-                                    <input 
-                                        v-model="demoConfidence"
-                                        type="range" 
-                                        min="0" 
-                                        max="100"
-                                        class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer slider"
-                                    >
-                                    <div class="text-center mt-2">
-                                        <span :class="['text-2xl font-800', getConfidenceColor(demoConfidence).replace('bg-', 'text-')]">
-                                            {{ demoConfidence }}%
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="space-y-2">
-                                <div class="text-sm font-600 text-slate-700">امتیاز احتمالی</div>
-                                <div class="text-3xl font-800 text-orange-600">
-                                    {{ Math.round((demoConfidence / 100) * 3) }}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Away Team -->
-                        <div class="text-center">
-                            <div class="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-800">
-                                CHE
-                            </div>
-                            <div class="font-600 text-slate-900 mb-4">چلسی</div>
-                            <input 
-                                v-model="demoAwayScore"
-                                type="number" 
-                                min="0" 
-                                max="10"
-                                class="w-16 h-16 border-2 border-slate-300 rounded-xl text-center text-2xl font-800 text-slate-900 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all"
-                            >
-                        </div>
-                    </div>
-                    
-                    <div class="mt-8 pt-6 border-t border-slate-200">
-                        <div class="grid md:grid-cols-3 gap-4 text-sm">
-                            <div class="bg-green-100 text-green-800 p-3 rounded-lg">
-                                <div class="font-600">نتیجه دقیق</div>
-                                <div>۳ امتیاز</div>
-                            </div>
-                            <div class="bg-yellow-100 text-yellow-800 p-3 rounded-lg">
-                                <div class="font-600">برنده درست</div>
-                                <div>۱ امتیاز</div>
-                            </div>
-                            <div class="bg-red-100 text-red-800 p-3 rounded-lg">
-                                <div class="font-600">اشتباه</div>
-                                <div>۰ امتیاز</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
         <!-- Recent Community Predictions -->
         <section class="py-20 bg-slate-50">
@@ -710,12 +619,35 @@ onMounted(() => {
                                     <div class="text-sm text-slate-500">
                                         {{ formatTimeAgo(prediction.created_at) }}
                                     </div>
-                                    <div class="flex items-center space-x-2 space-x-reverse">
-                                        <span class="font-600 text-slate-900">{{ prediction.home_team }}</span>
-                                        <span class="text-lg font-800 text-orange-600">{{ prediction.home_score }}</span>
-                                        <span class="text-slate-400">-</span>
-                                        <span class="text-lg font-800 text-orange-600">{{ prediction.away_score }}</span>
-                                        <span class="font-600 text-slate-900">{{ prediction.away_team }}</span>
+                                    <div class="flex items-center space-x-3 space-x-reverse">
+                                        <!-- Home Team -->
+                                        <div class="flex items-center space-x-2 space-x-reverse">
+                                            <img 
+                                                :src="`/assets/team-logos/${prediction.home_team}.png`"
+                                                :alt="prediction.home_team"
+                                                class="w-6 h-6 object-contain flex-shrink-0"
+                                                @error="$event.target.style.display = 'none'"
+                                            />
+                                            <span class="font-600 text-slate-900">{{ translateTeamName(prediction.home_team) }}</span>
+                                        </div>
+                                        
+                                        <!-- Score -->
+                                        <div class="flex items-center space-x-1 space-x-reverse mx-3">
+                                            <span class="text-lg font-800 text-orange-600">{{ prediction.home_score }}</span>
+                                            <span class="text-slate-400">-</span>
+                                            <span class="text-lg font-800 text-orange-600">{{ prediction.away_score }}</span>
+                                        </div>
+                                        
+                                        <!-- Away Team -->
+                                        <div class="flex items-center space-x-2 space-x-reverse">
+                                            <span class="font-600 text-slate-900">{{ translateTeamName(prediction.away_team) }}</span>
+                                            <img 
+                                                :src="`/assets/team-logos/${prediction.away_team}.png`"
+                                                :alt="prediction.away_team"
+                                                class="w-6 h-6 object-contain flex-shrink-0"
+                                                @error="$event.target.style.display = 'none'"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="text-sm text-slate-500">
@@ -725,78 +657,24 @@ onMounted(() => {
                         </div>
                     </div>
                     
-                    <div class="p-4 bg-slate-50 text-center">
+                    <div v-if="recentPredictions && recentPredictions.length === 0" class="p-8 text-center">
+                        <div class="text-4xl mb-4">⚽</div>
+                        <div class="text-lg font-600 text-slate-700 mb-2">هنوز پیش‌بینی‌ای ثبت نشده</div>
+                        <div class="text-sm text-slate-500">اولین نفری باشید که پیش‌بینی می‌کند</div>
+                    </div>
+                    
+                    <!-- <div class="p-4 bg-slate-50 text-center">
                         <div class="text-sm text-slate-600">
                             همین الان {{ recentPredictions?.length || 0 }} پیش‌بینی جدید ثبت شده است
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </section>
 
-        <!-- Platform Insights & Trending -->
-        <section class="py-20 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid lg:grid-cols-2 gap-12">
-                    <!-- Platform Insights -->
-                    <div>
-                        <h3 class="text-3xl font-800 text-slate-900 mb-8">💡 بینش‌های پلتفرم</h3>
-                        <div class="space-y-6">
-                            <div v-for="(insight, index) in platformInsights" :key="index" 
-                                 class="bg-slate-50 rounded-xl p-6 border border-slate-200">
-                                <div class="flex items-start space-x-4 space-x-reverse">
-                                    <div class="text-3xl">{{ insight.icon }}</div>
-                                    <div>
-                                        <h4 class="text-lg font-700 text-slate-900 mb-2">{{ insight.title }}</h4>
-                                        <p class="text-slate-600 font-300">{{ insight.description }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Trending Matches -->
-                    <div>
-                        <h3 class="text-3xl font-800 text-slate-900 mb-8">🔥 بازی‌های محبوب</h3>
-                        <div class="space-y-4">
-                            <div v-for="(match, index) in trendingMatches" :key="index" 
-                                 class="bg-gradient-to-r from-orange-50 to-blue-50 rounded-xl p-6 border border-orange-200">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="flex items-center space-x-3 space-x-reverse">
-                                        <div class="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-700">
-                                            {{ match.homeTeam?.name?.substring(0, 2).toUpperCase() }}
-                                        </div>
-                                        <span class="font-600 text-slate-900">{{ match.homeTeam?.name }}</span>
-                                    </div>
-                                    <div class="text-center">
-                                        <div class="text-sm text-slate-500">VS</div>
-                                    </div>
-                                    <div class="flex items-center space-x-3 space-x-reverse">
-                                        <span class="font-600 text-slate-900">{{ match.awayTeam?.name }}</span>
-                                        <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-700">
-                                            {{ match.awayTeam?.name?.substring(0, 2).toUpperCase() }}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="flex items-center justify-between text-sm">
-                                    <div class="text-slate-600">
-                                        {{ new Date(match.match_datetime).toLocaleDateString('fa-IR') }}
-                                    </div>
-                                    <div class="flex items-center space-x-2 space-x-reverse">
-                                        <span class="text-orange-600 font-600">{{ match.predictions_count || 0 }}</span>
-                                        <span class="text-slate-500">پیش‌بینی</span>
-                                        <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
         <!-- Weekly Insight Banner -->
-        <section class="py-16 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white">
+        <!-- <section class="py-16 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <div class="space-y-6">
                     <div class="text-orange-400 font-600 text-lg">بینش این هفته</div>
@@ -810,12 +688,12 @@ onMounted(() => {
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
 
         <!-- Footer -->
         <footer class="border-t border-slate-200 bg-slate-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div class="grid md:grid-cols-4 gap-8">
+                <!-- <div class="grid md:grid-cols-4 gap-8">
                     <div class="md:col-span-2">
                         <div class="flex items-center mb-4">
                             <h3 class="text-2xl font-800 text-slate-900">FourFourTwo</h3>
@@ -860,7 +738,7 @@ onMounted(() => {
                             <li><a href="#" class="hover:text-orange-600 transition-colors">حریم خصوصی</a></li>
                         </ul>
                     </div>
-                </div>
+                </div> -->
                 
                 <div class="border-t border-slate-200 mt-8 pt-8 flex justify-between items-center">
                     <div class="text-sm text-slate-500">
