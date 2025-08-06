@@ -14,7 +14,16 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
-            \App\Http\Middleware\SafariCookieFix::class,
+            // \App\Http\Middleware\SafariCookieFix::class,
+        ]);
+
+        // Configure CSRF exceptions
+        $middleware->validateCsrfTokens(except: [
+            'login',
+            'register',
+            'password/email',
+            'password/reset',
+            'password/confirm',
         ]);
 
         //
