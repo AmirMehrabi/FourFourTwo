@@ -177,6 +177,34 @@ const formatTimeAgo = (date) => {
     return `${diffDays} روز پیش`;
 };
 
+const formatFarsiDate = (date) => {
+    const matchDate = new Date(date);
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    
+    // Check if it's today, tomorrow, or yesterday
+    if (matchDate.toDateString() === today.toDateString()) {
+        return 'امروز ' + matchDate.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+    } else if (matchDate.toDateString() === tomorrow.toDateString()) {
+        return 'فردا ' + matchDate.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+    } else if (matchDate.toDateString() === yesterday.toDateString()) {
+        return 'دیروز ' + matchDate.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+    } else {
+        // For other dates, show full Persian date with time
+        const options = { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+        return matchDate.toLocaleDateString('fa-IR', options);
+    }
+};
+
 const getConfidenceColor = (confidence) => {
     if (confidence >= 80) return 'bg-green-500';
     if (confidence >= 60) return 'bg-yellow-500';
@@ -567,25 +595,31 @@ onMounted(() => {
                     <div class="divide-y divide-slate-100">
                         <div v-for="(prediction, index) in recentPredictions" :key="index" 
                              class="p-4 hover:bg-slate-50 transition-colors">
-                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                <div class="flex items-center justify-between sm:justify-start">
-                                    <div class="text-sm text-slate-500 order-2 sm:order-1 sm:mr-4">
-                                        {{ formatTimeAgo(prediction.created_at) }}
+                            <!-- Desktop Layout -->
+                            <div class="hidden sm:flex sm:items-center sm:justify-between gap-3">
+                                <div class="flex items-center justify-start">
+                                    <div class="text-sm text-slate-500 mr-4">
+                                        <div class="flex items-center space-x-1 space-x-reverse">
+                                            <span>🕒</span>
+                                            <span>{{ formatTimeAgo(prediction.created_at) }}</span>
+                                        </div>
                                     </div>
-                                    <div class="flex items-center space-x-3 space-x-reverse order-1 sm:order-2">
+
+                                </div>
+                                                                    <div class="flex items-center space-x-3 space-x-reverse">
                                         <!-- Home Team -->
                                         <div class="flex items-center space-x-2 space-x-reverse">
                                             <img 
                                                 :src="`/assets/team-logos/${prediction.home_team}.png`"
                                                 :alt="prediction.home_team"
-                                                class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0"
+                                                class="w-6 h-6 object-contain flex-shrink-0"
                                                 @error="$event.target.style.display = 'none'"
                                             />
-                                            <span class="font-600 text-slate-900 text-sm sm:text-base truncate max-w-[80px] sm:max-w-none">{{ translateTeamName(prediction.home_team) }}</span>
+                                            <span class="font-600 text-slate-900 text-base">{{ translateTeamName(prediction.home_team) }}</span>
                                         </div>
                                         
                                         <!-- Score -->
-                                        <div class="flex items-center space-x-1 space-x-reverse mx-2 sm:mx-3">
+                                        <div class="flex items-center justify-center space-x-1 space-x-reverse mx-3">
                                             <span class="text-lg font-800 text-orange-600">{{ prediction.home_score }}</span>
                                             <span class="text-slate-400">-</span>
                                             <span class="text-lg font-800 text-orange-600">{{ prediction.away_score }}</span>
@@ -593,18 +627,67 @@ onMounted(() => {
                                         
                                         <!-- Away Team -->
                                         <div class="flex items-center space-x-2 space-x-reverse">
-                                            <span class="font-600 text-slate-900 text-sm sm:text-base truncate max-w-[80px] sm:max-w-none">{{ translateTeamName(prediction.away_team) }}</span>
+                                            <span class="font-600 text-slate-900 text-base">{{ translateTeamName(prediction.away_team) }}</span>
                                             <img 
                                                 :src="`/assets/team-logos/${prediction.away_team}.png`"
                                                 :alt="prediction.away_team"
-                                                class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0"
+                                                class="w-6 h-6 object-contain flex-shrink-0"
                                                 @error="$event.target.style.display = 'none'"
                                             />
                                         </div>
                                     </div>
+                                <div class="text-sm text-slate-500 text-right">
+                                    <div class="flex items-center space-x-1 space-x-reverse">
+                                        <span>⚽</span>
+                                        <span>{{ formatFarsiDate(prediction.match_datetime) }}</span>
+                                    </div>
                                 </div>
-                                <div class="text-sm text-slate-500 text-center sm:text-right">
-                                    {{ new Date(prediction.match_datetime).toLocaleDateString('fa-IR') }}
+                            </div>
+                            
+                            <!-- Mobile Layout -->
+                            <div class="sm:hidden space-y-3">
+                                <!-- First Row: Teams and Score -->
+                                <div class="flex items-center justify-center space-x-3 space-x-reverse">
+                                    <!-- Home Team -->
+                                    <div class="flex items-center space-x-2 space-x-reverse">
+                                        <img 
+                                            :src="`/assets/team-logos/${prediction.home_team}.png`"
+                                            :alt="prediction.home_team"
+                                            class="w-5 h-5 object-contain flex-shrink-0"
+                                            @error="$event.target.style.display = 'none'"
+                                        />
+                                        <span class="font-600 text-slate-900 text-sm truncate max-w-[70px]">{{ translateTeamName(prediction.home_team) }}</span>
+                                    </div>
+                                    
+                                    <!-- Score -->
+                                    <div class="flex items-center justify-center space-x-1 space-x-reverse mx-2">
+                                        <span class="text-lg font-800 text-orange-600">{{ prediction.home_score }}</span>
+                                        <span class="text-slate-400">-</span>
+                                        <span class="text-lg font-800 text-orange-600">{{ prediction.away_score }}</span>
+                                    </div>
+                                    
+                                    <!-- Away Team -->
+                                    <div class="flex items-center space-x-2 space-x-reverse">
+                                        <span class="font-600 text-slate-900 text-sm truncate max-w-[70px]">{{ translateTeamName(prediction.away_team) }}</span>
+                                        <img 
+                                            :src="`/assets/team-logos/${prediction.away_team}.png`"
+                                            :alt="prediction.away_team"
+                                            class="w-5 h-5 object-contain flex-shrink-0"
+                                            @error="$event.target.style.display = 'none'"
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <!-- Second Row: Match Date and Prediction Time -->
+                                <div class="flex items-center justify-between text-xs text-slate-500">
+                                    <div class="flex items-center space-x-1 space-x-reverse">
+                                        <span>⚽</span>
+                                        <span>{{ formatFarsiDate(prediction.match_datetime) }}</span>
+                                    </div>
+                                    <div class="flex items-center space-x-1 space-x-reverse">
+                                        <span>🕒</span>
+                                        <span>{{ formatTimeAgo(prediction.created_at) }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

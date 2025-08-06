@@ -72,6 +72,20 @@ function formatDateTime(dateString) {
     });
 }
 
+// Format match date and time for mobile view in a more readable Farsi format
+function formatMatchDateTime(dateString) {
+    const date = new Date(dateString);
+    const options = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+    return date.toLocaleDateString('fa-IR', options);
+}
+
 function getTimeUntilLock(fixture) {
     if (fixture.is_locked) return "قفل شده";
     
