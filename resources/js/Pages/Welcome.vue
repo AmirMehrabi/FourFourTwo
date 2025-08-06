@@ -144,10 +144,20 @@ const registerForm = useForm({
 });
 
 const submitLogin = () => {
+    // Add explicit CSRF token for Safari
+    loginForm.transform(data => ({
+        ...data,
+        _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    }));
     loginForm.post('/login');
 };
 
 const submitRegister = () => {
+    // Add explicit CSRF token for Safari
+    registerForm.transform(data => ({
+        ...data,
+        _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    }));
     registerForm.post('/register');
 };
 
