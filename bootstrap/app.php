@@ -17,13 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
             // \App\Http\Middleware\SafariCookieFix::class,
         ]);
 
-        // Configure CSRF exceptions
-        $middleware->validateCsrfTokens(except: [
-            'login',
-            'register',
-            'password/email',
-            'password/reset',
-            'password/confirm',
+        // Completely disable CSRF protection
+        $middleware->web(remove: [
+            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
         ]);
 
         //
