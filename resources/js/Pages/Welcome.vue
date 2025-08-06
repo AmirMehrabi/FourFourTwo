@@ -727,7 +727,7 @@ onMounted(() => {
         </section> -->
 
         <!-- Footer -->
-        <footer class="border-t border-slate-200 bg-slate-50">
+        <footer class=" bg-slate-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <!-- <div class="grid md:grid-cols-4 gap-8">
                     <div class="md:col-span-2">
@@ -777,7 +777,7 @@ onMounted(() => {
                 </div> -->
                 
                 <div class="border-t border-slate-200 mt-8 pt-8 flex justify-between items-center">
-                    <div class="text-sm text-slate-500">
+                    <div class="hidden sm:block text-sm text-slate-500">
                         © ۲۰۲۵ FourFourTwo. تمامی حقوق محفوظ است.
                     </div>
                     <div class="flex items-center space-x-2 space-x-reverse text-sm text-slate-500">
