@@ -49,10 +49,13 @@ const props = defineProps({
 });
 
 const activeTab = ref('login');
+const showAuthModal = ref(false);
 const heroSlide = ref(0);
 const demoConfidence = ref(75);
 const demoHomeScore = ref(2);
 const demoAwayScore = ref(1);
+const touchStartX = ref(0);
+const touchEndX = ref(0);
 
 const heroSlides = [
     {
@@ -180,6 +183,34 @@ const getConfidenceColor = (confidence) => {
     return 'bg-red-500';
 };
 
+const handleTouchStart = (e) => {
+    touchStartX.value = e.touches[0].clientX;
+};
+
+const handleTouchEnd = (e) => {
+    touchEndX.value = e.changedTouches[0].clientX;
+    const diff = touchStartX.value - touchEndX.value;
+    
+    if (Math.abs(diff) > 50) { // Minimum swipe distance
+        if (diff > 0) {
+            // Swipe left - next slide
+            heroSlide.value = (heroSlide.value + 1) % heroSlides.length;
+        } else {
+            // Swipe right - previous slide
+            heroSlide.value = heroSlide.value === 0 ? heroSlides.length - 1 : heroSlide.value - 1;
+        }
+    }
+};
+
+const openAuthModal = (tab = 'login') => {
+    activeTab.value = tab;
+    showAuthModal.value = true;
+};
+
+const closeAuthModal = () => {
+    showAuthModal.value = false;
+};
+
 onMounted(() => {
     // Auto-rotate hero slides
     setInterval(() => {
@@ -219,13 +250,13 @@ onMounted(() => {
                         </div>
                         <div v-else class="flex items-center space-x-3 space-x-reverse">
                             <button 
-                                @click="activeTab = 'login'"
+                                @click="openAuthModal('login')"
                                 class="text-slate-700 hover:text-orange-600 transition-colors font-600 px-4 py-2 rounded-lg hover:bg-orange-50"
                             >
                                 ورود
                             </button>
                             <button 
-                                @click="activeTab = 'register'"
+                                @click="openAuthModal('register')"
                                 class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-600 px-6 py-2 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                             >
                                 ثبت‌نام
@@ -237,40 +268,58 @@ onMounted(() => {
         </header>
 
         <!-- Hero Section with Dynamic Content -->
-        <section class="relative overflow-hidden bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white">
+        <section class="relative overflow-hidden bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white h-screen min-h-[600px] max-h-[800px]">
             <div class="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-blue-500/10"></div>
-            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 h-full"
+                 @touchstart="handleTouchStart" 
+                 @touchend="handleTouchEnd">
+                <div class="grid lg:grid-cols-2 gap-12 items-center h-full">
                     <!-- Hero Content -->
                     <div class="space-y-8">
                         <div class="space-y-4">
                             <div class="text-orange-400 font-600 text-lg tracking-wide">
                                 {{ heroSlides[heroSlide].subtitle }}
                             </div>
-                            <h2 class="text-5xl lg:text-6xl font-800 leading-tight">
+                            <h2 class="text-4xl sm:text-5xl lg:text-6xl font-800 leading-tight">
                                 {{ heroSlides[heroSlide].title }}
                             </h2>
-                            <p class="text-xl text-slate-300 font-300 leading-relaxed">
+                            <p class="text-lg sm:text-xl text-slate-300 font-300 leading-relaxed">
                                 {{ heroSlides[heroSlide].description }}
                             </p>
                         </div>
                         
                         <!-- Live Stats Banner -->
                         <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                            <div class="grid grid-cols-2 gap-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div>
-                                    <div class="text-3xl font-800 text-orange-400">{{ heroSlides[heroSlide].stat }}</div>
+                                    <div class="text-2xl sm:text-3xl font-800 text-orange-400">{{ heroSlides[heroSlide].stat }}</div>
                                     <div class="text-sm text-slate-300 mt-1">عملکرد جامعه</div>
                                 </div>
                                 <div>
-                                    <div class="text-3xl font-800 text-blue-400">{{ liveStats?.active_users_today || 0 }}</div>
+                                    <div class="text-2xl sm:text-3xl font-800 text-blue-400">{{ liveStats?.active_users_today || 0 }}</div>
                                     <div class="text-sm text-slate-300 mt-1">کاربر فعال امروز</div>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Action Buttons -->
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button 
+                                @click="openAuthModal('register')"
+                                class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-700 px-8 py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-lg"
+                            >
+                                همین حالا شروع کنید
+                            </button>
+                            <button 
+                                @click="openAuthModal('login')"
+                                class="border-2 border-white/30 hover:border-white/50 text-white font-600 px-8 py-4 rounded-xl transition-all duration-200 hover:bg-white/10"
+                            >
+                                ورود به حساب کاربری
+                            </button>
+                        </div>
+
                         <!-- Slide Indicators -->
-                        <div class="flex space-x-2 space-x-reverse">
+                        <div class="flex space-x-2 space-x-reverse justify-center lg:justify-start">
                             <button 
                                 v-for="(slide, index) in heroSlides" 
                                 :key="index"
@@ -281,138 +330,18 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <!-- Auth Form -->
-                    <div class="bg-white rounded-2xl shadow-2xl p-8">
-                        <!-- Tab Navigation -->
-                        <div class="flex mb-8 bg-slate-100 rounded-lg p-1">
+                    <!-- CTA Section for smaller screens instead of form -->
+                    <div class="lg:hidden text-center">
+                        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+                            <h3 class="text-2xl font-800 mb-4">به جامعه ما بپیوندید</h3>
+                            <p class="text-slate-300 mb-6">پیش‌بینی کنید، امتیاز کسب کنید و با دیگران رقابت کنید</p>
                             <button 
-                                @click="activeTab = 'login'"
-                                :class="[
-                                    'flex-1 py-3 px-4 text-base font-600 transition-all duration-200 rounded-md',
-                                    activeTab === 'login' 
-                                        ? 'text-white bg-slate-900 shadow-sm' 
-                                        : 'text-slate-600 hover:text-slate-900'
-                                ]"
+                                @click="openAuthModal('register')"
+                                class="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-700 px-8 py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-lg"
                             >
-                                ورود
-                            </button>
-                            <button 
-                                @click="activeTab = 'register'"
-                                :class="[
-                                    'flex-1 py-3 px-4 text-base font-600 transition-all duration-200 rounded-md',
-                                    activeTab === 'register' 
-                                        ? 'text-white bg-slate-900 shadow-sm' 
-                                        : 'text-slate-600 hover:text-slate-900'
-                                ]"
-                            >
-                                ثبت‌نام
+                                شروع رایگان
                             </button>
                         </div>
-                        
-                        <!-- Login Form -->
-                        <form v-if="activeTab === 'login'" @submit.prevent="submitLogin" class="space-y-6">
-                            <div>
-                                <label class="block text-sm font-600 text-slate-900 mb-2">ایمیل</label>
-                                <input 
-                                    v-model="loginForm.email"
-                                    type="email" 
-                                    required
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white text-slate-900"
-                                    placeholder="example@email.com"
-                                >
-                                <div v-if="loginForm.errors.email" class="text-red-600 text-sm mt-1">{{ loginForm.errors.email }}</div>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-600 text-slate-900 mb-2">رمز عبور</label>
-                                <input 
-                                    v-model="loginForm.password"
-                                    type="password" 
-                                    required
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white text-slate-900"
-                                    placeholder="••••••••"
-                                >
-                                <div v-if="loginForm.errors.password" class="text-red-600 text-sm mt-1">{{ loginForm.errors.password }}</div>
-                            </div>
-                            
-                            <div class="flex items-center">
-                                <input 
-                                    v-model="loginForm.remember"
-                                    type="checkbox" 
-                                    id="remember"
-                                    class="w-4 h-4 text-orange-600 border-slate-300 rounded focus:ring-orange-500"
-                                >
-                                <label for="remember" class="mr-2 text-sm text-slate-700">مرا به خاطر بسپار</label>
-                            </div>
-                            
-                            <button 
-                                type="submit"
-                                :disabled="loginForm.processing"
-                                class="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-600 py-3 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl"
-                            >
-                                <span v-if="loginForm.processing">در حال ورود...</span>
-                                <span v-else>ورود</span>
-                            </button>
-                        </form>
-                        
-                        <!-- Register Form -->
-                        <form v-if="activeTab === 'register'" @submit.prevent="submitRegister" class="space-y-6">
-                            <div>
-                                <label class="block text-sm font-600 text-slate-900 mb-2">نام</label>
-                                <input 
-                                    v-model="registerForm.name"
-                                    type="text" 
-                                    required
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white text-slate-900"
-                                    placeholder="نام شما"
-                                >
-                                <div v-if="registerForm.errors.name" class="text-red-600 text-sm mt-1">{{ registerForm.errors.name }}</div>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-600 text-slate-900 mb-2">ایمیل</label>
-                                <input 
-                                    v-model="registerForm.email"
-                                    type="email" 
-                                    required
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white text-slate-900"
-                                    placeholder="example@email.com"
-                                >
-                                <div v-if="registerForm.errors.email" class="text-red-600 text-sm mt-1">{{ registerForm.errors.email }}</div>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-600 text-slate-900 mb-2">رمز عبور</label>
-                                <input 
-                                    v-model="registerForm.password"
-                                    type="password" 
-                                    required
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white text-slate-900"
-                                    placeholder="••••••••"
-                                >
-                                <div v-if="registerForm.errors.password" class="text-red-600 text-sm mt-1">{{ registerForm.errors.password }}</div>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-600 text-slate-900 mb-2">تکرار رمز عبور</label>
-                                <input 
-                                    v-model="registerForm.password_confirmation"
-                                    type="password" 
-                                    required
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white text-slate-900"
-                                    placeholder="••••••••"
-                                >
-                            </div>
-                            
-                            <button 
-                                type="submit"
-                                :disabled="registerForm.processing"
-                                class="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-600 py-3 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl"
-                            >
-                                <span v-if="registerForm.processing">در حال ثبت‌نام...</span>
-                                <span v-else>ثبت‌نام</span>
-                            </button>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -638,25 +567,25 @@ onMounted(() => {
                     <div class="divide-y divide-slate-100">
                         <div v-for="(prediction, index) in recentPredictions" :key="index" 
                              class="p-4 hover:bg-slate-50 transition-colors">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-4 space-x-reverse">
-                                    <div class="text-sm text-slate-500">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                <div class="flex items-center justify-between sm:justify-start">
+                                    <div class="text-sm text-slate-500 order-2 sm:order-1 sm:mr-4">
                                         {{ formatTimeAgo(prediction.created_at) }}
                                     </div>
-                                    <div class="flex items-center space-x-3 space-x-reverse">
+                                    <div class="flex items-center space-x-3 space-x-reverse order-1 sm:order-2">
                                         <!-- Home Team -->
                                         <div class="flex items-center space-x-2 space-x-reverse">
                                             <img 
                                                 :src="`/assets/team-logos/${prediction.home_team}.png`"
                                                 :alt="prediction.home_team"
-                                                class="w-6 h-6 object-contain flex-shrink-0"
+                                                class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0"
                                                 @error="$event.target.style.display = 'none'"
                                             />
-                                            <span class="font-600 text-slate-900">{{ translateTeamName(prediction.home_team) }}</span>
+                                            <span class="font-600 text-slate-900 text-sm sm:text-base truncate max-w-[80px] sm:max-w-none">{{ translateTeamName(prediction.home_team) }}</span>
                                         </div>
                                         
                                         <!-- Score -->
-                                        <div class="flex items-center space-x-1 space-x-reverse mx-3">
+                                        <div class="flex items-center space-x-1 space-x-reverse mx-2 sm:mx-3">
                                             <span class="text-lg font-800 text-orange-600">{{ prediction.home_score }}</span>
                                             <span class="text-slate-400">-</span>
                                             <span class="text-lg font-800 text-orange-600">{{ prediction.away_score }}</span>
@@ -664,17 +593,17 @@ onMounted(() => {
                                         
                                         <!-- Away Team -->
                                         <div class="flex items-center space-x-2 space-x-reverse">
-                                            <span class="font-600 text-slate-900">{{ translateTeamName(prediction.away_team) }}</span>
+                                            <span class="font-600 text-slate-900 text-sm sm:text-base truncate max-w-[80px] sm:max-w-none">{{ translateTeamName(prediction.away_team) }}</span>
                                             <img 
                                                 :src="`/assets/team-logos/${prediction.away_team}.png`"
                                                 :alt="prediction.away_team"
-                                                class="w-6 h-6 object-contain flex-shrink-0"
+                                                class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0"
                                                 @error="$event.target.style.display = 'none'"
                                             />
                                         </div>
                                     </div>
                                 </div>
-                                <div class="text-sm text-slate-500">
+                                <div class="text-sm text-slate-500 text-center sm:text-right">
                                     {{ new Date(prediction.match_datetime).toLocaleDateString('fa-IR') }}
                                 </div>
                             </div>
@@ -776,6 +705,154 @@ onMounted(() => {
                 </div>
             </div>
         </footer>
+
+        <!-- Auth Modal -->
+        <div v-if="showAuthModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+             @click.self="closeAuthModal">
+            <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-2xl font-800 text-slate-900">
+                        {{ activeTab === 'login' ? 'ورود به حساب کاربری' : 'ایجاد حساب کاربری جدید' }}
+                    </h2>
+                    <button @click="closeAuthModal" 
+                            class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors">
+                        <span class="text-slate-400 text-xl">×</span>
+                    </button>
+                </div>
+
+                <!-- Tab Navigation -->
+                <div class="flex mb-8 bg-slate-100 rounded-lg p-1">
+                    <button 
+                        @click="activeTab = 'login'"
+                        :class="[
+                            'flex-1 py-3 px-4 text-base font-600 transition-all duration-200 rounded-md',
+                            activeTab === 'login' 
+                                ? 'text-white bg-slate-900 shadow-sm' 
+                                : 'text-slate-600 hover:text-slate-900'
+                        ]"
+                    >
+                        ورود
+                    </button>
+                    <button 
+                        @click="activeTab = 'register'"
+                        :class="[
+                            'flex-1 py-3 px-4 text-base font-600 transition-all duration-200 rounded-md',
+                            activeTab === 'register' 
+                                ? 'text-white bg-slate-900 shadow-sm' 
+                                : 'text-slate-600 hover:text-slate-900'
+                        ]"
+                    >
+                        ثبت‌نام
+                    </button>
+                </div>
+                
+                <!-- Login Form -->
+                <form v-if="activeTab === 'login'" @submit.prevent="submitLogin" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-600 text-slate-900 mb-2">ایمیل</label>
+                        <input 
+                            v-model="loginForm.email"
+                            type="email" 
+                            required
+                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white text-slate-900"
+                            placeholder="example@email.com"
+                        >
+                        <div v-if="loginForm.errors.email" class="text-red-600 text-sm mt-1">{{ loginForm.errors.email }}</div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-600 text-slate-900 mb-2">رمز عبور</label>
+                        <input 
+                            v-model="loginForm.password"
+                            type="password" 
+                            required
+                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white text-slate-900"
+                            placeholder="••••••••"
+                        >
+                        <div v-if="loginForm.errors.password" class="text-red-600 text-sm mt-1">{{ loginForm.errors.password }}</div>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <input 
+                            v-model="loginForm.remember"
+                            type="checkbox" 
+                            id="remember-modal"
+                            class="w-4 h-4 text-orange-600 border-slate-300 rounded focus:ring-orange-500"
+                        >
+                        <label for="remember-modal" class="mr-2 text-sm text-slate-700">مرا به خاطر بسپار</label>
+                    </div>
+                    
+                    <button 
+                        type="submit"
+                        :disabled="loginForm.processing"
+                        class="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-600 py-3 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl"
+                    >
+                        <span v-if="loginForm.processing">در حال ورود...</span>
+                        <span v-else>ورود</span>
+                    </button>
+                </form>
+                
+                <!-- Register Form -->
+                <form v-if="activeTab === 'register'" @submit.prevent="submitRegister" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-600 text-slate-900 mb-2">نام</label>
+                        <input 
+                            v-model="registerForm.name"
+                            type="text" 
+                            required
+                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white text-slate-900"
+                            placeholder="نام شما"
+                        >
+                        <div v-if="registerForm.errors.name" class="text-red-600 text-sm mt-1">{{ registerForm.errors.name }}</div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-600 text-slate-900 mb-2">ایمیل</label>
+                        <input 
+                            v-model="registerForm.email"
+                            type="email" 
+                            required
+                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white text-slate-900"
+                            placeholder="example@email.com"
+                        >
+                        <div v-if="registerForm.errors.email" class="text-red-600 text-sm mt-1">{{ registerForm.errors.email }}</div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-600 text-slate-900 mb-2">رمز عبور</label>
+                        <input 
+                            v-model="registerForm.password"
+                            type="password" 
+                            required
+                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white text-slate-900"
+                            placeholder="••••••••"
+                        >
+                        <div v-if="registerForm.errors.password" class="text-red-600 text-sm mt-1">{{ registerForm.errors.password }}</div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-600 text-slate-900 mb-2">تکرار رمز عبور</label>
+                        <input 
+                            v-model="registerForm.password_confirmation"
+                            type="password" 
+                            required
+                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white text-slate-900"
+                            placeholder="••••••••"
+                        >
+                    </div>
+                    
+                    <button 
+                        type="submit"
+                        :disabled="registerForm.processing"
+                        class="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-600 py-3 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl"
+                    >
+                        <span v-if="registerForm.processing">در حال ثبت‌نام...</span>
+                        <span v-else>ثبت‌نام</span>
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 </template>
 
