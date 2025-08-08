@@ -2,6 +2,15 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+/* Brand tokens */
+:root {
+  --brand-1: #411085;
+  --brand-2: #7b0681;
+  --brand-3: #071a8a;
+}
+
+/* Typography remains */
+
 @font-face {
     font-family: Tanha;
     src: url('/css/fonts/Tanha/Tanha.eot');
@@ -100,8 +109,8 @@ h1, h2, h3, h4, h5 {
 
 /* Progress bar styling */
 .progress-bar {
-    background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
-    box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
+    background: linear-gradient(90deg, var(--brand-1) 0%, var(--brand-2) 50%, var(--brand-3) 100%);
+    box-shadow: 0 1px 3px rgba(9, 14, 80, 0.25);
 }
 
 /* Auto-save indicator */
@@ -111,19 +120,28 @@ h1, h2, h3, h4, h5 {
 
 /* Button enhancements */
 .btn-primary {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    @apply transition-all duration-200;
+    background: linear-gradient(135deg, var(--brand-1) 0%, var(--brand-2) 50%, var(--brand-3) 100%);
+    box-shadow: 0 4px 12px rgba(9, 14, 80, 0.25);
+    transition: transform .2s ease, box-shadow .2s ease;
 }
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 8px 20px rgba(9, 14, 80, 0.35);
 }
 
 .btn-primary:active {
     transform: translateY(0);
 }
+
+/* Ghost button */
+.btn-ghost {
+    border: 2px solid rgba(9, 14, 80, 0.25);
+    color: var(--brand-2);
+    background: transparent;
+    border-radius: 0.5rem;
+}
+.btn-ghost:hover { background: rgba(9, 14, 80, 0.05); border-color: rgba(9, 14, 80, 0.4); }
 
 /* Navigation button styling */
 .nav-btn {
@@ -367,3 +385,14 @@ h1, h2, h3, h4, h5 {
         transition: none;
     }
 }
+
+/* Toast */
+.toast { position: fixed; bottom: 16px; right: 16px; background: #1f2937; color: #fff; padding: 10px 14px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); z-index: 60; }
+.toast-success { background: #065f46; }
+.toast-info { background: #1f2937; }
+
+/* Badges */
+.badge-brand { color: var(--brand-2); background: color-mix(in_oklab, white 90%, var(--brand-2)); border: 1px solid color-mix(in_oklab, white 70%, var(--brand-2)); border-radius: 9999px; padding: 2px 8px; font-size: 12px; }
+
+/* Header gradient top border (subtle) */
+.header-brand-line { box-shadow: inset 0 2px 0 0 color-mix(in_oklab, white 40%, var(--brand-2)); }

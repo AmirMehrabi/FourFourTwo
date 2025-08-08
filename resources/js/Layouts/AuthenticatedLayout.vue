@@ -14,7 +14,7 @@ const showingNavigationDropdown = ref(false);
     <div>
         <div class="min-h-screen bg-gray-100">
             <nav
-                class="border-b border-gray-100 bg-white"
+                class="sticky top-0 z-40 border-b border-gray-100 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60"
             >
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -24,14 +24,14 @@ const showingNavigationDropdown = ref(false);
                             <div class="flex shrink-0 items-center">
                                 <Link :href="route('dashboard')">
                                     <ApplicationLogo
-                                        class="block h-9 w-auto fill-current text-gray-800"
+                                        class="block h-9 w-auto fill-current text-[--brand-1]"
                                     />
                                 </Link>
                             </div>
 
                             <!-- Navigation Links -->
                             <div
-                                class="hidden gap-4 sm:-my-px sm:ms-10 sm:flex"
+                                class="hidden gap-6 sm:-my-px sm:ms-10 sm:flex"
                             >
                                 <NavLink
                                     :href="route('dashboard')"
@@ -120,7 +120,9 @@ const showingNavigationDropdown = ref(false);
                                     showingNavigationDropdown =
                                         !showingNavigationDropdown
                                 "
-                                class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none"
+                                class="inline-flex items-center justify-center rounded-md p-2 text-slate-500 transition duration-150 ease-in-out hover:bg-slate-100 hover:text-slate-700 focus:bg-slate-100 focus:text-slate-700 focus:outline-none"
+                                aria-label="نمایش منو"
+                                :aria-expanded="showingNavigationDropdown ? 'true' : 'false'"
                             >
                                 <svg
                                     class="h-6 w-6"
@@ -230,7 +232,7 @@ const showingNavigationDropdown = ref(false);
 
             <!-- Page Heading -->
             <header
-                class="bg-white shadow"
+                class="bg-white/80 backdrop-blur shadow"
                 v-if="$slots.header"
             >
                 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
