@@ -14,6 +14,17 @@ const props = defineProps({
 // Auto-save functionality
 const isAutoSaving = ref(false);
 const lastSaved = ref(null);
+// Toast state (consistent with Dashboard)
+const showToast = ref(false);
+const toastMsg = ref('');
+const toastType = ref('info'); // 'info' | 'success' | 'error'
+
+function pushToast(message, type = 'info') {
+    toastMsg.value = message;
+    toastType.value = type;
+    showToast.value = true;
+    setTimeout(() => (showToast.value = false), 2500);
+}
 
 // useForm will wrap our prediction data, making submission easy
 const form = useForm({
@@ -54,6 +65,7 @@ function autoSavePredictions() {
         },
         onError: () => {
             isAutoSaving.value = false;
+            pushToast('خطا در ذخیره‌سازی خودکار', 'error');
         },
     });
 }
@@ -73,7 +85,7 @@ function submitPredictions() {
     
     if (incompleteIndexes.length > 0) {
         // Show error for incomplete predictions
-        alert('لطفاً برای همه پیش‌بینی‌ها هر دو نتیجه (خانه و مهمان) را وارد کنید یا خالی بگذارید.');
+        pushToast('لطفاً برای همه پیش‌بینی‌ها هر دو نتیجه (خانه و مهمان) را وارد کنید یا خالی بگذارید.', 'error');
         return;
     }
 
@@ -84,8 +96,11 @@ function submitPredictions() {
                 hour: '2-digit',
                 minute: '2-digit'
             });
-            // Show success message or toast notification
+            pushToast('پیش‌بینی‌ها ذخیره شد', 'success');
         },
+        onError: () => {
+            pushToast('خطا در ذخیره‌سازی دستی', 'error');
+        }
     });
 }
 
@@ -158,10 +173,16 @@ function isPredictionIncomplete(index) {
     // Incomplete if one score is filled but not the other
     return (hasHomeScore && !hasAwayScore) || (!hasHomeScore && hasAwayScore);
 }
+
+// Disable submit when any prediction is incomplete
+const hasIncompletePredictions = computed(() => {
+    return form.predictions.some((_, idx) => isPredictionIncomplete(idx));
+});
 </script>
 
 <template>
-    <Head :title="'Matchweek ' + matchweek" />
+    <!-- Localize head title -->
+    <Head :title="'پیش‌بینی‌های هفته ' + matchweek" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -470,7 +491,7 @@ function isPredictionIncomplete(index) {
                     <div class="mt-8 flex justify-center">
                         <button
                             type="submit"
-                            :disabled="form.processing"
+                            :disabled="form.processing || hasIncompletePredictions"
                             class="btn-primary inline-flex items-center px-6 py-3 text-base font-medium text-white bg-blue-600 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                         >
                             <svg v-if="form.processing" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -480,11 +501,54 @@ function isPredictionIncomplete(index) {
                             <svg v-else class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
-                            {{ form.processing ? 'در حال ذخیره...' : t('save_changes') }}
+                            {{ form.processing ? 'در حال ذخیره...' : (hasIncompletePredictions ? 'تکمیل نمرات ناقص' : t('save_changes')) }}
                         </button>
                     </div>
                 </form>
+
+                <!-- Toast -->
+                <div
+                    v-if="showToast"
+                    :class="['toast', toastType === 'success' ? 'toast-success' : toastType === 'error' ? 'toast-error' : 'toast-info']"
+                >
+                    {{ toastMsg }}
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>
 </template>
+
+<style>
+/* Toast styles (shared with Dashboard) */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    min-width: 200px;
+    max-width: 300px;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    line-height: 1.5;
+    transition: opacity 0.3s ease;
+}
+
+.toast-success {
+    background-color: #f0fff4;
+    color: #38a169;
+    border: 1px solid #c6f6d5;
+}
+
+.toast-info {
+    background-color: #e6f7ff;
+    color: #3182ce;
+    border: 1px solid #b2ebf2;
+}
+.toast-error {
+    background-color: #fff5f5;
+    color: #e53e3e;
+    border: 1px solid #fed7d7;
+}
+</style>

@@ -95,13 +95,10 @@ function getOutcomeColor(outcome) {
 
 function getTimeUntilLock(timeUntilLock) {
     if (timeUntilLock <= 0) return t('locked');
-    
-    // Helper function to convert numbers to Persian
     const toPersianNumbers = (num) => {
         const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-        return num.toString().replace(/\d/g, (digit) => persianDigits[digit]);
+        return num.toString().replace(/\d/g, (d) => persianDigits[d]);
     };
-    
     if (timeUntilLock > 24) {
         const days = Math.floor(timeUntilLock / 24);
         const hours = Math.floor(timeUntilLock % 24);
@@ -216,13 +213,13 @@ const currentGameweekData = computed(() => {
                                     v-for="gameweek in gameweeks"
                                     :key="gameweek.matchweek"
                                     @click="selectGameweek(gameweek.matchweek)"
-                                    class="flex-shrink-0 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 border"
+                                    class="nav-btn flex-shrink-0 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 border"
                                     :class="gameweek.matchweek === selectedGameweek 
                                         ? 'bg-blue-600 text-white border-blue-600 shadow-sm' 
                                         : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'"
                                 >
                                     <div class="flex flex-col items-center">
-                                        <span class="font-semibold">GW{{ gameweek.matchweek }}</span>
+                                        <span class="font-semibold">هفته {{ gameweek.matchweek }}</span>
                                         <div class="flex items-center gap-1 mt-1">
                                             <div class="w-2 h-2 rounded-full"
                                                  :class="gameweek.predictions_made > 0 ? 'bg-green-400' : 'bg-gray-300'">
@@ -269,7 +266,7 @@ const currentGameweekData = computed(() => {
                                             />
                                             <span class="team-name text-gray-900">{{ translateTeamName(prediction.fixture.home_team.name) }}</span>
                                         </div>
-                                        <span class="text-gray-400 font-medium">vs</span>
+                                        <span class="text-gray-400 font-medium">{{ t('vs') }}</span>
                                         <div class="flex items-center gap-3">
                                             <span class="team-name text-gray-900">{{ translateTeamName(prediction.fixture.away_team.name) }}</span>
                                             <img 
@@ -284,11 +281,11 @@ const currentGameweekData = computed(() => {
                                     <!-- Prediction -->
                                     <div class="text-center">
                                         <div v-if="prediction.prediction" class="flex items-center justify-center gap-2">
-                                            <span class="prediction-score w-10 h-10 flex items-center justify-center text-lg font-bold text-blue-600 bg-blue-50 rounded-lg">
+                                            <span class="w-10 h-10 flex items-center justify-center text-lg font-bold text-blue-600 bg-blue-50 rounded-lg">
                                                 {{ prediction.prediction.home_score_predicted }}
                                             </span>
                                             <span class="text-lg font-bold text-gray-400">×</span>
-                                            <span class="prediction-score w-10 h-10 flex items-center justify-center text-lg font-bold text-blue-600 bg-blue-50 rounded-lg">
+                                            <span class="w-10 h-10 flex items-center justify-center text-lg font-bold text-blue-600 bg-blue-50 rounded-lg">
                                                 {{ prediction.prediction.away_score_predicted }}
                                             </span>
                                         </div>
@@ -347,7 +344,7 @@ const currentGameweekData = computed(() => {
                                             />
                                             <span class="team-name text-gray-900 text-sm">{{ translateTeamName(prediction.fixture.home_team.name) }}</span>
                                         </div>
-                                        <span class="text-gray-400 font-medium mx-3">vs</span>
+                                        <span class="text-gray-400 font-medium mx-3">{{ t('vs') }}</span>
                                         <div class="flex items-center gap-3 flex-1 justify-end">
                                             <span class="team-name text-gray-900 text-sm">{{ translateTeamName(prediction.fixture.away_team.name) }}</span>
                                             <img 
