@@ -64,14 +64,34 @@ class WelcomeController extends Controller
         // Get weekly challenge progress
         $weeklyStats = $this->getWeeklyStats();
 
-        // Get trending matches (matches with most predictions)
-        $trendingMatches = Fixture::with(['homeTeam', 'awayTeam'])
+        // Get trending matches (matches with most predictions) and map for UI
+        $rawTrending = Fixture::with(['homeTeam', 'awayTeam', 'season', 'predictions'])
             ->withCount('predictions')
             ->where('match_datetime', '>', now())
             ->where('match_datetime', '<', now()->addWeek())
             ->orderBy('predictions_count', 'desc')
             ->take(3)
             ->get();
+
+        $trendingMatches = $rawTrending->map(function (Fixture $fixture) {
+            $home = 0; $draw = 0; $away = 0;
+            foreach ($fixture->predictions as $p) {
+                if ($p->home_score_predicted > $p->away_score_predicted) $home++;
+                elseif ($p->home_score_predicted < $p->away_score_predicted) $away++;
+                else $draw++;
+            }
+            $total = max(1, ($home + $draw + $away));
+            return [
+                'home_team' => optional($fixture->homeTeam)->name,
+                'away_team' => optional($fixture->awayTeam)->name,
+                'match_datetime' => $fixture->match_datetime,
+                'league' => optional($fixture->season)->name,
+                'prob_home' => round(($home / $total) * 100),
+                'prob_draw' => round(($draw / $total) * 100),
+                'prob_away' => round(($away / $total) * 100),
+                'predictions_count' => $fixture->predictions_count ?? $fixture->predictions->count(),
+            ];
+        });
 
         return Inertia::render('Welcome', [
             'canLogin' => true,
@@ -83,7 +103,9 @@ class WelcomeController extends Controller
                 'accuracy_rate' => $accuracyStats['accuracy_rate'],
                 'exact_matches' => $accuracyStats['exact_matches'],
                 'weekly_predictions' => $weeklyStats['weekly_predictions'],
-                'active_users_this_week' => $weeklyStats['active_users']
+                'active_users_this_week' => $weeklyStats['active_users'],
+                // Added 30-day sample size for methodology section
+                'sample_size_30d' => Prediction::where('created_at', '>=', now()->subDays(30))->count(),
             ],
             'topPredictors' => $topPredictors,
             'predictionOfTheDay' => $predictionOfTheDay,

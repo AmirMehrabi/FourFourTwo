@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onUnmounted } from 'vue';
 import { Bar, Doughnut, Line } from 'vue-chartjs';
 import { useTranslations } from '@/composables/useTranslations.js';
 import {
@@ -56,6 +56,7 @@ const demoHomeScore = ref(2);
 const demoAwayScore = ref(1);
 const touchStartX = ref(0);
 const touchEndX = ref(0);
+const heroIntervalId = ref(null);
 
 const heroSlides = [
     {
@@ -86,7 +87,7 @@ const accuracyChartData = computed(() => ({
             props.accuracyBreakdown?.close || 0,
             props.accuracyBreakdown?.wrong || 0
         ],
-        backgroundColor: ['#FF6B35', '#4ECDC4', '#95A5A6'],
+        backgroundColor: ['#6e4bb3', '#9a3aa0', '#3b4db3'],
         borderWidth: 0
     }]
 }));
@@ -115,7 +116,7 @@ const confidenceChartData = computed(() => ({
             props.confidenceMetrics?.medium_confidence_accuracy || 0,
             props.confidenceMetrics?.low_confidence_accuracy || 0
         ],
-        backgroundColor: ['#FF6B35', '#F7931E', '#FFD93D'],
+        backgroundColor: ['#411085', '#7b0681', '#071a8a'],
         borderWidth: 1,
         borderColor: '#fff'
     }]
@@ -128,7 +129,7 @@ const weeklyProgressData = computed(() => ({
             props.weeklyChallenge?.completed_fixtures || 0,
             (props.weeklyChallenge?.total_fixtures || 0) - (props.weeklyChallenge?.completed_fixtures || 0)
         ],
-        backgroundColor: ['#4ECDC4', '#E8F4F8'],
+        backgroundColor: ['#7b0681', '#E8F4F8'],
         borderWidth: 0
     }]
 }));
@@ -185,7 +186,6 @@ const formatFarsiDate = (date) => {
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
     
-    // Check if it's today, tomorrow, or yesterday
     if (matchDate.toDateString() === today.toDateString()) {
         return 'امروز ' + matchDate.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
     } else if (matchDate.toDateString() === tomorrow.toDateString()) {
@@ -193,7 +193,6 @@ const formatFarsiDate = (date) => {
     } else if (matchDate.toDateString() === yesterday.toDateString()) {
         return 'دیروز ' + matchDate.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
     } else {
-        // For other dates, show full Persian date with time
         const options = { 
             year: 'numeric', 
             month: 'long', 
@@ -241,9 +240,13 @@ const closeAuthModal = () => {
 
 onMounted(() => {
     // Auto-rotate hero slides
-    setInterval(() => {
+    heroIntervalId.value = setInterval(() => {
         heroSlide.value = (heroSlide.value + 1) % heroSlides.length;
     }, 5000);
+});
+
+onUnmounted(() => {
+    if (heroIntervalId.value) clearInterval(heroIntervalId.value);
 });
 </script>
 
@@ -254,7 +257,7 @@ onMounted(() => {
     <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 font-tanha" dir="rtl">
         <!-- Subtle grid background pattern -->
         <div class="absolute inset-0 opacity-30">
-            <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, rgba(15,23,42,0.15) 1px, transparent 0); background-size: 20px 20px;"></div>
+            <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, rgba(15,23,42,0.08) 1px, transparent 0); background-size: 20px 20px;"></div>
         </div>
         
         <!-- Header -->
@@ -262,16 +265,23 @@ onMounted(() => {
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center py-6">
                     <div class="flex items-center">
-                        <h1 class="text-3xl font-800 text-slate-900">چهار چهار دو</h1>
+                        <img src="/assets/images/442-logo.png" class="h-16" alt="">
                         <div class="mr-3 flex items-center space-x-2 space-x-reverse">
-                            <span class="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full font-600 border border-blue-200">BETA</span>
+                            <span class="text-xs text-brand-200 bg-brand-200/10 px-2 py-1 rounded-full font-600 border border-brand-200/30">BETA</span>
                         </div>
                     </div>
+                    <nav class="hidden md:flex items-center gap-6 text-sm text-slate-700">
+                        <a href="#features" class="hover:text-brand-300">ویژگی‌ها</a>
+                        <a href="#how" class="hover:text-brand-300">چگونه کار می‌کند</a>
+                        <a href="#live" class="hover:text-brand-300">زنده</a>
+                        <a href="#method" class="hover:text-brand-300">روش‌شناسی</a>
+                        <a href="#pricing" class="hover:text-brand-300">قیمت‌گذاری</a>
+                    </nav>
                     <div class="flex items-center space-x-4 space-x-reverse">
                         <div v-if="$page.props.auth.user">
                             <Link 
                                 :href="route('dashboard')"
-                                class="text-slate-900 hover:text-orange-600 transition-colors font-600 px-4 py-2 rounded-lg hover:bg-orange-50"
+                                class="text-slate-900 hover:text-brand-300 transition-colors font-600 px-4 py-2 rounded-lg hover:bg-brand-50"
                             >
                                 داشبورد
                             </Link>
@@ -279,13 +289,13 @@ onMounted(() => {
                         <div v-else class="flex items-center space-x-3 space-x-reverse">
                             <button 
                                 @click="openAuthModal('login')"
-                                class="text-slate-700 hover:text-orange-600 transition-colors font-600 px-4 py-2 rounded-lg hover:bg-orange-50"
+                                class="text-slate-700 hover:text-brand-300 transition-colors font-600 px-4 py-2 rounded-lg hover:bg-brand-50"
                             >
                                 ورود
                             </button>
                             <button 
                                 @click="openAuthModal('register')"
-                                class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-600 px-6 py-2 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                class="btn-brand-primary"
                             >
                                 ثبت‌نام
                             </button>
@@ -296,36 +306,43 @@ onMounted(() => {
         </header>
 
         <!-- Hero Section with Dynamic Content -->
-        <section class="relative overflow-hidden bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white h-screen min-h-[600px] max-h-[800px]">
-            <div class="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-blue-500/10"></div>
+        <section class="relative overflow-hidden text-white h-screen min-h-[600px] max-h-[800px]">
+            <div class="absolute inset-0 brand-hero-gradient"></div>
+            <div class="absolute inset-0 bg-black/10"></div>
             <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 h-full"
                  @touchstart="handleTouchStart" 
                  @touchend="handleTouchEnd">
-                <div class="grid lg:grid-cols-2 gap-12 items-center h-full">
+                <!-- Social proof (top) -->
+                <div class="flex justify-center lg:justify-end gap-3 text-white/90 text-xs mb-4">
+                    <span class="badge-translucent">⚡ به‌روزرسانی زنده</span>
+                    <span class="badge-translucent hidden sm:inline">🎯 {{ stats?.accuracy_rate || 0 }}% دقت ۷ روز اخیر</span>
+                    <span class="badge-translucent hidden sm:inline">👥 {{ stats?.total_users?.toLocaleString() || '0' }} کاربر</span>
+                </div>
+                <div class="grid lg:grid-cols-2 gap-12 items-center h-[calc(100%-2rem)]">
                     <!-- Hero Content -->
                     <div class="space-y-8">
                         <div class="space-y-4">
-                            <div class="text-orange-400 font-600 text-lg tracking-wide">
+                            <div class="text-brand-100 font-600 text-lg tracking-wide">
                                 {{ heroSlides[heroSlide].subtitle }}
                             </div>
                             <h2 class="text-4xl sm:text-5xl lg:text-6xl font-800 leading-tight">
                                 {{ heroSlides[heroSlide].title }}
                             </h2>
-                            <p class="text-lg sm:text-xl text-slate-300 font-300 leading-relaxed">
+                            <p class="text-lg sm:text-xl text-white/80 font-300 leading-relaxed">
                                 {{ heroSlides[heroSlide].description }}
                             </p>
                         </div>
                         
                         <!-- Live Stats Banner -->
-                        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/15">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div>
-                                    <div class="text-2xl sm:text-3xl font-800 text-orange-400">{{ heroSlides[heroSlide].stat }}</div>
-                                    <div class="text-sm text-slate-300 mt-1">عملکرد جامعه</div>
+                                    <div class="text-2xl sm:text-3xl font-800 text-brand-50">{{ heroSlides[heroSlide].stat }}</div>
+                                    <div class="text-sm text-white/80 mt-1">عملکرد جامعه</div>
                                 </div>
                                 <div>
-                                    <div class="text-2xl sm:text-3xl font-800 text-blue-400">{{ liveStats?.active_users_today || 0 }}</div>
-                                    <div class="text-sm text-slate-300 mt-1">کاربر فعال امروز</div>
+                                    <div class="text-2xl sm:text-3xl font-800 text-brand-50">{{ liveStats?.active_users_today || 0 }}</div>
+                                    <div class="text-sm text-white/80 mt-1">کاربر فعال امروز</div>
                                 </div>
                             </div>
                         </div>
@@ -334,13 +351,13 @@ onMounted(() => {
                         <div class="flex flex-col sm:flex-row gap-4">
                             <button 
                                 @click="openAuthModal('register')"
-                                class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-700 px-8 py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-lg"
+                                class="btn-brand-primary"
                             >
                                 همین حالا شروع کنید
                             </button>
                             <button 
                                 @click="openAuthModal('login')"
-                                class="border-2 border-white/30 hover:border-white/50 text-white font-600 px-8 py-4 rounded-xl transition-all duration-200 hover:bg-white/10"
+                                class="btn-brand-ghost"
                             >
                                 ورود به حساب کاربری
                             </button>
@@ -352,31 +369,75 @@ onMounted(() => {
                                 v-for="(slide, index) in heroSlides" 
                                 :key="index"
                                 @click="heroSlide = index"
-                                :class="['w-3 h-3 rounded-full transition-all duration-300', 
-                                        heroSlide === index ? 'bg-orange-400 w-8' : 'bg-white/30']"
+                                :class="['h-2 rounded-full transition-all duration-300', heroSlide === index ? 'bg-white w-8' : 'bg-white/40 w-2']"
                             ></button>
                         </div>
                     </div>
 
                     <!-- CTA Section for smaller screens instead of form -->
                     <div class="lg:hidden text-center">
-                        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+                        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/15">
                             <h3 class="text-2xl font-800 mb-4">به جامعه ما بپیوندید</h3>
-                            <p class="text-slate-300 mb-6">پیش‌بینی کنید، امتیاز کسب کنید و با دیگران رقابت کنید</p>
+                            <p class="text-white/80 mb-6">پیش‌بینی کنید، امتیاز کسب کنید و با دیگران رقابت کنید</p>
                             <button 
                                 @click="openAuthModal('register')"
-                                class="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-700 px-8 py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-lg"
+                                class="w-full btn-brand-primary"
                             >
                                 شروع رایگان
                             </button>
                         </div>
                     </div>
                 </div>
+
+                <!-- Trusted by strip -->
+                <div class="mt-8">
+                    <div class="bg-white/10 backdrop-blur-sm rounded-xl border border-white/15 px-4 py-3">
+                        <div class="flex items-center justify-center gap-6 text-white/80 text-xs">
+                            <span>مورد اعتماد تحلیل‌گران فوتبال</span>
+                            <span class="w-1 h-1 bg-white/40 rounded-full"></span>
+                            <span>پوشش بازی‌های امروز</span>
+                            <span class="w-1 h-1 bg-white/40 rounded-full"></span>
+                            <span>کالیبراسیون تایید شده</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How it works -->
+        <section id="how" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-14">
+                    <h3 class="text-3xl sm:text-4xl font-800 text-slate-900 mb-3">چطور کار می‌کنیم</h3>
+                    <p class="text-slate-600">داده‌ها → مدل → پیش‌بینی → بازخورد جامعه</p>
+                </div>
+                <div class="grid md:grid-cols-4 gap-6">
+                    <div class="card-step">
+                        <div class="step-icon">📡</div>
+                        <div class="step-title">جمع‌آوری داده</div>
+                        <div class="step-desc">نتایج، فرم تیم‌ها، پیش‌بینی‌های جامعه</div>
+                    </div>
+                    <div class="card-step">
+                        <div class="step-icon">🧠</div>
+                        <div class="step-title">مدل‌سازی</div>
+                        <div class="step-desc">احتمال برد/مساوی/باخت و اعتماد</div>
+                    </div>
+                    <div class="card-step">
+                        <div class="step-icon">📈</div>
+                        <div class="step-title">نمایش</div>
+                        <div class="step-desc">کارت بازی با احتمال و فرم اخیر</div>
+                    </div>
+                    <div class="card-step">
+                        <div class="step-icon">🔁</div>
+                        <div class="step-title">کالیبراسیون</div>
+                        <div class="step-desc">بازبینی دقت و بهبود مستمر</div>
+                    </div>
+                </div>
             </div>
         </section>
 
         <!-- Stats Dashboard Preview -->
-        <section class="relative py-20 bg-white">
+        <section id="features" class="relative py-20 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-16">
                     <h3 class="text-4xl font-800 text-slate-900 mb-4">آمار پلتفرم</h3>
@@ -384,194 +445,97 @@ onMounted(() => {
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-                    <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-6 border border-orange-200">
+                    <div class="brand-card">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center">
-                                <span class="text-white text-xl">👥</span>
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-brand-200/15">
+                                <span class="text-brand-200 text-xl">👥</span>
                             </div>
                             <div class="text-right">
-                                <div class="text-3xl font-800 text-orange-600">{{ stats?.total_users?.toLocaleString() || '0' }}</div>
-                                <div class="text-sm text-orange-700 font-600">کاربر فعال</div>
+                                <div class="text-3xl font-800 text-slate-900">{{ stats?.total_users?.toLocaleString() || '0' }}</div>
+                                <div class="text-sm text-slate-600 font-600">کاربر فعال</div>
                             </div>
                         </div>
-                        <div class="text-xs text-orange-600">+{{ liveStats?.active_users_today || 0 }} امروز</div>
+                        <div class="text-xs text-slate-500">+{{ liveStats?.active_users_today || 0 }} امروز</div>
                     </div>
 
-                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200">
+                    <div class="brand-card">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
-                                <span class="text-white text-xl">📊</span>
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-brand-200/15">
+                                <span class="text-brand-200 text-xl">📊</span>
                             </div>
                             <div class="text-right">
-                                <div class="text-3xl font-800 text-blue-600">{{ stats?.total_predictions?.toLocaleString() || '0' }}</div>
-                                <div class="text-sm text-blue-700 font-600">پیش‌بینی کل</div>
+                                <div class="text-3xl font-800 text-slate-900">{{ stats?.total_predictions?.toLocaleString() || '0' }}</div>
+                                <div class="text-sm text-slate-600 font-600">پیش‌بینی کل</div>
                             </div>
                         </div>
-                        <div class="text-xs text-blue-600">+{{ liveStats?.predictions_today || 0 }} امروز</div>
+                        <div class="text-xs text-slate-500">+{{ liveStats?.predictions_today || 0 }} امروز</div>
                     </div>
 
-                    <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 border border-green-200">
+                    <div class="brand-card">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
-                                <span class="text-white text-xl">🎯</span>
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-brand-200/15">
+                                <span class="text-brand-200 text-xl">🎯</span>
                             </div>
                             <div class="text-right">
-                                <div class="text-3xl font-800 text-green-600">{{ stats?.accuracy_rate || 0 }}%</div>
-                                <div class="text-sm text-green-700 font-600">دقت پیش‌بینی</div>
+                                <div class="text-3xl font-800 text-slate-900">{{ stats?.accuracy_rate || 0 }}%</div>
+                                <div class="text-sm text-slate-600 font-600">دقت پیش‌بینی</div>
                             </div>
                         </div>
-                        <div class="text-xs text-green-600">{{ stats?.exact_matches || 0 }} تطبیق دقیق</div>
+                        <div class="text-xs text-slate-500">{{ stats?.exact_matches || 0 }} تطبیق دقیق</div>
                     </div>
 
-                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6 border border-purple-200">
+                    <div class="brand-card">
                         <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center">
-                                <span class="text-white text-xl">⚽</span>
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-brand-200/15">
+                                <span class="text-brand-200 text-xl">⚽</span>
                             </div>
                             <div class="text-right">
-                                <div class="text-3xl font-800 text-purple-600">{{ liveStats?.upcoming_matches_24h || 0 }}</div>
-                                <div class="text-sm text-purple-700 font-600">بازی ۲۴ ساعت آینده</div>
+                                <div class="text-3xl font-800 text-slate-900">{{ liveStats?.upcoming_matches_24h || 0 }}</div>
+                                <div class="text-sm text-slate-600 font-600">بازی ۲۴ ساعت آینده</div>
                             </div>
                         </div>
-                        <div class="text-xs text-purple-600">{{ liveStats?.live_matches || 0 }} بازی زنده</div>
+                        <div class="text-xs text-slate-500">{{ liveStats?.live_matches || 0 }} بازی زنده</div>
                     </div>
                 </div>
-
-                <!-- Data Visualization Section -->
-                <!-- <div class="grid lg:grid-cols-3 gap-8">
-                    <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
-                        <h4 class="text-lg font-700 text-slate-900 mb-4">توزیع دقت پیش‌بینی‌ها</h4>
-                        <div class="h-64">
-                            <Doughnut :data="accuracyChartData" :options="accuracyChartOptions" />
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
-                        <h4 class="text-lg font-700 text-slate-900 mb-4">اعتماد در مقابل دقت</h4>
-                        <div class="h-64">
-                            <Bar :data="confidenceChartData" :options="{ responsive: true, maintainAspectRatio: false }" />
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
-                        <h4 class="text-lg font-700 text-slate-900 mb-4">پیشرفت چالش هفتگی</h4>
-                        <div class="h-64">
-                            <Doughnut :data="weeklyProgressData" :options="accuracyChartOptions" />
-                        </div>
-                        <div class="mt-4 text-center">
-                            <div class="text-2xl font-800 text-slate-900">{{ weeklyChallenge?.progress_percentage || 0 }}%</div>
-                            <div class="text-sm text-slate-600">هفته {{ weeklyChallenge?.week_number || 1 }} تکمیل شده</div>
-                        </div>
-                    </div>
-                </div> -->
             </div>
         </section>
 
-        <!-- Live Mini-Leaderboard & Featured Content -->
-        <!-- <section class="py-20 bg-slate-50">
+        <!-- Live Trending Matches (if any) -->
+        <section id="live" class="py-20 bg-slate-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid lg:grid-cols-3 gap-8">
-                    <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
-                        <div class="flex items-center justify-between mb-6">
-                            <h4 class="text-xl font-700 text-slate-900">🏆 برترین پیش‌بین‌ها</h4>
-                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        </div>
-                        <div class="space-y-4">
-                            <div v-for="(predictor, index) in topPredictors" :key="index" 
-                                 class="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-                                <div class="flex items-center space-x-3 space-x-reverse">
-                                    <div :class="[
-                                        'w-8 h-8 rounded-full flex items-center justify-center text-sm font-800 text-white',
-                                        index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-slate-400' : 'bg-orange-600'
-                                    ]">
-                                        {{ index + 1 }}
-                                    </div>
-                                    <div>
-                                        <div class="font-600 text-slate-900">{{ predictor.name }}</div>
-                                        <div class="text-xs text-slate-500">{{ predictor.total_points }} امتیاز</div>
-                                    </div>
-                                </div>
-                                <div class="text-left">
-                                    <div class="text-lg font-700 text-orange-600">{{ predictor.total_points }}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-4 text-center">
-                            <div class="text-sm text-slate-600">به {{ topPredictors?.length || 0 }}+ پیش‌بین موفق بپیوندید</div>
-                        </div>
+                <div class="flex items-end justify-between mb-8">
+                    <div>
+                        <h3 class="text-2xl font-800 text-slate-900">بازی‌های داغ امروز</h3>
+                        <p class="text-slate-600 text-sm">احتمالات برد/مساوی/باخت و زمان شروع</p>
                     </div>
-
-                    <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
-                        <h4 class="text-xl font-700 text-slate-900 mb-6">⚽ پیش‌بینی روز</h4>
-                        <div v-if="predictionOfTheDay" class="space-y-4">
-                            <div class="text-center text-sm text-slate-500 mb-2">
-                                {{ new Date(predictionOfTheDay.match_datetime).toLocaleDateString('fa-IR') }}
+                </div>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" v-if="trendingMatches && trendingMatches.length">
+                    <div v-for="(m, i) in trendingMatches" :key="i" class="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between text-sm text-slate-500">
+                            <span>🕒 {{ m?.match_datetime ? formatFarsiDate(m.match_datetime) : '—' }}</span>
+                            <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">{{ m?.league || '—' }}</span>
+                        </div>
+                        <div class="flex items-center justify-between mt-4">
+                            <div class="flex items-center gap-2">
+                                <img :src="`/assets/team-logos/${m?.home_team}.png`" class="w-6 h-6 object-contain" @error="$event.target.style.display='none'"/>
+                                <div class="font-600 text-slate-900">{{ translateTeamName(m?.home_team) }}</div>
                             </div>
-                            <div class="bg-gradient-to-r from-blue-50 to-green-50 rounded-xl p-4">
-                                <div class="flex items-center justify-between">
-                                    <div class="text-center">
-                                        <div class="font-600 text-slate-900 mb-2">{{ predictionOfTheDay.homeTeam?.name }}</div>
-                                        <div class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto text-xs font-700">
-                                            {{ predictionOfTheDay.homeTeam?.name?.substring(0, 3).toUpperCase() }}
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="text-center px-4">
-                                        <div class="text-2xl font-800 text-slate-900 mb-2">VS</div>
-                                        <div class="text-xs text-slate-500">پیش‌بینی کنید</div>
-                                    </div>
-                                    
-                                    <div class="text-center">
-                                        <div class="font-600 text-slate-900 mb-2">{{ predictionOfTheDay.awayTeam?.name }}</div>
-                                        <div class="w-12 h-12 bg-red-600 text-white rounded-full flex items-center justify-center mx-auto text-xs font-700">
-                                            {{ predictionOfTheDay.awayTeam?.name?.substring(0, 3).toUpperCase() }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="text-center">
-                                <button class="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-2 rounded-xl font-600 hover:from-orange-600 hover:to-orange-700 transition-all">
-                                    ثبت‌نام و پیش‌بینی
-                                </button>
+                            <div class="text-slate-400">vs</div>
+                            <div class="flex items-center gap-2">
+                                <div class="font-600 text-slate-900">{{ translateTeamName(m?.away_team) }}</div>
+                                <img :src="`/assets/team-logos/${m?.away_team}.png`" class="w-6 h-6 object-contain" @error="$event.target.style.display='none'"/>
                             </div>
                         </div>
-                        <div v-else class="text-center text-slate-500 py-8">
-                            در حال بارگذاری...
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
-                        <h4 class="text-xl font-700 text-slate-900 mb-6">📅 چالش هفتگی</h4>
-                        <div class="space-y-4">
-                            <div class="text-center">
-                                <div class="text-3xl font-800 text-orange-600">هفته {{ weeklyChallenge?.week_number }}</div>
-                                <div class="text-sm text-slate-600">چالش جامعه</div>
-                            </div>
-                            
-                            <div class="bg-slate-50 rounded-xl p-4">
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="text-sm font-600 text-slate-700">پیشرفت</span>
-                                    <span class="text-sm font-600 text-orange-600">{{ weeklyChallenge?.progress_percentage || 0 }}%</span>
-                                </div>
-                                <div class="w-full bg-slate-200 rounded-full h-3">
-                                    <div class="bg-gradient-to-r from-orange-500 to-orange-600 h-3 rounded-full transition-all duration-500" 
-                                         :style="{ width: (weeklyChallenge?.progress_percentage || 0) + '%' }"></div>
-                                </div>
-                                <div class="flex justify-between text-xs text-slate-500 mt-2">
-                                    <span>{{ weeklyChallenge?.completed_fixtures || 0 }} تکمیل شده</span>
-                                    <span>{{ weeklyChallenge?.total_fixtures || 0 }} کل</span>
-                                </div>
-                            </div>
-                            
-                            <div class="text-center text-sm text-slate-600">
-                                {{ weeklyChallenge?.community_predictions || 0 }} پیش‌بینی جامعه
-                            </div>
+                        <div class="grid grid-cols-3 gap-2 mt-4 text-center text-xs">
+                            <div class="px-2 py-2 rounded-lg bg-brand-50 text-slate-900">برد میزبان<br><span class="font-800 text-slate-900">{{ (m?.prob_home ?? 0) }}%</span></div>
+                            <div class="px-2 py-2 rounded-lg bg-slate-100">مساوی<br><span class="font-800 text-slate-900">{{ (m?.prob_draw ?? 0) }}%</span></div>
+                            <div class="px-2 py-2 rounded-lg bg-brand-50 text-slate-900">برد مهمان<br><span class="font-800 text-slate-900">{{ (m?.prob_away ?? 0) }}%</span></div>
                         </div>
                     </div>
                 </div>
+                <div v-else class="text-center text-slate-500">داده‌ای برای نمایش موجود نیست</div>
             </div>
-        </section> -->
-
+        </section>
 
         <!-- Recent Community Predictions -->
         <section class="py-20 bg-slate-50">
@@ -582,7 +546,7 @@ onMounted(() => {
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-                    <div class="p-6 bg-gradient-to-r from-slate-900 to-slate-800 text-white">
+                    <div class="p-6 brand-section-dark text-white">
                         <div class="flex items-center justify-between">
                             <h4 class="text-lg font-700">🔴 پیش‌بینی‌های زنده</h4>
                             <div class="flex items-center space-x-2 space-x-reverse">
@@ -606,36 +570,36 @@ onMounted(() => {
                                     </div>
 
                                 </div>
-                                                                    <div class="flex items-center space-x-3 space-x-reverse">
-                                        <!-- Home Team -->
-                                        <div class="flex items-center space-x-2 space-x-reverse">
-                                            <img 
-                                                :src="`/assets/team-logos/${prediction.home_team}.png`"
-                                                :alt="prediction.home_team"
-                                                class="w-6 h-6 object-contain flex-shrink-0"
-                                                @error="$event.target.style.display = 'none'"
-                                            />
-                                            <span class="font-600 text-slate-900 text-base">{{ translateTeamName(prediction.home_team) }}</span>
-                                        </div>
-                                        
-                                        <!-- Score -->
-                                        <div class="flex items-center justify-center space-x-1 space-x-reverse mx-3">
-                                            <span class="text-lg font-800 text-orange-600">{{ prediction.home_score }}</span>
-                                            <span class="text-slate-400">-</span>
-                                            <span class="text-lg font-800 text-orange-600">{{ prediction.away_score }}</span>
-                                        </div>
-                                        
-                                        <!-- Away Team -->
-                                        <div class="flex items-center space-x-2 space-x-reverse">
-                                            <span class="font-600 text-slate-900 text-base">{{ translateTeamName(prediction.away_team) }}</span>
-                                            <img 
-                                                :src="`/assets/team-logos/${prediction.away_team}.png`"
-                                                :alt="prediction.away_team"
-                                                class="w-6 h-6 object-contain flex-shrink-0"
-                                                @error="$event.target.style.display = 'none'"
-                                            />
-                                        </div>
+                                <div class="flex items-center space-x-3 space-x-reverse">
+                                    <!-- Home Team -->
+                                    <div class="flex items-center space-x-2 space-x-reverse">
+                                        <img 
+                                            :src="`/assets/team-logos/${prediction.home_team}.png`"
+                                            :alt="prediction.home_team"
+                                            class="w-6 h-6 object-contain flex-shrink-0"
+                                            @error="$event.target.style.display = 'none'"
+                                        />
+                                        <span class="font-600 text-slate-900 text-base">{{ translateTeamName(prediction.home_team) }}</span>
                                     </div>
+                                    
+                                    <!-- Score -->
+                                    <div class="flex items-center justify-center space-x-1 space-x-reverse mx-3">
+                                        <span class="text-lg font-800 text-slate-900">{{ prediction.home_score }}</span>
+                                        <span class="text-slate-400">-</span>
+                                        <span class="text-lg font-800 text-slate-900">{{ prediction.away_score }}</span>
+                                    </div>
+                                    
+                                    <!-- Away Team -->
+                                    <div class="flex items-center space-x-2 space-x-reverse">
+                                        <span class="font-600 text-slate-900 text-base">{{ translateTeamName(prediction.away_team) }}</span>
+                                        <img 
+                                            :src="`/assets/team-logos/${prediction.away_team}.png`"
+                                            :alt="prediction.away_team"
+                                            class="w-6 h-6 object-contain flex-shrink-0"
+                                            @error="$event.target.style.display = 'none'"
+                                        />
+                                    </div>
+                                </div>
                                 <div class="text-sm text-slate-500 text-right">
                                     <div class="flex items-center space-x-1 space-x-reverse">
                                         <span>⚽</span>
@@ -661,9 +625,9 @@ onMounted(() => {
                                     
                                     <!-- Score -->
                                     <div class="flex items-center justify-center space-x-1 space-x-reverse mx-2">
-                                        <span class="text-lg font-800 text-orange-600">{{ prediction.home_score }}</span>
+                                        <span class="text-lg font-800 text-slate-900">{{ prediction.home_score }}</span>
                                         <span class="text-slate-400">-</span>
-                                        <span class="text-lg font-800 text-orange-600">{{ prediction.away_score }}</span>
+                                        <span class="text-lg font-800 text-slate-900">{{ prediction.away_score }}</span>
                                     </div>
                                     
                                     <!-- Away Team -->
@@ -698,91 +662,58 @@ onMounted(() => {
                         <div class="text-lg font-600 text-slate-700 mb-2">هنوز پیش‌بینی‌ای ثبت نشده</div>
                         <div class="text-sm text-slate-500">اولین نفری باشید که پیش‌بینی می‌کند</div>
                     </div>
-                    
-                    <!-- <div class="p-4 bg-slate-50 text-center">
-                        <div class="text-sm text-slate-600">
-                            همین الان {{ recentPredictions?.length || 0 }} پیش‌بینی جدید ثبت شده است
-                        </div>
-                    </div> -->
                 </div>
             </div>
         </section>
 
-
-        <!-- Weekly Insight Banner -->
-        <!-- <section class="py-16 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white">
-            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <div class="space-y-6">
-                    <div class="text-orange-400 font-600 text-lg">بینش این هفته</div>
-                    <h3 class="text-4xl font-800 leading-tight">{{ weeklyInsight }}</h3>
-                    <p class="text-xl text-slate-300 font-300">تحلیل‌های مبتنی بر داده از عملکرد جامعه</p>
-                    <div class="pt-4">
-                        <button @click="activeTab = 'register'" 
-                                class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-700 px-8 py-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-lg">
-                            همین حالا شروع کنید
-                        </button>
+        <!-- Methodology -->
+        <section id="method" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl sm:text-4xl font-800 text-slate-900 mb-3">روش‌شناسی ما</h3>
+                    <p class="text-slate-600">شفافیت در دقت و کالیبراسیون</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="brand-card">
+                        <div class="text-sm text-slate-500 mb-2">Brier Score (۷ روز)</div>
+                        <div class="text-3xl font-800 text-slate-900">{{ (props.confidenceMetrics?.brier_7d ?? '—') }}</div>
+                    </div>
+                    <div class="brand-card">
+                        <div class="text-sm text-slate-500 mb-2">LogLoss (۷ روز)</div>
+                        <div class="text-3xl font-800 text-slate-900">{{ (props.confidenceMetrics?.logloss_7d ?? '—') }}</div>
+                    </div>
+                    <div class="brand-card">
+                        <div class="text-sm text-slate-500 mb-2">اندازه نمونه (۳۰ روز)</div>
+                        <div class="text-3xl font-800 text-slate-900">{{ (props.stats?.sample_size_30d ?? '—') }}</div>
+                    </div>
+                </div>
+                <div class="mt-10 grid md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                        <h4 class="text-lg font-700 text-slate-900 mb-4">توزیع دقت پیش‌بینی‌ها</h4>
+                        <div class="h-64">
+                            <Doughnut :data="accuracyChartData" :options="accuracyChartOptions" />
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                        <h4 class="text-lg font-700 text-slate-900 mb-4">اعتماد در مقابل دقت</h4>
+                        <div class="h-64">
+                            <Bar :data="confidenceChartData" :options="{ responsive: true, maintainAspectRatio: false }" />
+                        </div>
                     </div>
                 </div>
             </div>
-        </section> -->
+        </section>
 
         <!-- Footer -->
         <footer class=" bg-slate-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <!-- <div class="grid md:grid-cols-4 gap-8">
-                    <div class="md:col-span-2">
-                        <div class="flex items-center mb-4">
-                            <h3 class="text-2xl font-800 text-slate-900">FourFourTwo</h3>
-                            <span class="mr-2 text-sm text-orange-600 bg-orange-100 px-2 py-1 rounded-full font-600">پیش‌بینی</span>
-                        </div>
-                        <p class="text-slate-600 font-300 mb-6 leading-relaxed">
-                            پلتفرم پیش‌بینی لیگ برتر انگلیس با رویکرد مبتنی بر داده. 
-                            به جامعه‌ای از هزاران تحلیلگر فوتبال بپیوندید.
-                        </p>
-                        <div class="flex space-x-4 space-x-reverse">
-                            <div class="bg-white rounded-lg p-3 border border-slate-200">
-                                <div class="text-lg font-800 text-orange-600">{{ stats?.accuracy_rate || 0 }}%</div>
-                                <div class="text-xs text-slate-500">دقت</div>
-                            </div>
-                            <div class="bg-white rounded-lg p-3 border border-slate-200">
-                                <div class="text-lg font-800 text-blue-600">{{ stats?.total_users?.toLocaleString() || '0' }}+</div>
-                                <div class="text-xs text-slate-500">کاربر</div>
-                            </div>
-                            <div class="bg-white rounded-lg p-3 border border-slate-200">
-                                <div class="text-lg font-800 text-green-600">{{ stats?.total_predictions?.toLocaleString() || '0' }}+</div>
-                                <div class="text-xs text-slate-500">پیش‌بینی</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <h4 class="text-lg font-700 text-slate-900 mb-4">درباره پلتفرم</h4>
-                        <ul class="space-y-2 text-slate-600 font-300">
-                            <li><a href="#" class="hover:text-orange-600 transition-colors">چگونه کار می‌کند</a></li>
-                            <li><a href="#" class="hover:text-orange-600 transition-colors">سیستم امتیازدهی</a></li>
-                            <li><a href="#" class="hover:text-orange-600 transition-colors">قوانین مسابقه</a></li>
-                            <li><a href="#" class="hover:text-orange-600 transition-colors">سوالات متداول</a></li>
-                        </ul>
-                    </div>
-                    
-                    <div>
-                        <h4 class="text-lg font-700 text-slate-900 mb-4">ارتباط با ما</h4>
-                        <ul class="space-y-2 text-slate-600 font-300">
-                            <li><a href="#" class="hover:text-orange-600 transition-colors">پشتیبانی</a></li>
-                            <li><a href="#" class="hover:text-orange-600 transition-colors">تماس با ما</a></li>
-                            <li><a href="#" class="hover:text-orange-600 transition-colors">شرایط استفاده</a></li>
-                            <li><a href="#" class="hover:text-orange-600 transition-colors">حریم خصوصی</a></li>
-                        </ul>
-                    </div>
-                </div> -->
-                
-                <div class="border-t border-slate-200 mt-8 pt-8 flex justify-between items-center">
+                <div class="border-t border-slate-200 mt-2 pt-8 flex justify-between items-center">
                     <div class="hidden sm:block text-sm text-slate-500">
                         © ۲۰۲۵ FourFourTwo. تمامی حقوق محفوظ است.
                     </div>
                     <div class="flex items-center space-x-2 space-x-reverse text-sm text-slate-500">
                         <span>ساخته شده با</span>
-                        <span class="text-orange-500">❤️</span>
+                        <span class="text-brand-200">❤️</span>
                         <span>برای علاقه‌مندان فوتبال</span>
                     </div>
                 </div>
@@ -838,7 +769,7 @@ onMounted(() => {
                             v-model="loginForm.email"
                             type="email" 
                             required
-                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white text-slate-900"
+                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-200 focus:border-brand-200 transition-all bg-white text-slate-900"
                             placeholder="example@email.com"
                         >
                         <div v-if="loginForm.errors.email" class="text-red-600 text-sm mt-1">{{ loginForm.errors.email }}</div>
@@ -850,7 +781,7 @@ onMounted(() => {
                             v-model="loginForm.password"
                             type="password" 
                             required
-                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white text-slate-900"
+                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-200 focus:border-brand-200 transition-all bg-white text-slate-900"
                             placeholder="••••••••"
                         >
                         <div v-if="loginForm.errors.password" class="text-red-600 text-sm mt-1">{{ loginForm.errors.password }}</div>
@@ -861,7 +792,7 @@ onMounted(() => {
                             v-model="loginForm.remember"
                             type="checkbox" 
                             id="remember-modal"
-                            class="w-4 h-4 text-orange-600 border-slate-300 rounded focus:ring-orange-500"
+                            class="w-4 h-4 text-brand-200 border-slate-300 rounded focus:ring-brand-200"
                         >
                         <label for="remember-modal" class="mr-2 text-sm text-slate-700">مرا به خاطر بسپار</label>
                     </div>
@@ -869,7 +800,7 @@ onMounted(() => {
                     <button 
                         type="submit"
                         :disabled="loginForm.processing"
-                        class="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-600 py-3 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl"
+                        class="w-full btn-brand-primary disabled:opacity-50"
                     >
                         <span v-if="loginForm.processing">در حال ورود...</span>
                         <span v-else>ورود</span>
@@ -884,7 +815,7 @@ onMounted(() => {
                             v-model="registerForm.name"
                             type="text" 
                             required
-                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white text-slate-900"
+                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-200 focus:border-brand-200 transition-all bg-white text-slate-900"
                             placeholder="نام شما"
                         >
                         <div v-if="registerForm.errors.name" class="text-red-600 text-sm mt-1">{{ registerForm.errors.name }}</div>
@@ -896,7 +827,7 @@ onMounted(() => {
                             v-model="registerForm.email"
                             type="email" 
                             required
-                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white text-slate-900"
+                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-200 focus:border-brand-200 transition-all bg-white text-slate-900"
                             placeholder="example@email.com"
                         >
                         <div v-if="registerForm.errors.email" class="text-red-600 text-sm mt-1">{{ registerForm.errors.email }}</div>
@@ -908,7 +839,7 @@ onMounted(() => {
                             v-model="registerForm.password"
                             type="password" 
                             required
-                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white text-slate-900"
+                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-200 focus:border-brand-200 transition-all bg-white text-slate-900"
                             placeholder="••••••••"
                         >
                         <div v-if="registerForm.errors.password" class="text-red-600 text-sm mt-1">{{ registerForm.errors.password }}</div>
@@ -920,7 +851,7 @@ onMounted(() => {
                             v-model="registerForm.password_confirmation"
                             type="password" 
                             required
-                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white text-slate-900"
+                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-200 focus:border-brand-200 transition-all bg-white text-slate-900"
                             placeholder="••••••••"
                         >
                     </div>
@@ -928,7 +859,7 @@ onMounted(() => {
                     <button 
                         type="submit"
                         :disabled="registerForm.processing"
-                        class="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-600 py-3 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl"
+                        class="w-full btn-brand-primary disabled:opacity-50"
                     >
                         <span v-if="registerForm.processing">در حال ثبت‌نام...</span>
                         <span v-else>ثبت‌نام</span>
@@ -940,12 +871,53 @@ onMounted(() => {
 </template>
 
 <style>
+:root {
+  --brand-1: #411085;
+  --brand-2: #7b0681;
+  --brand-3: #071a8a;
+}
+
+/* Brand helpers */
+.text-brand-50 { color: rgba(255,255,255,0.95); }
+.text-brand-100 { color: #e9ddff; }
+.text-brand-200 { color: #7b0681; }
+.bg-brand-50 { background: rgba(127, 92, 200, 0.08); }
+.brand-section-dark { background: linear-gradient(120deg, var(--brand-1), var(--brand-2)); }
+.brand-hero-gradient {
+  background: radial-gradient(80% 80% at 20% 10%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 60%),
+              linear-gradient(120deg, var(--brand-1) 0%, var(--brand-2) 50%, var(--brand-3) 100%);
+}
+.badge-translucent {
+  display: inline-flex; align-items: center; gap: .5rem;
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+  padding: .35rem .6rem; border-radius: 999px;
+}
+.btn-brand-primary {
+  background-image: linear-gradient(90deg, var(--brand-1), var(--brand-2), var(--brand-3));
+  color: #fff; font-weight: 700; padding: 1rem 2rem; border-radius: .75rem;
+  transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
+  box-shadow: 0 10px 20px rgba(9, 14, 80, 0.2);
+}
+.btn-brand-primary:hover { transform: translateY(-1px); box-shadow: 0 14px 28px rgba(9, 14, 80, 0.3); }
+.btn-brand-ghost {
+  border: 2px solid rgba(255,255,255,0.35); color: #fff; padding: 1rem 2rem; border-radius: .75rem;
+  transition: background-color .2s ease, border-color .2s ease; background-color: transparent;
+}
+.btn-brand-ghost:hover { background-color: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.55); }
+
+.brand-card { background: white; border: 1px solid #e5e7eb; border-radius: 1rem; padding: 1.25rem; }
+.card-step { background: white; border: 1px solid #e5e7eb; border-radius: 1rem; padding: 1.25rem; text-align: center; }
+.step-icon { font-size: 1.5rem; }
+.step-title { margin-top: .5rem; font-weight: 800; color: #0f172a; }
+.step-desc { margin-top: .25rem; color: #64748b; font-size: .9rem; }
+
+/* Existing slider thumbs (kept) */
 .slider::-webkit-slider-thumb {
     appearance: none;
     height: 20px;
     width: 20px;
     border-radius: 50%;
-    background: #f97316;
+    background: var(--brand-2);
     cursor: pointer;
     border: 2px solid #fff;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -955,7 +927,7 @@ onMounted(() => {
     height: 20px;
     width: 20px;
     border-radius: 50%;
-    background: #f97316;
+    background: var(--brand-2);
     cursor: pointer;
     border: 2px solid #fff;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
