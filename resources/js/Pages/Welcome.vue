@@ -1,34 +1,11 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ref, onMounted, computed, onUnmounted } from 'vue';
-import { Bar, Doughnut, Line } from 'vue-chartjs';
+import { ref, onMounted, computed, onUnmounted, watch, nextTick, defineAsyncComponent } from 'vue';
 import { useTranslations } from '@/composables/useTranslations.js';
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-    ArcElement,
-    PointElement,
-    LineElement,
-    Filler
-} from 'chart.js';
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-    ArcElement,
-    PointElement,
-    LineElement,
-    Filler
-);
+// Code-split heavier sections
+const LeaderboardDemo = defineAsyncComponent(() => import('@/Components/LeaderboardDemo.vue'));
+const GamificationExplainer = defineAsyncComponent(() => import('@/Components/GamificationExplainer.vue'));
 
 const { translateTeamName, t } = useTranslations();
 
@@ -48,91 +25,38 @@ const props = defineProps({
     confidenceMetrics: Object,
 });
 
+// State
 const activeTab = ref('login');
 const showAuthModal = ref(false);
-const heroSlide = ref(0);
-const demoConfidence = ref(75);
-const demoHomeScore = ref(2);
-const demoAwayScore = ref(1);
-const touchStartX = ref(0);
-const touchEndX = ref(0);
-const heroIntervalId = ref(null);
-
-const heroSlides = [
-    {
-        title: 'پیش‌بینی مبتنی بر داده',
-        subtitle: 'بر اساس پیش‌بینی‌های جامعه‌ی کاربری',
-        stat: `${props.stats?.accuracy_rate || 0}% دقت`,
-        description: 'کاربران ما عملکرد بهتری از متوسط بازار دارند'
-    },
-    {
-        title: 'جامعه‌ای از تحلیلگران',
-        subtitle: `${props.stats?.total_users || 0}+ پیش‌بین فعال`,
-        stat: `${props.stats?.weekly_predictions || 0} پیش‌بینی این هفته`,
-        description: 'به جامعه‌ای از علاقه‌مندان تحلیل فوتبال بپیوندید'
-    },
-    {
-        title: 'نتایج زنده و آمار',
-        subtitle: props.weeklyInsight,
-        stat: `${props.liveStats?.predictions_today || 0} پیش‌بینی امروز`,
-        description: 'دنبال کردن عملکرد و پیشرفت در زمان واقعی'
-    }
-];
-
-const accuracyChartData = computed(() => ({
-    labels: ['دقیق', 'نزدیک', 'اشتباه'],
-    datasets: [{
-        data: [
-            props.accuracyBreakdown?.perfect || 0,
-            props.accuracyBreakdown?.close || 0,
-            props.accuracyBreakdown?.wrong || 0
-        ],
-        backgroundColor: ['#6e4bb3', '#9a3aa0', '#3b4db3'],
-        borderWidth: 0
-    }]
-}));
-
-const accuracyChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-        legend: {
-            position: 'bottom',
-            labels: {
-                padding: 20,
-                usePointStyle: true,
-                font: { family: 'Tanha', size: 12 }
-            }
-        }
+// Focused hero (no rotation)
+const heroContent = {
+    headline: 'پیش‌بینی فوتبال با قدرت داده و جامعه',
+    sub: 'پیش‌بینی کنید، عملکرد خود را بسنجید، پیشرفت را دنبال کنید.',
+    stats: {
+        accuracy: `${props.stats?.accuracy_rate || 0}% دقت اخیر`,
+        users: `${props.stats?.total_users?.toLocaleString() || '0'} کاربر`,
+        predictions: `${props.stats?.weekly_predictions || 0} پیش‌بینی این هفته`
     }
 };
 
-const confidenceChartData = computed(() => ({
-    labels: ['اعتماد بالا', 'اعتماد متوسط', 'اعتماد پایین'],
-    datasets: [{
-        label: 'درصد دقت',
-        data: [
-            props.confidenceMetrics?.high_confidence_accuracy || 0,
-            props.confidenceMetrics?.medium_confidence_accuracy || 0,
-            props.confidenceMetrics?.low_confidence_accuracy || 0
-        ],
-        backgroundColor: ['#411085', '#7b0681', '#071a8a'],
-        borderWidth: 1,
-        borderColor: '#fff'
-    }]
-}));
+// Modal / auth enhancements
+const firstInputRef = ref(null);
+const passwordVisible = ref(false);
+const registerPasswordVisible = ref(false);
+const passwordStrength = ref(null); // {score,label}
 
-const weeklyProgressData = computed(() => ({
-    labels: ['پیش‌بینی شده', 'باقی‌مانده'],
-    datasets: [{
-        data: [
-            props.weeklyChallenge?.completed_fixtures || 0,
-            (props.weeklyChallenge?.total_fixtures || 0) - (props.weeklyChallenge?.completed_fixtures || 0)
-        ],
-        backgroundColor: ['#7b0681', '#E8F4F8'],
-        borderWidth: 0
-    }]
-}));
+// (Moved demo logic into async component)
+
+// Sticky signup (mobile)
+const showStickySignup = ref(false);
+if (typeof window !== 'undefined') {
+    window.addEventListener('scroll', () => {
+        const trigger = window.innerHeight * 1.5;
+        showStickySignup.value = window.scrollY > trigger;
+    });
+}
+
+// (Removed chart datasets & options – methodology section removed)
 
 const loginForm = useForm({
     email: '',
@@ -210,48 +134,38 @@ const getConfidenceColor = (confidence) => {
     return 'bg-red-500';
 };
 
-const handleTouchStart = (e) => {
-    touchStartX.value = e.touches[0].clientX;
-};
-
-const handleTouchEnd = (e) => {
-    touchEndX.value = e.changedTouches[0].clientX;
-    const diff = touchStartX.value - touchEndX.value;
-    
-    if (Math.abs(diff) > 50) { // Minimum swipe distance
-        if (diff > 0) {
-            // Swipe left - next slide
-            heroSlide.value = (heroSlide.value + 1) % heroSlides.length;
-        } else {
-            // Swipe right - previous slide
-            heroSlide.value = heroSlide.value === 0 ? heroSlides.length - 1 : heroSlide.value - 1;
-        }
-    }
-};
+// (Slider removed) touch handlers no longer needed
 
 const openAuthModal = (tab = 'login') => {
     activeTab.value = tab;
     showAuthModal.value = true;
+    nextTick(()=>{ if (firstInputRef.value) firstInputRef.value.focus(); });
 };
 
 const closeAuthModal = () => {
     showAuthModal.value = false;
 };
 
-onMounted(() => {
-    // Auto-rotate hero slides
-    heroIntervalId.value = setInterval(() => {
-        heroSlide.value = (heroSlide.value + 1) % heroSlides.length;
-    }, 5000);
-});
+const handleEscClose = (e) => { if (e.key === 'Escape' && showAuthModal.value) closeAuthModal(); };
+const evaluatePassword = (pwd) => {
+    if (!pwd) { passwordStrength.value = null; return; }
+    let score = 0;
+    if (pwd.length >= 8) score++;
+    if (/[A-Zآ-ی]/.test(pwd)) score++;
+    if (/[0-9]/.test(pwd)) score++;
+    if (/[^A-Za-z0-9آ-ی]/.test(pwd)) score++;
+    const labels = ['ضعیف','متوسط','خوب','قوی'];
+    passwordStrength.value = { score, label: labels[Math.min(score-1, labels.length-1)] };
+};
+watch(() => registerForm.password, evaluatePassword);
 
-onUnmounted(() => {
-    if (heroIntervalId.value) clearInterval(heroIntervalId.value);
-});
+onMounted(() => { document.addEventListener('keydown', handleEscClose); });
+onUnmounted(() => { document.removeEventListener('keydown', handleEscClose); });
 </script>
 
 <template>
     <Head title="FourFourTwo - پیش‌بینی مبتنی بر داده">
+        <link rel="preload" href="/css/fonts/Tanha/Tanha.woff2" as="font" type="font/woff2" crossorigin>
     </Head>
     
     <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 font-tanha" dir="rtl">
@@ -272,10 +186,7 @@ onUnmounted(() => {
                     </div>
                     <nav class="hidden md:flex items-center gap-6 text-sm text-slate-700">
                         <a href="#features" class="hover:text-brand-300">ویژگی‌ها</a>
-                        <a href="#how" class="hover:text-brand-300">چگونه کار می‌کند</a>
                         <a href="#live" class="hover:text-brand-300">زنده</a>
-                        <a href="#method" class="hover:text-brand-300">روش‌شناسی</a>
-                        <a href="#pricing" class="hover:text-brand-300">قیمت‌گذاری</a>
                     </nav>
                     <div class="flex items-center space-x-4 space-x-reverse">
                         <div v-if="$page.props.auth.user">
@@ -287,154 +198,70 @@ onUnmounted(() => {
                             </Link>
                         </div>
                         <div v-else class="flex items-center space-x-3 space-x-reverse">
-                            <button 
-                                @click="openAuthModal('login')"
-                                class="text-slate-700 hover:text-brand-300 transition-colors font-600 px-4 py-2 rounded-lg hover:bg-brand-50"
-                            >
-                                ورود
-                            </button>
-                            <button 
-                                @click="openAuthModal('register')"
-                                class="btn-brand-primary"
-                            >
-                                ثبت‌نام
-                            </button>
+                            <button @click="openAuthModal('login')" class="text-slate-700 hover:text-brand-300 transition-colors font-600 px-4 py-2 rounded-lg hover:bg-brand-50">ورود</button>
+                            <button @click="openAuthModal('register')" class="btn-brand-primary">همین حالا پیش‌بینی را شروع کنید</button>
                         </div>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Hero Section with Dynamic Content -->
-        <section class="relative overflow-hidden text-white h-screen min-h-[600px] max-h-[800px]">
+        <!-- Simplified Hero -->
+        <section class="relative overflow-hidden text-white py-10 md:py-16">
             <div class="absolute inset-0 brand-hero-gradient"></div>
             <div class="absolute inset-0 bg-black/10"></div>
-            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 h-full"
-                 @touchstart="handleTouchStart" 
-                 @touchend="handleTouchEnd">
-                <!-- Social proof (top) -->
-                <div class="flex justify-center lg:justify-end gap-3 text-white/90 text-xs mb-4">
-                    <span class="badge-translucent">⚡ به‌روزرسانی زنده</span>
-                    <span class="badge-translucent hidden sm:inline">🎯 {{ stats?.accuracy_rate || 0 }}% دقت ۷ روز اخیر</span>
-                    <span class="badge-translucent hidden sm:inline">👥 {{ stats?.total_users?.toLocaleString() || '0' }} کاربر</span>
+            <div class="relative max-w-6xl mx-auto px-4 sm:px-6">
+                <div class="pt-2 flex flex-wrap gap-2 text-[11px] text-white/85">
+                    <span class="badge-translucent">⚡ زنده</span>
+                    <span class="badge-translucent">🎯 {{ stats?.accuracy_rate || 0 }}% دقت</span>
+                    <span class="badge-translucent">👥 {{ stats?.total_users?.toLocaleString() || '0' }} کاربر</span>
                 </div>
-                <div class="grid lg:grid-cols-2 gap-12 items-center h-[calc(100%-2rem)]">
-                    <!-- Hero Content -->
-                    <div class="space-y-8">
-                        <div class="space-y-4">
-                            <div class="text-brand-100 font-600 text-lg tracking-wide">
-                                {{ heroSlides[heroSlide].subtitle }}
-                            </div>
-                            <h2 class="text-4xl sm:text-5xl lg:text-6xl font-800 leading-tight">
-                                {{ heroSlides[heroSlide].title }}
-                            </h2>
-                            <p class="text-lg sm:text-xl text-white/80 font-300 leading-relaxed">
-                                {{ heroSlides[heroSlide].description }}
-                            </p>
+                <div class="mt-8 md:mt-14 max-w-3xl">
+                    <h1 class="text-3xl sm:text-5xl font-800 leading-[1.25] sm:leading-tight">{{ heroContent.headline }}</h1>
+                    <p class="mt-4 text-base sm:text-xl text-white/85 font-300">{{ heroContent.sub }}</p>
+                    <div class="mt-6 flex items-center gap-3 flex-wrap text-sm">
+                        <span class="flex items-center gap-1 bg-white/10 px-3 py-2 rounded-full border border-white/15">دقت <strong class="font-700">{{ heroContent.stats.accuracy }}</strong></span>
+                        <span class="flex items-center gap-1 bg-white/10 px-3 py-2 rounded-full border border-white/15">کاربران <strong class="font-700">{{ heroContent.stats.users }}</strong></span>
+                        <span class="flex items-center gap-1 bg-white/10 px-3 py-2 rounded-full border border-white/15">این هفته <strong class="font-700">{{ heroContent.stats.predictions }}</strong></span>
+                    </div>
+                    <div class="mt-8 flex flex-col sm:flex-row gap-4 max-w-md">
+                        <button @click="openAuthModal('register')" class="btn-brand-primary w-full sm:w-auto">همین حالا پیش‌بینی را شروع کنید</button>
+                        <button @click="openAuthModal('login')" class="btn-brand-ghost w-full sm:w-auto">ورود</button>
+                    </div>
+                    <div class="mt-10 grid grid-cols-3 gap-3 sm:gap-4 max-w-lg text-center">
+                        <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+                            <div class="text-[11px] text-white/60 mb-1">پیش‌بینی امروز</div>
+                            <div class="text-xl font-800">{{ liveStats?.predictions_today || 0 }}</div>
                         </div>
-                        
-                        <!-- Live Stats Banner -->
-                        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/15">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <div>
-                                    <div class="text-2xl sm:text-3xl font-800 text-brand-50">{{ heroSlides[heroSlide].stat }}</div>
-                                    <div class="text-sm text-white/80 mt-1">عملکرد جامعه</div>
-                                </div>
-                                <div>
-                                    <div class="text-2xl sm:text-3xl font-800 text-brand-50">{{ liveStats?.active_users_today || 0 }}</div>
-                                    <div class="text-sm text-white/80 mt-1">کاربر فعال امروز</div>
-                                </div>
-                            </div>
+                        <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+                            <div class="text-[11px] text-white/60 mb-1">کاربر فعال</div>
+                            <div class="text-xl font-800">{{ liveStats?.active_users_today || 0 }}</div>
                         </div>
-
-                        <!-- Action Buttons -->
-                        <div class="flex flex-col sm:flex-row gap-4">
-                            <button 
-                                @click="openAuthModal('register')"
-                                class="btn-brand-primary"
-                            >
-                                همین حالا شروع کنید
-                            </button>
-                            <button 
-                                @click="openAuthModal('login')"
-                                class="btn-brand-ghost"
-                            >
-                                ورود به حساب کاربری
-                            </button>
-                        </div>
-
-                        <!-- Slide Indicators -->
-                        <div class="flex space-x-2 space-x-reverse justify-center lg:justify-start">
-                            <button 
-                                v-for="(slide, index) in heroSlides" 
-                                :key="index"
-                                @click="heroSlide = index"
-                                :class="['h-2 rounded-full transition-all duration-300', heroSlide === index ? 'bg-white w-8' : 'bg-white/40 w-2']"
-                            ></button>
+                        <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+                            <div class="text-[11px] text-white/60 mb-1">بازی ۲۴ساعت</div>
+                            <div class="text-xl font-800">{{ liveStats?.upcoming_matches_24h || 0 }}</div>
                         </div>
                     </div>
-
-                    <!-- CTA Section for smaller screens instead of form -->
-                    <div class="lg:hidden text-center">
-                        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/15">
-                            <h3 class="text-2xl font-800 mb-4">به جامعه ما بپیوندید</h3>
-                            <p class="text-white/80 mb-6">پیش‌بینی کنید، امتیاز کسب کنید و با دیگران رقابت کنید</p>
-                            <button 
-                                @click="openAuthModal('register')"
-                                class="w-full btn-brand-primary"
-                            >
-                                شروع رایگان
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Trusted by strip -->
-                <div class="mt-8">
-                    <div class="bg-white/10 backdrop-blur-sm rounded-xl border border-white/15 px-4 py-3">
-                        <div class="flex items-center justify-center gap-6 text-white/80 text-xs">
-                            <span>مورد اعتماد تحلیل‌گران فوتبال</span>
-                            <span class="w-1 h-1 bg-white/40 rounded-full"></span>
-                            <span>پوشش بازی‌های امروز</span>
-                            <span class="w-1 h-1 bg-white/40 rounded-full"></span>
-                            <span>کالیبراسیون تایید شده</span>
-                        </div>
+                    <div class="mt-6 text-[11px] text-white/70 flex flex-wrap gap-3">
+                        <span>داده محور</span><span class="opacity-40">•</span><span>رقابت دوستانه</span><span class="opacity-40">•</span><span>پیشرفت شخصی</span>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- How it works -->
-        <section id="how" class="py-20 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-14">
-                    <h3 class="text-3xl sm:text-4xl font-800 text-slate-900 mb-3">چطور کار می‌کنیم</h3>
-                    <p class="text-slate-600">داده‌ها → مدل → پیش‌بینی → بازخورد جامعه</p>
-                </div>
-                <div class="grid md:grid-cols-4 gap-6">
-                    <div class="card-step">
-                        <div class="step-icon">📡</div>
-                        <div class="step-title">جمع‌آوری داده</div>
-                        <div class="step-desc">نتایج، فرم تیم‌ها، پیش‌بینی‌های جامعه</div>
-                    </div>
-                    <div class="card-step">
-                        <div class="step-icon">🧠</div>
-                        <div class="step-title">مدل‌سازی</div>
-                        <div class="step-desc">احتمال برد/مساوی/باخت و اعتماد</div>
-                    </div>
-                    <div class="card-step">
-                        <div class="step-icon">📈</div>
-                        <div class="step-title">نمایش</div>
-                        <div class="step-desc">کارت بازی با احتمال و فرم اخیر</div>
-                    </div>
-                    <div class="card-step">
-                        <div class="step-icon">🔁</div>
-                        <div class="step-title">کالیبراسیون</div>
-                        <div class="step-desc">بازبینی دقت و بهبود مستمر</div>
-                    </div>
-                </div>
+    <LeaderboardDemo :top-predictors="topPredictors" :trending-matches="trendingMatches" />
+
+    <GamificationExplainer />
+
+        <!-- Sticky Mobile Signup Bar -->
+        <div v-if="showStickySignup" class="fixed bottom-0 inset-x-0 sm:hidden z-40">
+            <div class="mx-3 mb-3 bg-slate-900 text-white rounded-2xl px-5 py-4 flex items-center justify-between shadow-lg">
+                <div class="text-sm font-600">به ما بپیوندید و پیش‌بینی کنید</div>
+                <button @click="openAuthModal('register')" class="bg-white text-slate-900 text-xs font-700 px-4 py-2 rounded-xl">شروع</button>
             </div>
-        </section>
+        </div>
+
+    <!-- how-it-works removed -->
 
         <!-- Stats Dashboard Preview -->
         <section id="features" class="relative py-20 bg-white">
@@ -517,13 +344,13 @@ onUnmounted(() => {
                         </div>
                         <div class="flex items-center justify-between mt-4">
                             <div class="flex items-center gap-2">
-                                <img :src="`/assets/team-logos/${m?.home_team}.png`" class="w-6 h-6 object-contain" @error="$event.target.style.display='none'"/>
+                                <img loading="lazy" :src="`/assets/team-logos/${m?.home_team}.png`" :alt="translateTeamName(m?.home_team)" class="w-6 h-6 object-contain" @error="$event.target.style.display='none'"/>
                                 <div class="font-600 text-slate-900">{{ translateTeamName(m?.home_team) }}</div>
                             </div>
                             <div class="text-slate-400">vs</div>
                             <div class="flex items-center gap-2">
                                 <div class="font-600 text-slate-900">{{ translateTeamName(m?.away_team) }}</div>
-                                <img :src="`/assets/team-logos/${m?.away_team}.png`" class="w-6 h-6 object-contain" @error="$event.target.style.display='none'"/>
+                                <img loading="lazy" :src="`/assets/team-logos/${m?.away_team}.png`" :alt="translateTeamName(m?.away_team)" class="w-6 h-6 object-contain" @error="$event.target.style.display='none'"/>
                             </div>
                         </div>
                         <div class="grid grid-cols-3 gap-2 mt-4 text-center text-xs">
@@ -541,7 +368,7 @@ onUnmounted(() => {
         <section class="py-20 bg-slate-50">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-12">
-                    <h3 class="text-4xl font-800 text-slate-900 mb-4">فعالیت زنده جامعه</h3>
+                    <h3 class="text-4xl font-800 text-slate-900 mb-4">جامعه چه پیش‌بینی می‌کند؟</h3>
                     <p class="text-xl text-slate-600 font-300">آخرین پیش‌بینی‌های کاربران</p>
                 </div>
 
@@ -573,7 +400,7 @@ onUnmounted(() => {
                                 <div class="flex items-center space-x-3 space-x-reverse">
                                     <!-- Home Team -->
                                     <div class="flex items-center space-x-2 space-x-reverse">
-                                        <img 
+                                        <img loading="lazy"
                                             :src="`/assets/team-logos/${prediction.home_team}.png`"
                                             :alt="prediction.home_team"
                                             class="w-6 h-6 object-contain flex-shrink-0"
@@ -592,7 +419,7 @@ onUnmounted(() => {
                                     <!-- Away Team -->
                                     <div class="flex items-center space-x-2 space-x-reverse">
                                         <span class="font-600 text-slate-900 text-base">{{ translateTeamName(prediction.away_team) }}</span>
-                                        <img 
+                                        <img loading="lazy"
                                             :src="`/assets/team-logos/${prediction.away_team}.png`"
                                             :alt="prediction.away_team"
                                             class="w-6 h-6 object-contain flex-shrink-0"
@@ -614,7 +441,7 @@ onUnmounted(() => {
                                 <div class="flex items-center justify-center space-x-3 space-x-reverse">
                                     <!-- Home Team -->
                                     <div class="flex items-center space-x-2 space-x-reverse">
-                                        <img 
+                                        <img loading="lazy"
                                             :src="`/assets/team-logos/${prediction.home_team}.png`"
                                             :alt="prediction.home_team"
                                             class="w-5 h-5 object-contain flex-shrink-0"
@@ -633,7 +460,7 @@ onUnmounted(() => {
                                     <!-- Away Team -->
                                     <div class="flex items-center space-x-2 space-x-reverse">
                                         <span class="font-600 text-slate-900 text-sm truncate max-w-[70px]">{{ translateTeamName(prediction.away_team) }}</span>
-                                        <img 
+                                        <img loading="lazy"
                                             :src="`/assets/team-logos/${prediction.away_team}.png`"
                                             :alt="prediction.away_team"
                                             class="w-5 h-5 object-contain flex-shrink-0"
@@ -666,43 +493,7 @@ onUnmounted(() => {
             </div>
         </section>
 
-        <!-- Methodology -->
-        <section id="method" class="py-20 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-12">
-                    <h3 class="text-3xl sm:text-4xl font-800 text-slate-900 mb-3">روش‌شناسی ما</h3>
-                    <p class="text-slate-600">شفافیت در دقت و کالیبراسیون</p>
-                </div>
-                <div class="grid md:grid-cols-3 gap-6">
-                    <div class="brand-card">
-                        <div class="text-sm text-slate-500 mb-2">Brier Score (۷ روز)</div>
-                        <div class="text-3xl font-800 text-slate-900">{{ (props.confidenceMetrics?.brier_7d ?? '—') }}</div>
-                    </div>
-                    <div class="brand-card">
-                        <div class="text-sm text-slate-500 mb-2">LogLoss (۷ روز)</div>
-                        <div class="text-3xl font-800 text-slate-900">{{ (props.confidenceMetrics?.logloss_7d ?? '—') }}</div>
-                    </div>
-                    <div class="brand-card">
-                        <div class="text-sm text-slate-500 mb-2">اندازه نمونه (۳۰ روز)</div>
-                        <div class="text-3xl font-800 text-slate-900">{{ (props.stats?.sample_size_30d ?? '—') }}</div>
-                    </div>
-                </div>
-                <div class="mt-10 grid md:grid-cols-2 gap-6">
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                        <h4 class="text-lg font-700 text-slate-900 mb-4">توزیع دقت پیش‌بینی‌ها</h4>
-                        <div class="h-64">
-                            <Doughnut :data="accuracyChartData" :options="accuracyChartOptions" />
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                        <h4 class="text-lg font-700 text-slate-900 mb-4">اعتماد در مقابل دقت</h4>
-                        <div class="h-64">
-                            <Bar :data="confidenceChartData" :options="{ responsive: true, maintainAspectRatio: false }" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+    <!-- methodology removed -->
 
         <!-- Footer -->
         <footer class=" bg-slate-50">
@@ -726,11 +517,11 @@ onUnmounted(() => {
             <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md max-h-[90vh] overflow-y-auto">
                 <!-- Modal Header -->
                 <div class="flex items-center justify-between mb-8">
-                    <h2 class="text-2xl font-800 text-slate-900">
-                        {{ activeTab === 'login' ? 'ورود به حساب کاربری' : 'ایجاد حساب کاربری جدید' }}
-                    </h2>
-                    <button @click="closeAuthModal" 
-                            class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors">
+                    <div>
+                        <h2 class="text-2xl font-800 text-slate-900">{{ activeTab === 'login' ? 'ورود به حساب کاربری' : 'ایجاد حساب کاربری جدید' }}</h2>
+                        <div class="text-xs text-slate-500 mt-2">۱ از ۳: ایجاد حساب</div>
+                    </div>
+                    <button @click="closeAuthModal" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors" aria-label="بستن">
                         <span class="text-slate-400 text-xl">×</span>
                     </button>
                 </div>
@@ -762,7 +553,7 @@ onUnmounted(() => {
                 </div>
                 
                 <!-- Login Form -->
-                <form v-if="activeTab === 'login'" @submit.prevent="submitLogin" class="space-y-6">
+                <form v-if="activeTab === 'login'" @submit.prevent="submitLogin" class="space-y-6" novalidate>
                     <div>
                         <label class="block text-sm font-600 text-slate-900 mb-2">ایمیل</label>
                         <input 
@@ -777,13 +568,16 @@ onUnmounted(() => {
                     
                     <div>
                         <label class="block text-sm font-600 text-slate-900 mb-2">رمز عبور</label>
-                        <input 
-                            v-model="loginForm.password"
-                            type="password" 
-                            required
-                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-200 focus:border-brand-200 transition-all bg-white text-slate-900"
-                            placeholder="••••••••"
-                        >
+                        <div class="relative">
+                            <input 
+                                v-model="loginForm.password"
+                                :type="passwordVisible ? 'text' : 'password'" 
+                                required
+                                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-200 focus:border-brand-200 transition-all bg-white text-slate-900 pr-12"
+                                placeholder="••••••••"
+                            >
+                            <button type="button" @click="passwordVisible = !passwordVisible" class="absolute top-1/2 -translate-y-1/2 left-3 text-xs text-slate-500 hover:text-slate-700">{{ passwordVisible ? 'مخفی' : 'نمایش' }}</button>
+                        </div>
                         <div v-if="loginForm.errors.password" class="text-red-600 text-sm mt-1">{{ loginForm.errors.password }}</div>
                     </div>
                     
@@ -808,7 +602,7 @@ onUnmounted(() => {
                 </form>
                 
                 <!-- Register Form -->
-                <form v-if="activeTab === 'register'" @submit.prevent="submitRegister" class="space-y-6">
+                <form v-if="activeTab === 'register'" @submit.prevent="submitRegister" class="space-y-6" novalidate>
                     <div>
                         <label class="block text-sm font-600 text-slate-900 mb-2">نام</label>
                         <input 
@@ -835,13 +629,20 @@ onUnmounted(() => {
                     
                     <div>
                         <label class="block text-sm font-600 text-slate-900 mb-2">رمز عبور</label>
-                        <input 
-                            v-model="registerForm.password"
-                            type="password" 
-                            required
-                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-200 focus:border-brand-200 transition-all bg-white text-slate-900"
-                            placeholder="••••••••"
-                        >
+                        <div class="relative">
+                            <input 
+                                v-model="registerForm.password"
+                                :type="registerPasswordVisible ? 'text' : 'password'" 
+                                required
+                                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-200 focus:border-brand-200 transition-all bg-white text-slate-900 pr-12"
+                                placeholder="••••••••"
+                            >
+                            <button type="button" @click="registerPasswordVisible = !registerPasswordVisible" class="absolute top-1/2 -translate-y-1/2 left-3 text-xs text-slate-500 hover:text-slate-700">{{ registerPasswordVisible ? 'مخفی' : 'نمایش' }}</button>
+                        </div>
+                        <div class="mt-2 h-2 bg-slate-200 rounded overflow-hidden" v-if="passwordStrength">
+                            <div :class="['h-full transition-all', passwordStrength.score <=1 ? 'bg-red-500' : passwordStrength.score===2 ? 'bg-yellow-500' : passwordStrength.score===3 ? 'bg-blue-500' : 'bg-green-500']" :style="{width: ((passwordStrength.score/4)*100)+'%'}"></div>
+                        </div>
+                        <div class="text-xs mt-1" v-if="passwordStrength" :class="passwordStrength.score<=1 ? 'text-red-600' : passwordStrength.score===2 ? 'text-yellow-600' : passwordStrength.score===3 ? 'text-blue-600' : 'text-green-600'">قدرت: {{ passwordStrength.label }}</div>
                         <div v-if="registerForm.errors.password" class="text-red-600 text-sm mt-1">{{ registerForm.errors.password }}</div>
                     </div>
                     

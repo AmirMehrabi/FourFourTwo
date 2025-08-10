@@ -81,14 +81,42 @@ class WelcomeController extends Controller
                 else $draw++;
             }
             $total = max(1, ($home + $draw + $away));
+            // Community (raw) probabilities from distribution of submitted predictions
+            $probHome = round(($home / $total) * 100);
+            $probDraw = round(($draw / $total) * 100);
+            $probAway = round(($away / $total) * 100);
+
+            // Lightweight illustrative "model" probabilities using Laplace smoothing
+            $prior = 1; // simple symmetric prior
+            $modelHome = ($home + $prior) / ($total + 3 * $prior);
+            $modelDraw = ($draw + $prior) / ($total + 3 * $prior);
+            $modelAway = ($away + $prior) / ($total + 3 * $prior);
+            // Normalize & convert to percentages (should already sum to 1 but rounding safety)
+            $normSum = $modelHome + $modelDraw + $modelAway;
+            if ($normSum <= 0) { $modelHome = $modelDraw = $modelAway = 1/3; $normSum = 1; }
+            $modelHomePct = round($modelHome / $normSum * 100);
+            $modelDrawPct = round($modelDraw / $normSum * 100);
+            $modelAwayPct = round($modelAway / $normSum * 100);
+            // Adjust rounding drift to ensure sums to 100
+            $drift = 100 - ($modelHomePct + $modelDrawPct + $modelAwayPct);
+            if ($drift !== 0) {
+                // Apply drift to the largest component to keep ordering mostly stable
+                $maxVal = max($modelHomePct, $modelDrawPct, $modelAwayPct);
+                if ($modelHomePct === $maxVal) $modelHomePct += $drift;
+                elseif ($modelDrawPct === $maxVal) $modelDrawPct += $drift;
+                else $modelAwayPct += $drift;
+            }
             return [
                 'home_team' => optional($fixture->homeTeam)->name,
                 'away_team' => optional($fixture->awayTeam)->name,
                 'match_datetime' => $fixture->match_datetime,
                 'league' => optional($fixture->season)->name,
-                'prob_home' => round(($home / $total) * 100),
-                'prob_draw' => round(($draw / $total) * 100),
-                'prob_away' => round(($away / $total) * 100),
+                'prob_home' => $probHome,
+                'prob_draw' => $probDraw,
+                'prob_away' => $probAway,
+                'model_prob_home' => $modelHomePct,
+                'model_prob_draw' => $modelDrawPct,
+                'model_prob_away' => $modelAwayPct,
                 'predictions_count' => $fixture->predictions_count ?? $fixture->predictions->count(),
             ];
         });
