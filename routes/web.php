@@ -73,16 +73,4 @@ Route::middleware('auth')->group(function () {
 });
 
 
-Route::get('/debug-csrf', function (Request $request) {
-    return response()->json([
-        'cookies_from_browser' => $request->cookies->all(),
-        'session_id_laravel' => Session::getId(),
-        'session_data' => Session::all(),
-        'csrf_token_in_session' => Session::token(),
-        'csrf_token_meta_tag' => csrf_token(),
-        'is_authenticated' => auth()->check(),
-        'auth_user' => auth()->user(),
-    ]);
-});
-
 require __DIR__ . '/auth.php';
