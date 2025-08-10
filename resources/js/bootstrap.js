@@ -1,10 +1,8 @@
 import axios from 'axios';
 window.axios = axios;
 
-// Ensure no stale static X-CSRF-TOKEN header lingers from older bundle versions
-if (axios.defaults.headers.common['X-CSRF-TOKEN']) {
-    delete axios.defaults.headers.common['X-CSRF-TOKEN'];
-}
+
+
 
 // Always send cookies (helps with Safari/iOS quirks)
 axios.defaults.withCredentials = true;
