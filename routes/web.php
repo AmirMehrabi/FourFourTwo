@@ -13,8 +13,27 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 
 Route::get('/', [WelcomeController::class, 'index']);
+
+
+
+Route::get('/debug-csrf', function (Request $request) {
+    return response()->json([
+        'cookies_from_browser' => [
+            'XSRF-TOKEN'     => $request->cookie('XSRF-TOKEN'),
+            'laravel_session' => $request->cookie(config('session.cookie')),
+        ],
+        'session_id_laravel' => Session::getId(),
+        'session_data' => Session::all(),
+        'csrf_token_in_session' => Session::token(),
+        'csrf_token_meta_tag' => csrf_token(),
+        'is_authenticated' => Auth::check(),
+        'auth_user' => Auth::user(),
+    ]);
+})->middleware('web');
 
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
