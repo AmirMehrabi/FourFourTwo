@@ -29,6 +29,13 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        \Log::info('Login tokens debug', [
+            'session_token' => $request->session()->token(),
+            'header_X_CSRF_TOKEN' => $request->header('X-CSRF-TOKEN'),
+            'header_X_XSRF_TOKEN' => $request->header('X-XSRF-TOKEN'),
+            'input__token' => $request->input('_token'),
+            'cookies_present' => array_keys($request->cookies->all()),
+        ]);
         $request->authenticate();
 
         $request->session()->regenerate();
