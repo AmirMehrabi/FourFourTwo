@@ -26,6 +26,13 @@ axios.interceptors.request.use(config => {
         const value = decodeURIComponent(c.split('=')[1]);
         config.headers['X-CSRF-TOKEN'] = value;
     }
+    else {
+        // Fallback to meta tag token if cookie not yet available (first request edge cases)
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        if (meta) {
+            config.headers['X-CSRF-TOKEN'] = meta.getAttribute('content');
+        }
+    }
     return config;
 });
 
