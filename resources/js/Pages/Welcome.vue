@@ -72,13 +72,21 @@ const registerForm = useForm({
 });
 
 const submitLogin = () => {
-    loginForm.post(route('login'), {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    loginForm.transform(data => ({
+        ...data,
+        _token: meta ? meta.getAttribute('content') : undefined,
+    })).post(route('login'), {
         onFinish: () => loginForm.reset('password'),
     });
 };
 
 const submitRegister = () => {
-    registerForm.post(route('register'), {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    registerForm.transform(data => ({
+        ...data,
+        _token: meta ? meta.getAttribute('content') : undefined,
+    })).post(route('register'), {
         onFinish: () => registerForm.reset('password', 'password_confirmation'),
     });
 };
