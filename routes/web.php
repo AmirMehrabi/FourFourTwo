@@ -34,7 +34,12 @@ Route::get('/debug-csrf', function (Request $request) {
         'auth_user' => Auth::user(),
     ]);
 })->middleware('web');
-
+Route::post('/debug-csrf-post', function (Request $request) {
+    return response()->json([
+        'message' => 'POST succeeded — CSRF token was valid ✅',
+        'posted_data' => $request->all(),
+    ]);
+})->middleware('web', 'auth');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
