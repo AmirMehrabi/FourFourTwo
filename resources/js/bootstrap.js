@@ -20,21 +20,8 @@ if (!haveXsrfCookie()) {
 }
 
 // Dynamically attach current CSRF token each request to X-CSRF-TOKEN header (mirrors cookie so tokensMatch passes)
-axios.interceptors.request.use(config => {
-    const c = document.cookie.split('; ').find(c => c.startsWith('XSRF-TOKEN='));
-    if (c) {
-        const value = decodeURIComponent(c.split('=')[1]);
-        config.headers['X-CSRF-TOKEN'] = value;
-    }
-    else {
-        // Fallback to meta tag token if cookie not yet available (first request edge cases)
-        const meta = document.querySelector('meta[name="csrf-token"]');
-        if (meta) {
-            config.headers['X-CSRF-TOKEN'] = meta.getAttribute('content');
-        }
-    }
-    return config;
-});
+// Do NOT set X-CSRF-TOKEN manually. Let axios send X-XSRF-TOKEN (from cookie) so Laravel can decrypt and match.
+// If we set X-CSRF-TOKEN to the encrypted cookie value, middleware picks it first and cannot decrypt => 419.
 
 // Recover gracefully from 419 (expired/invalid CSRF or session)
 axios.interceptors.response.use(
