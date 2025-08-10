@@ -32,6 +32,20 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+        // Debug & defensive handling for unexpected intended URLs like '/form'
+        $intended = $request->session()->get('url.intended');
+
+        if ($intended === '/form') {
+            \Log::warning('Login redirect override: unexpected intended URL /form encountered, overriding to dashboard');
+            $request->session()->forget('url.intended');
+        } else {
+            \Log::info('Login redirect debug', [
+                'intended' => $intended,
+                'previous' => url()->previous(),
+                'current' => url()->current(),
+                'request_path' => $request->path(),
+            ]);
+        }
 
         return redirect()->intended(route('dashboard', absolute: false));
     }
