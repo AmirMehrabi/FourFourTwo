@@ -1,0 +1,13 @@
+{
+  "name": "FourFourTwo - پیش‌بینی فوتبال",
+  "short_name": "442",
+  "description": "پیش‌بینی مسابقات لیگ برتر انگلیس",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#411085",
+  "theme_color": "#7b0681",
+  "orientation": "portrait-primary",
+  "categories": ["sports", "entertainment"],
+  "lang": "fa",
+  "dir": "rtl"
+}
