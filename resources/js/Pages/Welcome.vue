@@ -176,76 +176,127 @@ onUnmounted(() => { document.removeEventListener('keydown', handleEscClose); });
             <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, rgba(15,23,42,0.08) 1px, transparent 0); background-size: 20px 20px;"></div>
         </div>
         
-        <!-- Header -->
+        <!-- Mobile-First Header -->
         <header class="relative border-b border-slate-200 bg-white/90 backdrop-blur-sm">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center py-6">
+                <div class="flex justify-between items-center py-4 md:py-6">
+                    <!-- Logo - Always visible -->
                     <div class="flex items-center">
-                        <img src="/assets/images/442-logo.png" class="h-16" alt="">
-                        <div class="mr-3 flex items-center space-x-2 space-x-reverse">
+                        <img src="/assets/images/442-logo.png" class="h-12 md:h-16" alt="">
+                        <div class="mr-2 md:mr-3 flex items-center">
                             <span class="text-xs text-brand-200 bg-brand-200/10 px-2 py-1 rounded-full font-600 border border-brand-200/30">BETA</span>
                         </div>
                     </div>
-                    <nav class="hidden md:flex items-center gap-6 text-sm text-slate-700">
-                        <a href="#features" class="hover:text-brand-300">ویژگی‌ها</a>
-                        <a href="#live" class="hover:text-brand-300">زنده</a>
-                    </nav>
-                    <div class="flex items-center space-x-4 space-x-reverse">
-                        <div v-if="$page.props.auth.user">
+                    
+                    <!-- Desktop Navigation -->
+                    <!-- <nav class="hidden md:flex items-center gap-6 text-sm text-slate-700">
+                        <a href="#features" class="hover:text-brand-300 transition-colors">ویژگی‌ها</a>
+                        <a href="#live" class="hover:text-brand-300 transition-colors">زنده</a>
+                    </nav> -->
+                    
+                    <!-- User Actions -->
+                    <div class="flex items-center">
+                        <div v-if="$page.props.auth.user" class="flex items-center">
                             <Link 
                                 :href="route('dashboard')"
-                                class="text-slate-900 hover:text-brand-300 transition-colors font-600 px-4 py-2 rounded-lg hover:bg-brand-50"
+                                class="text-slate-900 hover:text-brand-300 transition-colors font-600 px-3 py-2 md:px-4 rounded-lg hover:bg-brand-50 text-sm md:text-base"
                             >
                                 داشبورد
                             </Link>
                         </div>
-                        <div v-else class="flex items-center space-x-3 space-x-reverse">
-                            <button @click="openAuthModal('login')" class="text-slate-700 hover:text-brand-300 transition-colors font-600 px-4 py-2 rounded-lg hover:bg-brand-50">ورود</button>
-                            <button @click="openAuthModal('register')" class="btn-brand-primary">همین حالا پیش‌بینی را شروع کنید</button>
+                        <!-- Show login/register on desktop, hidden on mobile -->
+                        <div v-else class="hidden md:flex items-center space-x-3 space-x-reverse">
+                            <button @click="openAuthModal('login')" class="text-slate-700 hover:text-brand-300 transition-colors font-600 px-4 py-2 rounded-lg hover:bg-brand-50">
+                                ورود
+                            </button>
+                            <button @click="openAuthModal('register')" class="btn-brand-primary text-sm">
+                                شروع پیش‌بینی
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Simplified Hero -->
-        <section class="relative overflow-hidden text-white py-10 md:py-16">
+        <!-- Mobile-First Hero Section -->
+        <section class="relative overflow-hidden text-white py-12 sm:py-16 md:py-20">
             <div class="absolute inset-0 brand-hero-gradient"></div>
             <div class="absolute inset-0 bg-black/10"></div>
+            
             <div class="relative max-w-6xl mx-auto px-4 sm:px-6">
-                <div class="pt-2 flex flex-wrap gap-2 text-[11px] text-white/85">
+                <!-- Mobile-first badges -->
+                <div class="flex flex-wrap gap-2 text-xs text-white/85 justify-center sm:justify-start">
                     <span class="badge-translucent">⚡ زنده</span>
                     <span class="badge-translucent">🎯 {{ stats?.accuracy_rate || 0 }}% دقت</span>
                     <span class="badge-translucent">👥 {{ stats?.total_users?.toLocaleString() || '0' }} کاربر</span>
                 </div>
-                <div class="mt-8 md:mt-14 max-w-3xl">
-                    <h1 class="text-3xl sm:text-5xl font-800 leading-[1.25] sm:leading-tight">{{ heroContent.headline }}</h1>
-                    <p class="mt-4 text-base sm:text-xl text-white/85 font-300">{{ heroContent.sub }}</p>
-                    <div class="mt-6 flex items-center gap-3 flex-wrap text-sm">
-                        <span class="flex items-center gap-1 bg-white/10 px-3 py-2 rounded-full border border-white/15">دقت <strong class="font-700">{{ heroContent.stats.accuracy }}</strong></span>
-                        <span class="flex items-center gap-1 bg-white/10 px-3 py-2 rounded-full border border-white/15">کاربران <strong class="font-700">{{ heroContent.stats.users }}</strong></span>
-                        <span class="flex items-center gap-1 bg-white/10 px-3 py-2 rounded-full border border-white/15">این هفته <strong class="font-700">{{ heroContent.stats.predictions }}</strong></span>
+                
+                <!-- Hero Content - Mobile Optimized -->
+                <div class="mt-8 sm:mt-12 md:mt-14 text-center sm:text-right max-w-4xl sm:max-w-none">
+                    <h1 class="text-2xl sm:text-4xl md:text-5xl font-800 leading-tight sm:leading-[1.25]">
+                        {{ heroContent.headline }}
+                    </h1>
+                    <p class="mt-3 sm:mt-4 text-base sm:text-xl text-white/85 font-300 max-w-2xl mx-auto sm:mx-0">
+                        {{ heroContent.sub }}
+                    </p>
+                    
+                    <!-- Mobile-first stats -->
+                    <div class="mt-4 sm:mt-6 flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 text-xs sm:text-sm">
+                        <span class="flex items-center gap-1 bg-white/10 px-3 py-2 rounded-full border border-white/15">
+                            <span class="hidden sm:inline">دقت</span>
+                            <strong class="font-700">{{ heroContent.stats.accuracy }}</strong>
+                        </span>
+                        <span class="flex items-center gap-1 bg-white/10 px-3 py-2 rounded-full border border-white/15">
+                            <span class="hidden sm:inline">کاربران</span>
+                            <strong class="font-700">{{ heroContent.stats.users }}</strong>
+                        </span>
+                        <span class="flex items-center gap-1 bg-white/10 px-3 py-2 rounded-full border border-white/15">
+                            <span class="hidden sm:inline">این هفته</span>
+                            <strong class="font-700">{{ heroContent.stats.predictions }}</strong>
+                        </span>
                     </div>
-                    <div class="mt-8 flex flex-col sm:flex-row gap-4 max-w-md">
-                        <button @click="openAuthModal('register')" class="btn-brand-primary w-full sm:w-auto">همین حالا پیش‌بینی را شروع کنید</button>
-                        <button @click="openAuthModal('login')" class="btn-brand-ghost w-full sm:w-auto">ورود</button>
+                    
+                    <!-- CTA Buttons - Mobile Only, hidden on desktop -->
+                    <div v-if="!$page.props.auth.user" class="mt-6 sm:mt-8 flex flex-col gap-3 max-w-sm mx-auto md:hidden">
+                        <button @click="openAuthModal('register')" class="btn-brand-primary text-sm py-3 px-6 w-full order-1">
+                            شروع پیش‌بینی
+                        </button>
+                        <button @click="openAuthModal('login')" class="btn-brand-ghost text-sm py-3 px-6 w-full order-2">
+                            ورود به حساب
+                        </button>
                     </div>
-                    <div class="mt-10 grid grid-cols-3 gap-3 sm:gap-4 max-w-lg text-center">
-                        <div class="bg-white/5 border border-white/10 rounded-xl p-4">
-                            <div class="text-[11px] text-white/60 mb-1">پیش‌بینی امروز</div>
-                            <div class="text-xl font-800">{{ liveStats?.predictions_today || 0 }}</div>
+                    
+                    <!-- Welcome message for logged in users -->
+                    <div v-else class="mt-6 sm:mt-8">
+                        <Link 
+                            :href="route('dashboard')"
+                            class="inline-flex items-center justify-center btn-brand-primary text-sm sm:text-base py-3 sm:py-4 px-6 sm:px-8"
+                        >
+                            رفتن به داشبورد
+                        </Link>
+                    </div>
+                    
+                    <!-- Live Stats Grid - Mobile Optimized -->
+                    <div class="mt-8 sm:mt-10 grid grid-cols-3 gap-2 sm:gap-4 max-w-xs sm:max-w-lg mx-auto sm:mx-0 text-center">
+                        <div class="bg-white/5 border border-white/10 rounded-lg sm:rounded-xl p-3 sm:p-4">
+                            <div class="text-xs text-white/60 mb-1">پیش‌بینی امروز</div>
+                            <div class="text-lg sm:text-xl font-800">{{ liveStats?.predictions_today || 0 }}</div>
                         </div>
-                        <div class="bg-white/5 border border-white/10 rounded-xl p-4">
-                            <div class="text-[11px] text-white/60 mb-1">کاربر فعال</div>
-                            <div class="text-xl font-800">{{ liveStats?.active_users_today || 0 }}</div>
+                        <div class="bg-white/5 border border-white/10 rounded-lg sm:rounded-xl p-3 sm:p-4">
+                            <div class="text-xs text-white/60 mb-1">کاربر فعال</div>
+                            <div class="text-lg sm:text-xl font-800">{{ liveStats?.active_users_today || 0 }}</div>
                         </div>
-                        <div class="bg-white/5 border border-white/10 rounded-xl p-4">
-                            <div class="text-[11px] text-white/60 mb-1">بازی ۲۴ساعت</div>
-                            <div class="text-xl font-800">{{ liveStats?.upcoming_matches_24h || 0 }}</div>
+                        <div class="bg-white/5 border border-white/10 rounded-lg sm:rounded-xl p-3 sm:p-4">
+                            <div class="text-xs text-white/60 mb-1">بازی ۲۴ساعت</div>
+                            <div class="text-lg sm:text-xl font-800">{{ liveStats?.upcoming_matches_24h || 0 }}</div>
                         </div>
                     </div>
-                    <div class="mt-6 text-[11px] text-white/70 flex flex-wrap gap-3">
-                        <span>داده محور</span><span class="opacity-40">•</span><span>رقابت دوستانه</span><span class="opacity-40">•</span><span>پیشرفت شخصی</span>
+                    
+                    <!-- Features tagline - Mobile optimized -->
+                    <div class="mt-4 sm:mt-6 text-xs text-white/70 flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-3">
+                        <span>داده محور</span><span class="opacity-40">•</span>
+                        <span>رقابت دوستانه</span><span class="opacity-40">•</span>
+                        <span>پیشرفت شخصی</span>
                     </div>
                 </div>
             </div>
@@ -255,72 +306,82 @@ onUnmounted(() => { document.removeEventListener('keydown', handleEscClose); });
 
     <GamificationExplainer />
 
-        <!-- Sticky Mobile Signup Bar -->
-        <div v-if="showStickySignup" class="fixed bottom-0 inset-x-0 sm:hidden z-40">
-            <div class="mx-3 mb-3 bg-slate-900 text-white rounded-2xl px-5 py-4 flex items-center justify-between shadow-lg">
-                <div class="text-sm font-600">به ما بپیوندید و پیش‌بینی کنید</div>
-                <button @click="openAuthModal('register')" class="bg-white text-slate-900 text-xs font-700 px-4 py-2 rounded-xl">شروع</button>
+        <!-- Mobile Sticky Signup Bar - Only for unauthenticated users -->
+        <div v-if="showStickySignup && !$page.props.auth.user" class="fixed bottom-0 inset-x-0 sm:hidden z-40">
+            <div class="mx-2 mb-2 bg-slate-900 text-white rounded-xl px-4 py-3 flex items-center justify-between shadow-2xl border border-slate-700">
+                <div class="flex-1 mr-3">
+                    <div class="text-sm font-600">شروع پیش‌بینی</div>
+                    <div class="text-xs text-white/70">به جامعه ما بپیوندید</div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button @click="openAuthModal('login')" class="text-white/80 text-xs font-600 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors">
+                        ورود
+                    </button>
+                    <button @click="openAuthModal('register')" class="bg-white text-slate-900 text-xs font-700 px-4 py-2 rounded-lg hover:bg-white/90 transition-colors">
+                        ثبت نام
+                    </button>
+                </div>
             </div>
         </div>
 
     <!-- how-it-works removed -->
 
-        <!-- Stats Dashboard Preview -->
-        <section id="features" class="relative py-20 bg-white">
+        <!-- Mobile-First Stats Dashboard Preview -->
+        <section id="features" class="relative py-12 sm:py-16 md:py-20 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
-                    <h3 class="text-4xl font-800 text-slate-900 mb-4">آمار پلتفرم</h3>
-                    <p class="text-xl text-slate-600 font-300">نگاهی به عملکرد جامعه ما</p>
+                <div class="text-center mb-8 sm:mb-12 md:mb-16">
+                    <h3 class="text-2xl sm:text-3xl md:text-4xl font-800 text-slate-900 mb-2 sm:mb-4">آمار پلتفرم</h3>
+                    <p class="text-base sm:text-lg md:text-xl text-slate-600 font-300">نگاهی به عملکرد جامعه ما</p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-                    <div class="brand-card">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-brand-200/15">
-                                <span class="text-brand-200 text-xl">👥</span>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-8 sm:mb-12 md:mb-16">
+                    <div class="brand-card col-span-2 lg:col-span-1">
+                        <div class="flex items-center justify-between mb-3 sm:mb-4">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center bg-brand-200/15">
+                                <span class="text-brand-200 text-lg sm:text-xl">👥</span>
                             </div>
                             <div class="text-right">
-                                <div class="text-3xl font-800 text-slate-900">{{ stats?.total_users?.toLocaleString() || '0' }}</div>
-                                <div class="text-sm text-slate-600 font-600">کاربر فعال</div>
+                                <div class="text-2xl sm:text-3xl font-800 text-slate-900">{{ stats?.total_users?.toLocaleString() || '0' }}</div>
+                                <div class="text-xs sm:text-sm text-slate-600 font-600">کاربر فعال</div>
                             </div>
                         </div>
                         <div class="text-xs text-slate-500">+{{ liveStats?.active_users_today || 0 }} امروز</div>
                     </div>
 
-                    <div class="brand-card">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-brand-200/15">
-                                <span class="text-brand-200 text-xl">📊</span>
+                    <div class="brand-card col-span-2 lg:col-span-1">
+                        <div class="flex items-center justify-between mb-3 sm:mb-4">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center bg-brand-200/15">
+                                <span class="text-brand-200 text-lg sm:text-xl">📊</span>
                             </div>
                             <div class="text-right">
-                                <div class="text-3xl font-800 text-slate-900">{{ stats?.total_predictions?.toLocaleString() || '0' }}</div>
-                                <div class="text-sm text-slate-600 font-600">پیش‌بینی کل</div>
+                                <div class="text-2xl sm:text-3xl font-800 text-slate-900">{{ stats?.total_predictions?.toLocaleString() || '0' }}</div>
+                                <div class="text-xs sm:text-sm text-slate-600 font-600">پیش‌بینی کل</div>
                             </div>
                         </div>
                         <div class="text-xs text-slate-500">+{{ liveStats?.predictions_today || 0 }} امروز</div>
                     </div>
 
                     <div class="brand-card">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-brand-200/15">
-                                <span class="text-brand-200 text-xl">🎯</span>
+                        <div class="flex items-center justify-between mb-3 sm:mb-4">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center bg-brand-200/15">
+                                <span class="text-brand-200 text-lg sm:text-xl">🎯</span>
                             </div>
                             <div class="text-right">
-                                <div class="text-3xl font-800 text-slate-900">{{ stats?.accuracy_rate || 0 }}%</div>
-                                <div class="text-sm text-slate-600 font-600">دقت پیش‌بینی</div>
+                                <div class="text-2xl sm:text-3xl font-800 text-slate-900">{{ stats?.accuracy_rate || 0 }}%</div>
+                                <div class="text-xs sm:text-sm text-slate-600 font-600">دقت پیش‌بینی</div>
                             </div>
                         </div>
                         <div class="text-xs text-slate-500">{{ stats?.exact_matches || 0 }} تطبیق دقیق</div>
                     </div>
 
                     <div class="brand-card">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-brand-200/15">
-                                <span class="text-brand-200 text-xl">⚽</span>
+                        <div class="flex items-center justify-between mb-3 sm:mb-4">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center bg-brand-200/15">
+                                <span class="text-brand-200 text-lg sm:text-xl">⚽</span>
                             </div>
                             <div class="text-right">
-                                <div class="text-3xl font-800 text-slate-900">{{ liveStats?.upcoming_matches_24h || 0 }}</div>
-                                <div class="text-sm text-slate-600 font-600">بازی ۲۴ ساعت آینده</div>
+                                <div class="text-2xl sm:text-3xl font-800 text-slate-900">{{ liveStats?.upcoming_matches_24h || 0 }}</div>
+                                <div class="text-xs sm:text-sm text-slate-600 font-600">بازی ۲۴ ساعت آینده</div>
                             </div>
                         </div>
                         <div class="text-xs text-slate-500">{{ liveStats?.live_matches || 0 }} بازی زنده</div>
@@ -329,65 +390,77 @@ onUnmounted(() => { document.removeEventListener('keydown', handleEscClose); });
             </div>
         </section>
 
-        <!-- Live Trending Matches (if any) -->
-        <section id="live" class="py-20 bg-slate-50">
+        <!-- Mobile-First Live Trending Matches -->
+        <section id="live" class="py-12 sm:py-16 md:py-20 bg-slate-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-end justify-between mb-8">
-                    <div>
-                        <h3 class="text-2xl font-800 text-slate-900">بازی‌های داغ امروز</h3>
-                        <p class="text-slate-600 text-sm">احتمالات برد/مساوی/باخت و زمان شروع</p>
+                <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-6 sm:mb-8">
+                    <div class="text-center sm:text-right">
+                        <h3 class="text-xl sm:text-2xl font-800 text-slate-900">بازی‌های داغ امروز</h3>
+                        <p class="text-slate-600 text-sm mt-1">احتمالات برد/مساوی/باخت و زمان شروع</p>
                     </div>
                 </div>
-                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" v-if="trendingMatches && trendingMatches.length">
-                    <div v-for="(m, i) in trendingMatches" :key="i" class="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-md transition-shadow">
-                        <div class="flex items-center justify-between text-sm text-slate-500">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" v-if="trendingMatches && trendingMatches.length">
+                    <div v-for="(m, i) in trendingMatches" :key="i" class="bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-4 sm:p-5 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between text-xs sm:text-sm text-slate-500 mb-3 sm:mb-4">
                             <span>🕒 {{ m?.match_datetime ? formatFarsiDate(m.match_datetime) : '—' }}</span>
                             <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">{{ m?.league || '—' }}</span>
                         </div>
-                        <div class="flex items-center justify-between mt-4">
-                            <div class="flex items-center gap-2">
-                                <img loading="lazy" :src="`/assets/team-logos/${m?.home_team}.png`" :alt="translateTeamName(m?.home_team)" class="w-6 h-6 object-contain" @error="$event.target.style.display='none'"/>
-                                <div class="font-600 text-slate-900">{{ translateTeamName(m?.home_team) }}</div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2 flex-1 min-w-0">
+                                <img loading="lazy" :src="`/assets/team-logos/${m?.home_team}.png`" :alt="translateTeamName(m?.home_team)" class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0" @error="$event.target.style.display='none'"/>
+                                <div class="font-600 text-slate-900 text-sm sm:text-base truncate">{{ translateTeamName(m?.home_team) }}</div>
                             </div>
-                            <div class="text-slate-400">vs</div>
-                            <div class="flex items-center gap-2">
-                                <div class="font-600 text-slate-900">{{ translateTeamName(m?.away_team) }}</div>
-                                <img loading="lazy" :src="`/assets/team-logos/${m?.away_team}.png`" :alt="translateTeamName(m?.away_team)" class="w-6 h-6 object-contain" @error="$event.target.style.display='none'"/>
+                            <div class="text-slate-400 text-xs sm:text-sm mx-2">vs</div>
+                            <div class="flex items-center gap-2 flex-1 min-w-0 justify-end">
+                                <div class="font-600 text-slate-900 text-sm sm:text-base truncate">{{ translateTeamName(m?.away_team) }}</div>
+                                <img loading="lazy" :src="`/assets/team-logos/${m?.away_team}.png`" :alt="translateTeamName(m?.away_team)" class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0" @error="$event.target.style.display='none'"/>
                             </div>
                         </div>
-                        <div class="grid grid-cols-3 gap-2 mt-4 text-center text-xs">
-                            <div class="px-2 py-2 rounded-lg bg-brand-50 text-slate-900">برد میزبان<br><span class="font-800 text-slate-900">{{ (m?.prob_home ?? 0) }}%</span></div>
-                            <div class="px-2 py-2 rounded-lg bg-slate-100">مساوی<br><span class="font-800 text-slate-900">{{ (m?.prob_draw ?? 0) }}%</span></div>
-                            <div class="px-2 py-2 rounded-lg bg-brand-50 text-slate-900">برد مهمان<br><span class="font-800 text-slate-900">{{ (m?.prob_away ?? 0) }}%</span></div>
+                        <div class="grid grid-cols-3 gap-1 sm:gap-2 mt-3 sm:mt-4 text-center text-xs">
+                            <div class="px-2 py-1.5 sm:py-2 rounded-lg bg-brand-50 text-slate-900">
+                                <div class="font-600">برد میزبان</div>
+                                <div class="font-800 text-slate-900">{{ (m?.prob_home ?? 0) }}%</div>
+                            </div>
+                            <div class="px-2 py-1.5 sm:py-2 rounded-lg bg-slate-100">
+                                <div class="font-600">مساوی</div>
+                                <div class="font-800 text-slate-900">{{ (m?.prob_draw ?? 0) }}%</div>
+                            </div>
+                            <div class="px-2 py-1.5 sm:py-2 rounded-lg bg-brand-50 text-slate-900">
+                                <div class="font-600">برد مهمان</div>
+                                <div class="font-800 text-slate-900">{{ (m?.prob_away ?? 0) }}%</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div v-else class="text-center text-slate-500">داده‌ای برای نمایش موجود نیست</div>
+                <div v-else class="text-center text-slate-500 py-8">
+                    <div class="text-4xl mb-4">⚽</div>
+                    <div>داده‌ای برای نمایش موجود نیست</div>
+                </div>
             </div>
         </section>
 
-        <!-- Recent Community Predictions -->
-        <section class="py-20 bg-slate-50">
+        <!-- Mobile-First Recent Community Predictions -->
+        <section class="py-12 sm:py-16 md:py-20 bg-slate-50">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-12">
-                    <h3 class="text-4xl font-800 text-slate-900 mb-4">جامعه چه پیش‌بینی می‌کند؟</h3>
-                    <p class="text-xl text-slate-600 font-300">آخرین پیش‌بینی‌های کاربران</p>
+                <div class="text-center mb-8 sm:mb-12">
+                    <h3 class="text-2xl sm:text-3xl md:text-4xl font-800 text-slate-900 mb-2 sm:mb-4">جامعه چه پیش‌بینی می‌کند؟</h3>
+                    <p class="text-base sm:text-lg md:text-xl text-slate-600 font-300">آخرین پیش‌بینی‌های کاربران</p>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-                    <div class="p-6 brand-section-dark text-white">
+                <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+                    <div class="p-4 sm:p-6 brand-section-dark text-white">
                         <div class="flex items-center justify-between">
-                            <h4 class="text-lg font-700">🔴 پیش‌بینی‌های زنده</h4>
+                            <h4 class="text-base sm:text-lg font-700">🔴 پیش‌بینی‌های زنده</h4>
                             <div class="flex items-center space-x-2 space-x-reverse">
                                 <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                <span class="text-sm">زنده</span>
+                                <span class="text-xs sm:text-sm">زنده</span>
                             </div>
                         </div>
                     </div>
                     
                     <div class="divide-y divide-slate-100">
                         <div v-for="(prediction, index) in recentPredictions" :key="index" 
-                             class="p-4 hover:bg-slate-50 transition-colors">
+                             class="p-3 sm:p-4 hover:bg-slate-50 transition-colors">
                             <!-- Desktop Layout -->
                             <div class="hidden sm:flex sm:items-center sm:justify-between gap-3">
                                 <div class="flex items-center justify-start">
@@ -437,41 +510,41 @@ onUnmounted(() => { document.removeEventListener('keydown', handleEscClose); });
                                 </div>
                             </div>
                             
-                            <!-- Mobile Layout -->
-                            <div class="sm:hidden space-y-3">
-                                <!-- First Row: Teams and Score -->
-                                <div class="flex items-center justify-center space-x-3 space-x-reverse">
+                            <!-- Mobile Layout - Improved -->
+                            <div class="sm:hidden space-y-2">
+                                <!-- Teams and Score Row -->
+                                <div class="flex items-center justify-center space-x-2 space-x-reverse">
                                     <!-- Home Team -->
-                                    <div class="flex items-center space-x-2 space-x-reverse">
+                                    <div class="flex items-center space-x-1 space-x-reverse flex-1 min-w-0">
                                         <img loading="lazy"
                                             :src="`/assets/team-logos/${prediction.home_team}.png`"
                                             :alt="prediction.home_team"
-                                            class="w-5 h-5 object-contain flex-shrink-0"
+                                            class="w-4 h-4 object-contain flex-shrink-0"
                                             @error="$event.target.style.display = 'none'"
                                         />
-                                        <span class="font-600 text-slate-900 text-sm truncate max-w-[70px]">{{ translateTeamName(prediction.home_team) }}</span>
+                                        <span class="font-600 text-slate-900 text-xs truncate">{{ translateTeamName(prediction.home_team) }}</span>
                                     </div>
                                     
-                                    <!-- Score -->
-                                    <div class="flex items-center justify-center space-x-1 space-x-reverse mx-2">
-                                        <span class="text-lg font-800 text-slate-900">{{ prediction.home_score }}</span>
-                                        <span class="text-slate-400">-</span>
-                                        <span class="text-lg font-800 text-slate-900">{{ prediction.away_score }}</span>
+                                    <!-- Score - More prominent -->
+                                    <div class="flex items-center justify-center space-x-1 space-x-reverse bg-slate-50 rounded-lg px-3 py-1">
+                                        <span class="text-base font-800 text-slate-900">{{ prediction.home_score }}</span>
+                                        <span class="text-slate-400 text-sm">-</span>
+                                        <span class="text-base font-800 text-slate-900">{{ prediction.away_score }}</span>
                                     </div>
                                     
                                     <!-- Away Team -->
-                                    <div class="flex items-center space-x-2 space-x-reverse">
-                                        <span class="font-600 text-slate-900 text-sm truncate max-w-[70px]">{{ translateTeamName(prediction.away_team) }}</span>
+                                    <div class="flex items-center space-x-1 space-x-reverse flex-1 min-w-0 justify-end">
+                                        <span class="font-600 text-slate-900 text-xs truncate">{{ translateTeamName(prediction.away_team) }}</span>
                                         <img loading="lazy"
                                             :src="`/assets/team-logos/${prediction.away_team}.png`"
                                             :alt="prediction.away_team"
-                                            class="w-5 h-5 object-contain flex-shrink-0"
+                                            class="w-4 h-4 object-contain flex-shrink-0"
                                             @error="$event.target.style.display = 'none'"
                                         />
                                     </div>
                                 </div>
                                 
-                                <!-- Second Row: Match Date and Prediction Time -->
+                                <!-- Date and Time Row -->
                                 <div class="flex items-center justify-between text-xs text-slate-500">
                                     <div class="flex items-center space-x-1 space-x-reverse">
                                         <span>⚽</span>
@@ -490,6 +563,11 @@ onUnmounted(() => { document.removeEventListener('keydown', handleEscClose); });
                         <div class="text-4xl mb-4">⚽</div>
                         <div class="text-lg font-600 text-slate-700 mb-2">هنوز پیش‌بینی‌ای ثبت نشده</div>
                         <div class="text-sm text-slate-500">اولین نفری باشید که پیش‌بینی می‌کند</div>
+                        <div v-if="!$page.props.auth.user" class="mt-4">
+                            <button @click="openAuthModal('register')" class="btn-brand-primary text-sm px-6 py-2">
+                                شروع پیش‌بینی
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -497,17 +575,20 @@ onUnmounted(() => { document.removeEventListener('keydown', handleEscClose); });
 
     <!-- methodology removed -->
 
-        <!-- Footer -->
-        <footer class=" bg-slate-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div class="border-t border-slate-200 mt-2 pt-8 flex justify-between items-center">
-                    <div class="hidden sm:block text-sm text-slate-500">
-                        © ۲۰۲۵ FourFourTwo. تمامی حقوق محفوظ است.
-                    </div>
-                    <div class="flex items-center space-x-2 space-x-reverse text-sm text-slate-500">
-                        <span>ساخته شده با</span>
-                        <span class="text-brand-200">❤️</span>
-                        <span>برای علاقه‌مندان فوتبال</span>
+        <!-- Mobile-First Footer -->
+        <footer class="bg-slate-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+                <div class="border-t border-slate-200 mt-2 pt-6 sm:pt-8">
+                    <!-- Mobile: Stack vertically, Desktop: Side by side -->
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0 text-center sm:text-right">
+                        <div class="text-sm text-slate-500 order-2 sm:order-1">
+                            © ۲۰۲۵ FourFourTwo. تمامی حقوق محفوظ است.
+                        </div>
+                        <div class="flex items-center justify-center sm:justify-end space-x-2 space-x-reverse text-sm text-slate-500 order-1 sm:order-2">
+                            <span>ساخته شده با</span>
+                            <span class="text-brand-200">❤️</span>
+                            <span>برای علاقه‌مندان فوتبال</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -695,24 +776,81 @@ onUnmounted(() => { document.removeEventListener('keydown', handleEscClose); });
   background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
   padding: .35rem .6rem; border-radius: 999px;
 }
+
+/* Mobile-first button styles */
 .btn-brand-primary {
   background-image: linear-gradient(90deg, var(--brand-1), var(--brand-2), var(--brand-3));
-  color: #fff; font-weight: 700; padding: 1rem 2rem; border-radius: .75rem;
+  color: #fff; font-weight: 700; padding: .875rem 1.5rem; border-radius: .75rem;
   transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
-  box-shadow: 0 10px 20px rgba(9, 14, 80, 0.2);
+  box-shadow: 0 8px 16px rgba(9, 14, 80, 0.2);
+  text-align: center; display: inline-flex; align-items: center; justify-content: center;
 }
-.btn-brand-primary:hover { transform: translateY(-1px); box-shadow: 0 14px 28px rgba(9, 14, 80, 0.3); }
-.btn-brand-ghost {
-  border: 2px solid rgba(255,255,255,0.35); color: #fff; padding: 1rem 2rem; border-radius: .75rem;
-  transition: background-color .2s ease, border-color .2s ease; background-color: transparent;
-}
-.btn-brand-ghost:hover { background-color: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.55); }
 
-.brand-card { background: white; border: 1px solid #e5e7eb; border-radius: 1rem; padding: 1.25rem; }
-.card-step { background: white; border: 1px solid #e5e7eb; border-radius: 1rem; padding: 1.25rem; text-align: center; }
-.step-icon { font-size: 1.5rem; }
+.btn-brand-primary:hover { 
+  transform: translateY(-1px); 
+  box-shadow: 0 12px 24px rgba(9, 14, 80, 0.3); 
+}
+
+.btn-brand-ghost {
+  border: 2px solid rgba(255,255,255,0.35); color: #fff; 
+  padding: .875rem 1.5rem; border-radius: .75rem;
+  transition: background-color .2s ease, border-color .2s ease; background-color: transparent;
+  text-align: center; display: inline-flex; align-items: center; justify-content: center;
+}
+
+.btn-brand-ghost:hover { 
+  background-color: rgba(255,255,255,0.08); 
+  border-color: rgba(255,255,255,0.55); 
+}
+
+/* Desktop adjustments */
+@media (min-width: 640px) {
+  .btn-brand-primary {
+    padding: 1rem 2rem;
+    box-shadow: 0 10px 20px rgba(9, 14, 80, 0.2);
+  }
+  
+  .btn-brand-primary:hover {
+    box-shadow: 0 14px 28px rgba(9, 14, 80, 0.3);
+  }
+  
+  .btn-brand-ghost {
+    padding: 1rem 2rem;
+  }
+}
+
+.brand-card { 
+  background: white; border: 1px solid #e5e7eb; border-radius: 1rem; 
+  padding: 1rem; 
+}
+
+@media (min-width: 640px) {
+  .brand-card {
+    padding: 1.25rem;
+  }
+}
+
+.card-step { 
+  background: white; border: 1px solid #e5e7eb; border-radius: 1rem; 
+  padding: 1rem; text-align: center; 
+}
+
+@media (min-width: 640px) {
+  .card-step {
+    padding: 1.25rem;
+  }
+}
+
+.step-icon { font-size: 1.25rem; }
+@media (min-width: 640px) {
+  .step-icon { font-size: 1.5rem; }
+}
+
 .step-title { margin-top: .5rem; font-weight: 800; color: #0f172a; }
-.step-desc { margin-top: .25rem; color: #64748b; font-size: .9rem; }
+.step-desc { margin-top: .25rem; color: #64748b; font-size: .875rem; }
+@media (min-width: 640px) {
+  .step-desc { font-size: .9rem; }
+}
 
 /* Existing slider thumbs (kept) */
 .slider::-webkit-slider-thumb {
@@ -734,5 +872,26 @@ onUnmounted(() => { document.removeEventListener('keydown', handleEscClose); });
     cursor: pointer;
     border: 2px solid #fff;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Mobile touch improvements */
+@media (max-width: 639px) {
+  /* Larger touch targets on mobile */
+  button, .btn-brand-primary, .btn-brand-ghost {
+    min-height: 44px;
+  }
+  
+  /* Better text readability on mobile */
+  body {
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    .btn-brand-primary:hover,
+    .btn-brand-ghost:hover {
+      transform: none;
+    }
+  }
 }
 </style>
