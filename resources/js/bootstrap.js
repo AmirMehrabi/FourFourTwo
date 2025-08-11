@@ -12,13 +12,23 @@ axios.defaults.xsrfCookieName = 'XSRF-TOKEN';
 axios.defaults.xsrfHeaderName = 'X-XSRF-TOKEN';
 
 // Ensure XSRF-TOKEN cookie exists on page load
-function initializeXsrfCookie() {
+async function initializeXsrfCookie() {
     const hasXsrfCookie = document.cookie.split('; ').some(c => c.startsWith('XSRF-TOKEN='));
     if (!hasXsrfCookie) {
-        // Try to get CSRF cookie via Sanctum route, fallback silently
-        axios.get('/sanctum/csrf-cookie').catch(() => {
-            // If Sanctum route doesn't exist, that's fine - Laravel will set XSRF cookie on first protected request
-        });
+        try {
+            // Try to get CSRF cookie via Sanctum route
+            await axios.get('/sanctum/csrf-cookie');
+        } catch (error) {
+            // If Sanctum route doesn't exist, try a simple GET request to trigger CSRF cookie
+            try {
+                await axios.get(window.location.pathname, { 
+                    headers: { 'Accept': 'application/json' } 
+                });
+            } catch (fallbackError) {
+                // If all else fails, that's fine - Laravel will set XSRF cookie on first protected request
+                console.warn('Could not initialize CSRF cookie:', fallbackError.message);
+            }
+        }
     }
 }
 
@@ -32,11 +42,14 @@ axios.interceptors.response.use(
         const status = error?.response?.status;
         const config = error?.config || {};
         
+        // Handle CSRF token mismatch (419)
         if (status === 419 && !config._retried419) {
             config._retried419 = true;
             try {
                 // Try to refresh CSRF cookie
                 await axios.get('/sanctum/csrf-cookie').catch(() => {});
+                // Small delay to ensure cookie is set
+                await new Promise(resolve => setTimeout(resolve, 100));
                 // Retry the original request
                 return axios(config);
             } catch (retryError) {
