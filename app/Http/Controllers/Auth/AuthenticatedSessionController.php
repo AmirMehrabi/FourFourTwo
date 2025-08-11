@@ -29,29 +29,15 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        \Log::info('Login tokens debug', [
-            'session_token' => $request->session()->token(),
-            'header_X_CSRF_TOKEN' => $request->header('X-CSRF-TOKEN'),
-            'header_X_XSRF_TOKEN' => $request->header('X-XSRF-TOKEN'),
-            'input__token' => $request->input('_token'),
-            'cookies_present' => array_keys($request->cookies->all()),
-        ]);
         $request->authenticate();
 
         $request->session()->regenerate();
-        // Debug & defensive handling for unexpected intended URLs like '/form'
+        
+        // Defensive handling for unexpected intended URLs
         $intended = $request->session()->get('url.intended');
-
         if ($intended === '/form') {
             \Log::warning('Login redirect override: unexpected intended URL /form encountered, overriding to dashboard');
             $request->session()->forget('url.intended');
-        } else {
-            \Log::info('Login redirect debug', [
-                'intended' => $intended,
-                'previous' => url()->previous(),
-                'current' => url()->current(),
-                'request_path' => $request->path(),
-            ]);
         }
 
         return redirect()->intended(route('dashboard', absolute: false));
