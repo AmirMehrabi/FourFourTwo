@@ -5,6 +5,7 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import MobileBottomNavigation from '@/Components/MobileBottomNavigation.vue';
 import { Link } from '@inertiajs/vue3';
 
 const showingNavigationDropdown = ref(false);
@@ -12,7 +13,7 @@ const showingNavigationDropdown = ref(false);
 
 <template>
     <div>
-        <div class="min-h-screen bg-gray-100">
+        <div class="min-h-screen bg-gray-100 pb-16 sm:pb-0">
             <nav
                 class="sticky top-0 z-40 border-b border-gray-100 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60"
             >
@@ -113,8 +114,8 @@ const showingNavigationDropdown = ref(false);
                             </div>
                         </div>
 
-                        <!-- Hamburger -->
-                        <div class="-me-2 flex items-center sm:hidden">
+                        <!-- Hamburger - Hidden since we're using bottom nav on mobile -->
+                        <div class="-me-2 items-center sm:hidden hidden">
                             <button
                                 @click="
                                     showingNavigationDropdown =
@@ -158,14 +159,8 @@ const showingNavigationDropdown = ref(false);
                     </div>
                 </div>
 
-                <!-- Responsive Navigation Menu -->
-                <div
-                    :class="{
-                        block: showingNavigationDropdown,
-                        hidden: !showingNavigationDropdown,
-                    }"
-                    class="sm:hidden"
-                >
+                <!-- Responsive Navigation Menu - Hidden since we're using bottom nav -->
+                <div class="hidden">
                     <div class="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
                             :href="route('dashboard')"
@@ -245,5 +240,8 @@ const showingNavigationDropdown = ref(false);
                 <slot />
             </main>
         </div>
+        
+        <!-- Mobile Bottom Navigation -->
+        <MobileBottomNavigation />
     </div>
 </template>
