@@ -65,7 +65,7 @@ class Team extends Model
     /**
      * Get the logo URL with fallback
      */
-    public function getLogoUrlAttribute($value)
+        public function getLogoUrlAttribute($value)
     {
         if ($value) {
             return $value;
@@ -117,5 +117,4 @@ class Team extends Model
             'Burnley' => 'برنلی',
             'Sunderland' => 'ساندرلند',
         ];
-    }
-}
+    }}

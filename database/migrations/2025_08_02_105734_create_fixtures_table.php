@@ -25,7 +25,7 @@ return new class extends Migration
             $table->dateTime('match_datetime');
             $table->unsignedTinyInteger('matchweek')->comment('The match week number, e.g., 1, 2, 3...');
 
-            // Status of the match (e.g., scheduled, finished, postponed, cancelled)
+            // Status of the match (e.g., scheduled, in_play, finished, postponed, cancelled)
             $table->string('status', 50)->default('scheduled');
 
             // Venue Information
