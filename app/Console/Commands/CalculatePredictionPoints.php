@@ -75,12 +75,22 @@ class CalculatePredictionPoints extends Command
         $actualOutcome = $this->getMatchOutcome($fixture->home_score, $fixture->away_score);
         $predictedOutcome = $this->getMatchOutcome($prediction->home_score_predicted, $prediction->away_score_predicted);
 
-        // Rule 2: Correct Outcome (e.g., predicted a home win, and the home team won)
+        // Rule 2: Correct Outcome AND Correct Goal Difference (e.g., predicted 4-2, actual was 2-0)
+        if ($actualOutcome === $predictedOutcome && $actualOutcome !== 'D') {
+            $actualGoalDifference = abs($fixture->home_score - $fixture->away_score);
+            $predictedGoalDifference = abs($prediction->home_score_predicted - $prediction->away_score_predicted);
+            
+            if ($actualGoalDifference === $predictedGoalDifference) {
+                return 3; // 3 points for correct outcome + correct goal difference
+            }
+        }
+
+        // Rule 3: Correct Outcome only (e.g., predicted a home win, and the home team won)
         if ($actualOutcome === $predictedOutcome) {
             return 2; // 2 points for the correct result
         }
 
-        // Rule 3: Incorrect Outcome
+        // Rule 4: Incorrect Outcome
         return 0;
     }
 
