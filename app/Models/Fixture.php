@@ -22,7 +22,7 @@ class Fixture extends Model
     ];
 
     protected $casts = [
-        'match_date' => 'datetime',
+        'match_datetime' => 'datetime',
         'home_score' => 'integer',
         'away_score' => 'integer',
     ];
