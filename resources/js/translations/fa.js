@@ -50,6 +50,7 @@ export const ui = {
     'predictions_made': 'پیش‌بینی شده',
     'exact_score': 'نتیجه‌ی دقیق',
     'correct_winner': 'برنده درست',
+    'correct_outcome_and_gd': 'نتیجه و تفاضل گل درست',
     'wrong': 'غلط',
     'under_review': 'در حال بررسی',
     'your_prediction': 'پیش‌بینی شما',

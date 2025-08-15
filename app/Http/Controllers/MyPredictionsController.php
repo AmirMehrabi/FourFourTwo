@@ -143,9 +143,11 @@ class MyPredictionsController extends Controller
                     $outcome = 'under_review'; // Fixture completed but points not calculated yet
                 } elseif ($prediction->points_awarded === 5) {
                     $outcome = 'exact';
-                } elseif ($prediction->points_awarded > 0) {
+                } elseif ($prediction->points_awarded === 3) {
+                    $outcome = 'correct_outcome_and_gd'; // Correct outcome + goal difference
+                } elseif ($prediction->points_awarded === 2) {
                     $outcome = 'correct_outcome';
-                } else {
+                } elseif ($prediction->points_awarded === 0) {
                     $outcome = 'wrong';
                 }
             }

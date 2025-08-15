@@ -69,6 +69,7 @@ function saveEdit(predictionId) {
 function getOutcomeIcon(outcome) {
     switch (outcome) {
         case 'exact': return '🔥';
+        case 'correct_outcome_and_gd': return '🎯';
         case 'correct_outcome': return '✅';
         case 'wrong': return '❌';
         case 'under_review': return '⏳';
