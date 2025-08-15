@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Carbon\Carbon;
 
 class Fixture extends Model
 {
@@ -18,6 +19,7 @@ class Fixture extends Model
         'status',
         'home_score',
         'away_score',
+        'score_details',
         'api_id',
     ];
 
@@ -26,6 +28,49 @@ class Fixture extends Model
         'home_score' => 'integer',
         'away_score' => 'integer',
     ];
+
+    protected static function booted()
+    {
+        // Update league table when fixture status or scores change
+        static::updated(function ($fixture) {
+            if ($fixture->wasChanged(['status', 'home_score', 'away_score'])) {
+                app(\App\Services\LeagueTableService::class)->updateTableForSeason($fixture->season_id);
+            }
+        });
+
+        // Auto-update status to in_play when match time arrives
+        static::saving(function ($fixture) {
+            if ($fixture->status === 'scheduled' && 
+                $fixture->match_datetime && 
+                Carbon::now()->gte($fixture->match_datetime)) {
+                $fixture->status = 'in_play';
+            }
+        });
+    }
+
+    /**
+     * Scope for live matches
+     */
+    public function scopeLive($query)
+    {
+        return $query->where('status', 'in_play');
+    }
+
+    /**
+     * Scope for finished matches
+     */
+    public function scopeFinished($query)
+    {
+        return $query->where('status', 'finished');
+    }
+
+    /**
+     * Check if the match is currently live
+     */
+    public function isLive()
+    {
+        return $this->status === 'in_play';
+    }
 
     public function season()
     {

@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\FixtureController;
 use App\Http\Controllers\GameweekController;
+use App\Http\Controllers\LeagueTableController;
 use App\Http\Controllers\MyPredictionsController;
 use App\Http\Controllers\PredictionController;
 use App\Http\Controllers\ProfileController;
@@ -17,6 +18,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 
 Route::get('/', [WelcomeController::class, 'index']);
+
+// API Routes for League Table
+Route::get('/api/league-table', [LeagueTableController::class, 'index'])->name('league-table.index');
+Route::post('/api/league-table/update', [LeagueTableController::class, 'update'])->name('league-table.update');
 
 
 

@@ -6,6 +6,7 @@ import { useTranslations } from '@/composables/useTranslations.js';
 // Code-split heavier sections
 const LeaderboardDemo = defineAsyncComponent(() => import('@/Components/LeaderboardDemo.vue'));
 const GamificationExplainer = defineAsyncComponent(() => import('@/Components/GamificationExplainer.vue'));
+const LeagueTable = defineAsyncComponent(() => import('@/Components/LeagueTable.vue'));
 
 const { translateTeamName, t } = useTranslations();
 
@@ -303,6 +304,8 @@ onUnmounted(() => { document.removeEventListener('keydown', handleEscClose); });
         </section>
 
     <LeaderboardDemo :top-predictors="topPredictors" :trending-matches="trendingMatches" />
+
+    <LeagueTable />
 
     <GamificationExplainer />
 
