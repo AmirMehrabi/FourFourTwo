@@ -10,7 +10,7 @@ use Carbon\Carbon;
 
 class UpdateFixtureResults extends Command
 {
-    protected $signature = 'fixtures:update-results';
+    protected $signature = 'fixtures:update-results {--minutes=90 : Minutes ago to look for fixtures} {--debug : Show debug information}';
     protected $description = 'Interactively update fixture results for matches that should be finished';
 
     protected $leagueTableService;
@@ -23,12 +23,34 @@ class UpdateFixtureResults extends Command
 
     public function handle()
     {
+        $minutes = (int) $this->option('minutes') ?: 90;
+        $debug = $this->option('debug');
+        
         $this->info('🏆 Fixture Results Update Tool');
-        $this->info('Looking for fixtures that started more than 90 minutes ago...');
-        $this->newLine();
-
-        // Get fixtures that started more than 90 minutes ago and are not finished
-        $cutoffTime = Carbon::now()->subMinutes(90);
+        $this->info("Looking for fixtures that started more than {$minutes} minutes ago...");
+        
+        // Get fixtures that started more than X minutes ago and are not finished
+        $cutoffTime = Carbon::now()->subMinutes($minutes);
+        
+        if ($debug) {
+            $this->info("Current time: " . Carbon::now()->format('Y-m-d H:i:s'));
+            $this->info("Cutoff time ({$minutes} min ago): " . $cutoffTime->format('Y-m-d H:i:s'));
+            $this->newLine();
+            
+            // Debug: Show all fixtures regardless of time first
+            $allFixtures = Fixture::with(['homeTeam', 'awayTeam', 'season'])
+                ->whereIn('status', ['scheduled', 'in_play'])
+                ->orderBy('match_datetime', 'desc')
+                ->get();
+                
+            $this->info("Debug: All fixtures with status 'scheduled' or 'in_play':");
+            foreach ($allFixtures as $fixture) {
+                $matchTime = Carbon::parse($fixture->match_datetime);
+                $isOld = $matchTime->lt($cutoffTime);
+                $this->info("- {$fixture->homeTeam->name} vs {$fixture->awayTeam->name} at {$fixture->match_datetime} (Should include: " . ($isOld ? 'YES' : 'NO') . ")");
+            }
+            $this->newLine();
+        }
         
         $fixtures = Fixture::with(['homeTeam', 'awayTeam', 'season'])
             ->where('match_datetime', '<', $cutoffTime)
@@ -38,6 +60,10 @@ class UpdateFixtureResults extends Command
 
         if ($fixtures->isEmpty()) {
             $this->info('✅ No fixtures found that need updating.');
+            if (!$debug) {
+                $this->info('💡 Try running with --debug to see more information.');
+                $this->info('💡 Or try with fewer minutes: --minutes=30');
+            }
             return 0;
         }
 
