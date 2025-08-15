@@ -51,6 +51,7 @@ export const ui = {
     'exact_score': 'نتیجه‌ی دقیق',
     'correct_winner': 'برنده درست',
     'wrong': 'غلط',
+    'under_review': 'در حال بررسی',
     'your_prediction': 'پیش‌بینی شما',
     'final_result': 'نتیجه‌ی نهایی',
     'no_prediction': 'بدون پیش‌بینی',

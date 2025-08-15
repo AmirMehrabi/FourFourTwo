@@ -139,7 +139,9 @@ class MyPredictionsController extends Controller
             // Determine outcome if match is completed and user has prediction
             $outcome = null;
             if ($isCompleted && $prediction) {
-                if ($prediction->points_awarded === 5) {
+                if ($prediction->points_awarded === null) {
+                    $outcome = 'under_review'; // Fixture completed but points not calculated yet
+                } elseif ($prediction->points_awarded === 5) {
                     $outcome = 'exact';
                 } elseif ($prediction->points_awarded > 0) {
                     $outcome = 'correct_outcome';

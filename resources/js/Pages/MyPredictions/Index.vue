@@ -71,6 +71,7 @@ function getOutcomeIcon(outcome) {
         case 'exact': return '🔥';
         case 'correct_outcome': return '✅';
         case 'wrong': return '❌';
+        case 'under_review': return '⏳';
         default: return '';
     }
 }
@@ -80,6 +81,7 @@ function getOutcomeText(outcome) {
         case 'exact': return t('exact_score');
         case 'correct_outcome': return t('correct_winner');
         case 'wrong': return t('wrong');
+        case 'under_review': return t('under_review');
         default: return '';
     }
 }
@@ -89,6 +91,7 @@ function getOutcomeColor(outcome) {
         case 'exact': return 'text-orange-600 bg-orange-50';
         case 'correct_outcome': return 'text-green-600 bg-green-50';
         case 'wrong': return 'text-red-600 bg-red-50';
+        case 'under_review': return 'text-blue-600 bg-blue-50';
         default: return 'text-gray-600 bg-gray-50';
     }
 }
