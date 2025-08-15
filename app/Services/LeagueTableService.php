@@ -136,12 +136,26 @@ class LeagueTableService
             return $teamStats;
         });
         
-        // Sort by live points, goal difference, etc.
-        $sortedTable = $tableData->sortByDesc('live_points')
-            ->sortByDesc('live_goal_difference')
-            ->sortByDesc('live_goals_for')
-            ->sortBy('team.name')
-            ->values();
+        // Sort by live points, goal difference, etc. using custom sorting
+        $sortedTable = $tableData->sort(function ($a, $b) {
+            // First by points (descending)
+            if ($a['live_points'] !== $b['live_points']) {
+                return $b['live_points'] <=> $a['live_points'];
+            }
+            
+            // Then by goal difference (descending)
+            if ($a['live_goal_difference'] !== $b['live_goal_difference']) {
+                return $b['live_goal_difference'] <=> $a['live_goal_difference'];
+            }
+            
+            // Then by goals for (descending)
+            if ($a['live_goals_for'] !== $b['live_goals_for']) {
+                return $b['live_goals_for'] <=> $a['live_goals_for'];
+            }
+            
+            // Finally by team name (ascending)
+            return $a['team']['name'] <=> $b['team']['name'];
+        })->values();
         
         // Add live positions
         $sortedTable = $sortedTable->map(function ($item, $index) {
