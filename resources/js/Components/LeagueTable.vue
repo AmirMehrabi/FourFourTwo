@@ -62,7 +62,7 @@
                                 <!-- Team -->
                                 <td class="px-4 py-4">
                                     <div class="flex items-center gap-3">
-                                        <img :src="entry.team.logo" 
+                                        <img :src="`/assets/team-logos/${entry.team.name}.png`" 
                                              :alt="entry.team.name_fa || entry.team.name"
                                              class="w-8 h-8 object-contain flex-shrink-0"
                                              @error="handleImageError">
