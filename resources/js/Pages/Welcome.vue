@@ -303,6 +303,53 @@ onUnmounted(() => { document.removeEventListener('keydown', handleEscClose); });
             </div>
         </section>
 
+        <!-- Value Proposition: Why FourFourTwo -->
+        <section class="relative py-12 sm:py-16 md:py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-8 sm:mb-12 md:mb-16">
+                    <h3 class="text-2xl sm:text-3xl md:text-4xl font-800 text-slate-900 mb-2 sm:mb-4">⚡  چرا چهار چهار دو؟ </h3>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+                    <div class="brand-card">
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center bg-brand-200/15 flex-shrink-0">
+                                <span class="text-brand-200 text-lg sm:text-xl">⚽</span>
+                            </div>
+                            <div>
+                                <div class="text-lg sm:text-xl font-800 text-slate-900">بازی‌های زنده و به‌روز</div>
+                                <p class="mt-1 text-slate-600 text-sm sm:text-base">همیشه آخرین برنامه لیگ برتر رو اینجا داری.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="brand-card">
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center bg-brand-200/15 flex-shrink-0">
+                                <span class="text-brand-200 text-lg sm:text-xl">🎯</span>
+                            </div>
+                            <div>
+                                <div class="text-lg sm:text-xl font-800 text-slate-900">پیش‌بینی راحت و سریع</div>
+                                <p class="mt-1 text-slate-600 text-sm sm:text-base">فقط با چند کلیک نتیجه رو ثبت کن.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="brand-card">
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center bg-brand-200/15 flex-shrink-0">
+                                <span class="text-brand-200 text-lg sm:text-xl">🏆</span>
+                            </div>
+                            <div>
+                                <div class="text-lg sm:text-xl font-800 text-slate-900">رقابت هیجان‌انگیز</div>
+                                <p class="mt-1 text-slate-600 text-sm sm:text-base">توی جدول امتیازات بالا برو و قهرمان هفته بشو.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+
     <LeaderboardDemo :top-predictors="topPredictors" :trending-matches="trendingMatches" />
 
     <LeagueTable />
@@ -330,7 +377,7 @@ onUnmounted(() => { document.removeEventListener('keydown', handleEscClose); });
     <!-- how-it-works removed -->
 
         <!-- Mobile-First Stats Dashboard Preview -->
-        <section id="features" class="relative py-12 sm:py-16 md:py-20 bg-white">
+        <!-- <section id="features" class="relative py-12 sm:py-16 md:py-20 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-8 sm:mb-12 md:mb-16">
                     <h3 class="text-2xl sm:text-3xl md:text-4xl font-800 text-slate-900 mb-2 sm:mb-4">آمار پلتفرم</h3>
@@ -391,7 +438,7 @@ onUnmounted(() => { document.removeEventListener('keydown', handleEscClose); });
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
 
         <!-- Mobile-First Live Trending Matches -->
         <section id="live" class="py-12 sm:py-16 md:py-20 bg-slate-50">

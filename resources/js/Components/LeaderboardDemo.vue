@@ -28,7 +28,7 @@ const demoView = computed(() => {
 <template>
   <section class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid lg:grid-cols-2 gap-12">
+      <div class="grid lg:grid-cols-1 gap-12">
         <!-- Leaderboard -->
         <div>
           <h3 class="text-2xl font-800 text-slate-900 mb-6">برترین پیش‌بین‌های این هفته</h3>
@@ -50,7 +50,7 @@ const demoView = computed(() => {
           <div class="mt-6 text-xs text-slate-500">امتیاز بر اساس امتیازات کسب شده از پیش‌بینی‌های موفق محاسبه می‌شود.</div>
         </div>
         <!-- Demo Interaction -->
-        <div>
+        <!-- <div>
           <h3 class="text-2xl font-800 text-slate-900 mb-6">مقایسه مدل با جامعه</h3>
           <div v-if="demoMatches.length" class="space-y-6">
             <select v-model="selectedMatchId" class="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-200">
@@ -74,7 +74,7 @@ const demoView = computed(() => {
             <div class="text-xs text-slate-500">این تفاوت‌ها نمایشی است و برای درک سریع ساختار احتمالات ارائه شده است.</div>
           </div>
           <div v-else class="text-sm text-slate-500">داده‌ای برای نمایش موجود نیست.</div>
-        </div>
+        </div> -->
       </div>
     </div>
   </section>

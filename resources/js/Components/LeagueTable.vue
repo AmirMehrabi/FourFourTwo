@@ -68,7 +68,7 @@
                                              @error="handleImageError">
                                         <div>
                                             <div class="font-600 text-slate-900 text-sm">
-                                                {{ entry.team.name_fa || entry.team.name }}
+                                                {{ translateTeamName(entry.team.name) }}
                                             </div>
                                         </div>
                                     </div>
@@ -227,12 +227,17 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { useTranslations } from '@/composables/useTranslations.js';
+
 
 // State
 const tableData = ref([])
 const loading = ref(true)
 const error = ref(false)
 const lastUpdated = ref(null)
+
+const { translateTeamName, t } = useTranslations();
+
 
 // Computed properties
 const hasLiveMatches = computed(() => {
