@@ -67,7 +67,7 @@
                                              class="w-8 h-8 object-contain flex-shrink-0"
                                              @error="handleImageError">
                                         <div>
-                                            <div class="font-600 text-slate-900 text-sm">
+                                            <div class="font-600 text-slate-900 text-lg">
                                                 {{ translateTeamName(entry.team.name) }}
                                             </div>
                                         </div>
@@ -122,7 +122,7 @@
                                      @error="handleImageError">
                                 <div>
                                     <div class="font-700 text-slate-900 text-base">
-                                        {{ entry.team.name_fa || entry.team.name }}
+                                        {{ translateTeamName(entry.team.name) }}
                                     </div>
                                     <div v-if="entry.has_live_match" class="text-xs text-red-600 font-600 flex items-center gap-1">
                                         <div class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
