@@ -806,15 +806,16 @@ onUnmounted(() => { document.removeEventListener('keydown', handleEscClose); });
 
 <style>
 :root {
-  --brand-1: #411085;
-  --brand-2: #7b0681;
-  --brand-3: #071a8a;
+  --brand-1: #005724;
+  --brand-2: #009c42;
+  --brand-3: #006a2d;
+
 }
 
 /* Brand helpers */
 .text-brand-50 { color: rgba(255,255,255,0.95); }
 .text-brand-100 { color: #e9ddff; }
-.text-brand-200 { color: #7b0681; }
+.text-brand-200 { color: #009c42; }
 .bg-brand-50 { background: rgba(127, 92, 200, 0.08); }
 .brand-section-dark { background: linear-gradient(120deg, var(--brand-1), var(--brand-2)); }
 .brand-hero-gradient {

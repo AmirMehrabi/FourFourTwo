@@ -2,9 +2,12 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { useTranslations } from '@/composables/useTranslations.js';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, defineAsyncComponent } from 'vue';
 
 const { translateTeamName, t } = useTranslations();
+
+// Lazy-load LeagueTable (same component used on Welcome page)
+const LeagueTable = defineAsyncComponent(() => import('@/Components/LeagueTable.vue'));
 
 const props = defineProps({
     upcomingFixtures: Array,
@@ -366,6 +369,18 @@ function dec(index, field) { const v = Number(form.predictions[index][field] ?? 
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- League Table (lazy-loaded) -->
+                <div class="fixture-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="">
+                        <Suspense>
+                            <LeagueTable />
+                            <template #fallback>
+                                <div class="text-center text-slate-500 py-8">در حال بارگذاری جدول...</div>
+                            </template>
+                        </Suspense>
                     </div>
                 </div>
             </div>
