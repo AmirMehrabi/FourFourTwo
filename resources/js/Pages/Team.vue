@@ -62,14 +62,14 @@
     <div class="max-w-3xl mx-auto mt-10 px-4">
       <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col md:flex-row items-center gap-6">
         <div class="flex items-center gap-4">
-          <img :src="nextMatch.opponent_logo || '/assets/team-logos/default.png'" :alt="nextMatch.opponent_name || 'حریف'" class="w-16 h-16 rounded-full object-contain border-2 border-slate-200" />
+          <img :src="nextMatch.value.opponent_logo || '/assets/team-logos/default.png'" :alt="nextMatch.value.opponent_name || 'حریف'" class="w-16 h-16 rounded-full object-contain border-2 border-slate-200" />
           <div>
-            <div class="text-xl font-bold text-slate-900">هفته {{ nextMatch.matchweek }}: {{ nextMatch.opponent_name }}</div>
-            <div class="text-slate-500">{{ nextMatch.date }} | {{ nextMatch.time }} | {{ nextMatch.venue }}</div>
+            <div class="text-xl font-bold text-slate-900">هفته {{ nextMatch.value.matchweek }}: {{ nextMatch.value.opponent_name }}</div>
+            <div class="text-slate-500">{{ nextMatch.value.date }} | {{ nextMatch.value.time }} | {{ nextMatch.value.venue }}</div>
           </div>
         </div>
         <div class="flex-1"></div>
-        <div v-if="!nextMatch.locked" class="flex flex-col items-center">
+        <div v-if="!nextMatch.value.locked" class="flex flex-col items-center">
           <form @submit.prevent="submitPrediction" class="flex gap-2 items-center">
             <input type="number" v-model="userPrediction.home" min="0" max="10" class="w-16 px-2 py-1 rounded border border-slate-300" placeholder="گل تیم شما" />
             <span class="font-bold text-slate-700">-</span>
@@ -297,6 +297,23 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+
+const defaultNextMatch = {
+  opponent_logo: '/assets/team-logos/default.png',
+  opponent_name: 'حریف',
+  matchweek: '-',
+  date: '-',
+  time: '-',
+  venue: '-',
+  locked: true,
+};
+
+const props = defineProps({
+  team: Object,
+  nextMatch: Object,
+});
+
+const nextMatch = computed(() => props.nextMatch ?? defaultNextMatch);
 // Dummy data for widgets not yet implemented
 const team = ref({
   id: 1,
