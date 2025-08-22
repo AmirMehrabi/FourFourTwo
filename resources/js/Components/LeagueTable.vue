@@ -44,10 +44,9 @@
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             <tr v-for="entry in tableData" :key="entry.team.id" 
-                                class="hover:bg-slate-50 transition-colors relative"
-                                :class="qualificationBorder(entry.position)">
+                                class="hover:bg-slate-50 transition-colors relative">
                                 <!-- Position -->
-                                <td class="px-4 py-4">
+                                <td class="px-4 py-4 border-r" :class="qualificationBorder(entry.position)">
                                     <div class="flex items-center gap-1">
                                         <span class="text-sm font-800 text-slate-900 w-6 text-center rounded"
                                               :class="getPositionColor(entry.position)"
@@ -148,8 +147,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="entry in tableData" :key="entry.team.id" class="border-t hover:bg-slate-50 text-slate-800"
-                                    :class="qualificationBorder(entry.position)">
+                                <tr v-for="entry in tableData" :key="entry.team.id" class=" hover:bg-slate-50 text-slate-800"
+                                >
                                     <!-- Team sticky column -->
                                     <td class="sticky right-0 bg-white px-3 py-2 max-w-[170px] z-10 shadow-[_-4px_0_4px_-2px_rgba(0,0,0,0.05)]">
                                         <div class="flex items-center gap-2">
