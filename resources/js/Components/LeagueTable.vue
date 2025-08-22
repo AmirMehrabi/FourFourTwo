@@ -54,12 +54,17 @@
                                               :title="qualificationLabel(entry.position)">
                                             {{ entry.position }}
                                         </span>
-                                                                                <span v-if="entry.position_change !== 0"
-                                                                                            :class="['text-xs font-700', entry.position_change < 0 ? 'text-red-600' : 'text-green-600']"
-                                                                                            :title="entry.position_change < 0 ? 'سقوط ' + Math.abs(entry.position_change) : 'صعود ' + entry.position_change">
-                                                                                        {{ entry.position_change < 0 ? '▼' : '▲' }}
-                                        </span>
-                                                                                <span v-else class="text-xs text-slate-400" title="بدون تغییر">•</span>
+                                                                                                                        <span v-if="entry.position_change > 0"
+                                                                                                                                    class="text-xs font-700 text-green-600"
+                                                                                                                                    :title="'صعود ' + entry.position_change">
+                                                                                                                                ▲
+                                                                                                                        </span>
+                                                                                                                        <span v-else-if="entry.position_change < 0"
+                                                                                                                                    class="text-xs font-700 text-red-600"
+                                                                                                                                    :title="'سقوط ' + Math.abs(entry.position_change)">
+                                                                                                                                ▼
+                                                                                                                        </span>
+                                                                                                                        <span v-else class="text-xs text-slate-400" title="بدون تغییر">•</span>
                                     </div>
                                 </td>
                                 
@@ -151,12 +156,13 @@
                                             <span class="text-xs font-800 w-5 text-center rounded" :class="getPositionColor(entry.position)" :title="qualificationLabel(entry.position)">
                                                 {{ entry.position }}
                                             </span>
-                                                                                        <span v-if="entry.position_change !== 0"
-                                                                                                    :class="['text-[10px] font-700', entry.position_change < 0 ? 'text-red-600' : 'text-green-600']"
-                                                                                                    :title="entry.position_change < 0 ? 'سقوط ' + Math.abs(entry.position_change) : 'صعود ' + entry.position_change">
-                                                                                                {{ entry.position_change < 0 ? '▼' : '▲' }}
-                                            </span>
-                                                                                        <span v-else class="text-[10px] text-slate-400" title="بدون تغییر">•</span>
+                                                                          <span v-if="entry.position_change > 0"
+                                                                              class="text-[10px] font-700 text-green-600"
+                                                                              :title="'صعود ' + entry.position_change">▲</span>
+                                                                          <span v-else-if="entry.position_change < 0"
+                                                                              class="text-[10px] font-700 text-red-600"
+                                                                              :title="'سقوط ' + Math.abs(entry.position_change)">▼</span>
+                                                                          <span v-else class="text-[10px] text-slate-400" title="بدون تغییر">•</span>
                                             <img :src="`/assets/team-logos/${entry.team.name}.png`" 
                                                  :alt="entry.team.name_fa || entry.team.name"
                                                  class="w-6 h-6 object-contain flex-shrink-0"
@@ -269,7 +275,7 @@ const qualificationBorder = (position) => {
     if (position === 5) return 'border-r-4 border-blue-600'
     if (position === 6) return 'border-r-4 border-yellow-500'
     if (position >= 18) return 'border-r-4 border-red-600'
-    return ''
+    return 'border-r border-transparent'
 }
 
 const qualificationLabel = (position) => {

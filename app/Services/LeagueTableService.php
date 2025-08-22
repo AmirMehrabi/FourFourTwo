@@ -207,7 +207,8 @@ class LeagueTableService
             // Overwrite displayed position with live ordering for all teams
             $item['position'] = $livePos;
             $item['previous_position'] = $item['base_position'];
-            $item['position_change'] = $item['previous_position'] ? ($item['previous_position'] - $livePos) : 0; // positive => moved up
+            $prev = $item['base_position'];
+            $item['position_change'] = is_null($prev) ? 0 : (int)($prev - $livePos); // positive => improved rank
             return $item;
         });
         
