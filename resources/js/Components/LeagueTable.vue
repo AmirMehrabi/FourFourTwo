@@ -106,79 +106,71 @@
                     </table>
                 </div>
 
-                <!-- Mobile/Tablet Cards -->
-                <div class="lg:hidden space-y-4 p-4">
-                    <div v-for="entry in tableData" :key="entry.team.id" 
-                         class="bg-slate-50 rounded-lg p-4 border"
-                         :class="{ 'bg-red-50 border-red-200': entry.has_live_match }">
-                        
-                        <!-- Team Header -->
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex items-center gap-3">
-                                <span class="text-lg font-800 text-slate-900 w-8 text-center"
-                                      :class="getPositionColor(entry.position)">
-                                    {{ entry.position }}
-                                </span>
-                                <img :src="`/assets/team-logos/${entry.team.name}.png`" 
-                                     :alt="entry.team.name_fa || entry.team.name"
-                                     class="w-8 h-8 object-contain flex-shrink-0"
-                                     @error="handleImageError">
-                                <div>
-                                    <div class="font-700 text-slate-900 text-base">
-                                        {{ translateTeamName(entry.team.name) }}
-                                    </div>
-                                    <div v-if="entry.has_live_match" class="text-xs text-red-600 font-600 flex items-center gap-1">
-                                        <div class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
-                                        بازی زنده
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-xl font-800 text-slate-900">{{ entry.points }}</div>
-                                <div class="text-xs text-slate-600">امتیاز</div>
-                            </div>
-                        </div>
+                <!-- Mobile / Tablet Tabbed Table -->
+                <div class="lg:hidden p-4">
+                    <!-- Tabs -->
+                    <div class="flex items-center gap-2 mb-4 text-sm">
+                        <button
+                            v-for="tab in mobileTabs"
+                            :key="tab.key"
+                            @click="activeTab = tab.key"
+                            class="px-3 py-1.5 rounded-full border transition-colors"
+                            :class="activeTab === tab.key ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'"
+                        >
+                            {{ tab.label }}
+                        </button>
+                    </div>
 
-                        <!-- Stats Grid -->
-                        <div class="grid grid-cols-4 gap-3 mb-3">
-                            <div class="text-center">
-                                <div class="text-sm font-700 text-slate-900">{{ entry.played }}</div>
-                                <div class="text-xs text-slate-600">بازی</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-sm font-700 text-green-700">{{ entry.won }}</div>
-                                <div class="text-xs text-slate-600">برد</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-sm font-700 text-yellow-700">{{ entry.drawn }}</div>
-                                <div class="text-xs text-slate-600">مساوی</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-sm font-700 text-red-700">{{ entry.lost }}</div>
-                                <div class="text-xs text-slate-600">باخت</div>
-                            </div>
-                        </div>
-
-                        <!-- Goals and Form -->
-                        <div class="flex items-center justify-between">
-                            <div class="text-sm text-slate-700">
-                                <span class="font-600">{{ entry.goals_for }}</span>
-                                <span class="mx-1">:</span>
-                                <span class="font-600">{{ entry.goals_against }}</span>
-                                <span class="mr-2 font-600"
-                                      :class="entry.goal_difference >= 0 ? 'text-green-700' : 'text-red-700'">
-                                    ({{ entry.goal_difference >= 0 ? '+' : '' }}{{ entry.goal_difference }})
-                                </span>
-                            </div>
-                            <div class="flex items-center gap-1">
-                                <span v-for="(result, index) in entry.form?.slice(0, 5) || []" 
-                                      :key="index"
-                                      class="w-4 h-4 rounded-full text-xs font-700 flex items-center justify-center text-white"
-                                      :class="getFormColor(result)">
-                                    {{ result }}
-                                </span>
-                            </div>
-                        </div>
+                    <div class="overflow-x-auto rounded-lg border border-slate-200">
+                        <table class="min-w-full text-right text-sm">
+                            <thead class="bg-slate-50 text-xs text-slate-600">
+                                <tr>
+                                    <th class="sticky right-0 bg-slate-50 px-3 py-2 z-10">رتبه / تیم</th>
+                                    <th v-if="activeTab === 'short' || activeTab === 'full'" class="px-3 py-2">بازی</th>
+                                    <th v-if="activeTab === 'short' || activeTab === 'full'" class="px-3 py-2">برد</th>
+                                    <th v-if="activeTab === 'full'" class="px-3 py-2">مساوی</th>
+                                    <th v-if="activeTab === 'full'" class="px-3 py-2">باخت</th>
+                                    <th v-if="activeTab === 'full'" class="px-3 py-2">گل زده</th>
+                                    <th v-if="activeTab === 'full'" class="px-3 py-2">گل خورده</th>
+                                    <th v-if="activeTab !== 'form'" class="px-3 py-2">تفاضل</th>
+                                    <th v-if="activeTab !== 'form'" class="px-3 py-2">امتیاز</th>
+                                    <th v-if="activeTab === 'form'" class="px-3 py-2">فرم</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="entry in tableData" :key="entry.team.id" class="border-t hover:bg-slate-50 text-slate-800">
+                                    <!-- Team sticky column -->
+                                    <td class="sticky right-0 bg-white px-3 py-2 max-w-[140px] z-10">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs font-700 w-5 text-center" :class="getPositionColor(entry.position)">
+                                                {{ entry.position }}
+                                            </span>
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-[13px] font-600 truncate max-w-[90px]">{{ translateTeamName(entry.team.name) }}</span>
+                                                <span v-if="entry.team.is_live || entry.has_live_match" class="w-1.5 h-1.5 bg-green-600 rounded-full animate-pulse"></span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td v-if="activeTab === 'short' || activeTab === 'full'" class="px-3 py-2 text-center">{{ entry.played }}</td>
+                                    <td v-if="activeTab === 'short' || activeTab === 'full'" class="px-3 py-2 text-center font-600 text-green-700">{{ entry.won }}</td>
+                                    <td v-if="activeTab === 'full'" class="px-3 py-2 text-center font-600 text-yellow-700">{{ entry.drawn }}</td>
+                                    <td v-if="activeTab === 'full'" class="px-3 py-2 text-center font-600 text-red-700">{{ entry.lost }}</td>
+                                    <td v-if="activeTab === 'full'" class="px-3 py-2 text-center">{{ entry.goals_for }}</td>
+                                    <td v-if="activeTab === 'full'" class="px-3 py-2 text-center">{{ entry.goals_against }}</td>
+                                    <td v-if="activeTab !== 'form'" class="px-3 py-2 text-center" :class="entry.goal_difference >= 0 ? 'text-green-700' : 'text-red-700'">
+                                        {{ entry.goal_difference >= 0 ? '+' : '' }}{{ entry.goal_difference }}
+                                    </td>
+                                    <td v-if="activeTab !== 'form'" class="px-3 py-2 text-center font-700">{{ entry.points }}</td>
+                                    <td v-if="activeTab === 'form'" class="px-3 py-2">
+                                        <div class="flex items-center gap-1 justify-center">
+                                            <span v-for="(result, index) in entry.form?.slice(0,5) || []" :key="index"
+                                                  class="w-5 h-5 rounded-full text-[10px] font-700 flex items-center justify-center text-white"
+                                                  :class="getFormColor(result)">{{ result }}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -246,6 +238,14 @@ const { translateTeamName, t } = useTranslations();
 const hasLiveMatches = computed(() => {
     return tableData.value.some(entry => entry.team?.is_live || entry.has_live_match)
 })
+
+// Mobile tab state
+const mobileTabs = [
+    { key: 'short', label: 'کوتاه' },
+    { key: 'full', label: 'کامل' },
+    { key: 'form', label: 'فرم' },
+]
+const activeTab = ref('short')
 
 // Methods
 const fetchLeagueTable = async () => {
