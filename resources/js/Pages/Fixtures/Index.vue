@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";
+import Toast from '@/Components/Toast.vue';
 import { useTranslations } from '@/composables/useTranslations.js';
 import { computed, ref, watch } from 'vue';
 
@@ -57,11 +58,9 @@ function autoSavePredictions() {
     form.post(route("predictions.store"), {
         preserveScroll: true,
         onSuccess: () => {
-            lastSaved.value = new Date().toLocaleTimeString('fa-IR', {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+            lastSaved.value = new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
             isAutoSaving.value = false;
+            pushToast('ذخیره خودکار شد', 'success');
         },
         onError: () => {
             isAutoSaving.value = false;
@@ -92,15 +91,10 @@ function submitPredictions() {
     form.post(route("predictions.store"), {
         preserveScroll: true,
         onSuccess: () => {
-            lastSaved.value = new Date().toLocaleTimeString('fa-IR', {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+            lastSaved.value = new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
             pushToast('پیش‌بینی‌ها ذخیره شد', 'success');
         },
-        onError: () => {
-            pushToast('خطا در ذخیره‌سازی دستی', 'error');
-        }
+        onError: () => { pushToast('خطا در ذخیره‌سازی دستی', 'error'); }
     });
 }
 
@@ -150,6 +144,38 @@ function formatTime(dateString) {
         hour: '2-digit',
         minute: '2-digit'
     });
+}
+
+// Full date/time for footer like dashboard
+function formatDateTime(dateString) {
+    return new Date(dateString).toLocaleString('fa-IR', {
+        day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+}
+
+// Time until lock (if backend supplies time_until_prediction_locks)
+function getTimeUntilLock(fixture) {
+    if (fixture.is_locked) return 'قفل شده';
+    if (fixture.time_until_prediction_locks == null) return '';
+    const hrs = fixture.time_until_prediction_locks;
+    if (hrs > 24) {
+        return `${Math.floor(hrs / 24)} روز ${Math.floor(hrs % 24)} ساعت باقی‌مانده`;
+    } else if (hrs > 1) {
+        return `${Math.floor(hrs)} ساعت باقی‌مانده`;
+    } else if (hrs > 0) {
+        return `${Math.floor(hrs * 60)} دقیقه باقی‌مانده`;
+    }
+    return 'به زودی قفل می‌شود';
+}
+
+// Increment / decrement helpers like dashboard
+function inc(index, field) {
+    const v = Number(form.predictions[index][field] ?? 0);
+    form.predictions[index][field] = Math.max(0, v + 1);
+}
+function dec(index, field) {
+    const v = Number(form.predictions[index][field] ?? 0);
+    form.predictions[index][field] = Math.max(0, v - 1);
 }
 
 // Statistics
@@ -245,17 +271,6 @@ const hasIncompletePredictions = computed(() => {
                     </div>
                 </div>
 
-                <!-- Success Message -->
-                <div v-if="$page.props.flash && $page.props.flash.success" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-green-600 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                        </svg>
-                        <div class="text-green-800 text-sm">
-                            {{ $page.props.flash.success }}
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Progress Indicator -->
                 <div class="mb-8 bg-white rounded-lg border border-gray-100 p-4">
@@ -336,72 +351,33 @@ const hasIncompletePredictions = computed(() => {
                                             <!-- Home Team -->
                                             <div class="col-span-2 flex items-center justify-end gap-3">
                                                 <div class="text-right">
-                                                    <h4 class="team-name text-gray-900">{{
-                                                        translateTeamName(fixture.home_team.name)
-                                                    }}</h4>
+                                                    <h4 class="team-name text-gray-900">{{ translateTeamName(fixture.home_team.name) }}</h4>
                                                 </div>
                                                 <div class="flex-shrink-0">
-                                                    <img 
-                                                        :src="`/assets/team-logos/${fixture.home_team.name}.png`"
-                                                        :alt="fixture.home_team.name"
-                                                        class="team-logo w-12 h-12 object-contain"
-                                                        @error="$event.target.style.display = 'none'"
-                                                    />
+                                                    <img :src="`/assets/team-logos/${fixture.home_team.name}.png`" :alt="fixture.home_team.name" class="team-logo w-12 h-12 object-contain" @error="$event.target.style.display = 'none'" />
                                                 </div>
                                             </div>
-
-                                            <!-- Score Inputs -->
-                                            <div class="flex items-center justify-center gap-3">
-                                                <div class="relative">
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        max="20"
-                                                        class="score-input"
-                                                        :class="{
-                                                            'bg-gray-100 cursor-not-allowed': fixture.is_locked,
-                                                            'border-red-300 bg-red-50': isPredictionIncomplete(fixture.originalIndex)
-                                                        }"
-                                                        v-model="form.predictions[fixture.originalIndex].home_score"
-                                                        :disabled="fixture.is_locked"
-                                                        placeholder="0"
-                                                    />
-                                                    <div v-if="isPredictionIncomplete(fixture.originalIndex)" class="absolute -bottom-6 left-0 text-xs text-red-600">
-                                                        لطفاً هر دو نتیجه را وارد کنید
-                                                    </div>
+                                            <!-- Score Controls -->
+                                            <div class="col-span-1 flex items-center justify-center gap-2" :class="{ 'border-red-300': isPredictionIncomplete(fixture.originalIndex) }">
+                                                <div class="score-control flex flex-col items-center">
+                                                    <button type="button" class="w-14 py-1 rounded-t-md bg-slate-100 hover:bg-slate-200 text-sm border border-slate-200 border-b-0" :disabled="fixture.is_locked" @click="inc(fixture.originalIndex, 'home_score')">+</button>
+                                                    <input :disabled="fixture.is_locked" type="number" min="0" max="20" class="score-input w-14 h-10 text-center appearance-none border-x border-slate-200 focus:z-10" :class="{ 'bg-red-50': isPredictionIncomplete(fixture.originalIndex) }" v-model.number="form.predictions[fixture.originalIndex].home_score" />
+                                                    <button type="button" class="w-14 py-1 rounded-b-md bg-slate-100 hover:bg-slate-200 text-sm border border-slate-200 border-t-0" :disabled="fixture.is_locked" @click="dec(fixture.originalIndex, 'home_score')">-</button>
                                                 </div>
-                                                <span class="text-xl font-bold text-gray-400">×</span>
-                                                <div class="relative">
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        max="20"
-                                                        class="score-input"
-                                                        :class="{
-                                                            'bg-gray-100 cursor-not-allowed': fixture.is_locked,
-                                                            'border-red-300 bg-red-50': isPredictionIncomplete(fixture.originalIndex)
-                                                        }"
-                                                        v-model="form.predictions[fixture.originalIndex].away_score"
-                                                        :disabled="fixture.is_locked"
-                                                        placeholder="0"
-                                                    />
+                                                <span class="text-slate-500">-</span>
+                                                <div class="score-control flex flex-col items-center">
+                                                    <button type="button" class="w-14 py-1 rounded-t-md bg-slate-100 hover:bg-slate-200 text-sm border border-slate-200 border-b-0" :disabled="fixture.is_locked" @click="inc(fixture.originalIndex, 'away_score')">+</button>
+                                                    <input :disabled="fixture.is_locked" type="number" min="0" max="20" class="score-input w-14 h-10 text-center appearance-none border-x border-slate-200 focus:z-10" :class="{ 'bg-red-50': isPredictionIncomplete(fixture.originalIndex) }" v-model.number="form.predictions[fixture.originalIndex].away_score" />
+                                                    <button type="button" class="w-14 py-1 rounded-b-md bg-slate-100 hover:bg-slate-200 text-sm border border-slate-200 border-t-0" :disabled="fixture.is_locked" @click="dec(fixture.originalIndex, 'away_score')">-</button>
                                                 </div>
                                             </div>
-
                                             <!-- Away Team -->
                                             <div class="col-span-2 flex items-center justify-start gap-3">
                                                 <div class="flex-shrink-0">
-                                                    <img 
-                                                        :src="`/assets/team-logos/${fixture.away_team.name}.png`"
-                                                        :alt="fixture.away_team.name"
-                                                        class="team-logo w-12 h-12 object-contain"
-                                                        @error="$event.target.style.display = 'none'"
-                                                    />
+                                                    <img :src="`/assets/team-logos/${fixture.away_team.name}.png`" :alt="fixture.away_team.name" class="team-logo w-12 h-12 object-contain" @error="$event.target.style.display = 'none'" />
                                                 </div>
                                                 <div class="text-left">
-                                                    <h4 class="team-name text-gray-900">{{
-                                                        translateTeamName(fixture.away_team.name)
-                                                    }}</h4>
+                                                    <h4 class="team-name text-gray-900">{{ translateTeamName(fixture.away_team.name) }}</h4>
                                                 </div>
                                             </div>
                                         </div>
@@ -439,40 +415,18 @@ const hasIncompletePredictions = computed(() => {
                                                 </div>
                                             </div>
 
-                                            <!-- Score Inputs Mobile -->
+                                            <!-- Score Inputs Mobile (with + / -) -->
                                             <div class="flex items-center justify-center gap-4">
-                                                <div class="text-center">
-                                                    <label class="block text-xs font-medium text-gray-600 mb-2">خانه</label>
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        max="20"
-                                                        class="score-input score-input-mobile"
-                                                        :class="{
-                                                            'bg-gray-100 cursor-not-allowed': fixture.is_locked,
-                                                            'border-red-300 bg-red-50': isPredictionIncomplete(fixture.originalIndex)
-                                                        }"
-                                                        v-model="form.predictions[fixture.originalIndex].home_score"
-                                                        :disabled="fixture.is_locked"
-                                                        placeholder="0"
-                                                    />
+                                                <div class="score-control flex flex-col items-center">
+                                                    <button type="button" class="w-full py-1 rounded-t-md bg-slate-100 hover:bg-slate-200 text-xs border border-slate-200 border-b-0" :disabled="fixture.is_locked" @click="inc(fixture.originalIndex, 'home_score')">+</button>
+                                                    <input :disabled="fixture.is_locked" type="number" min="0" max="20" class="score-input score-input-mobile text-center appearance-none border-x border-slate-200 focus:z-10" :class="{ 'bg-red-50': isPredictionIncomplete(fixture.originalIndex) }" v-model.number="form.predictions[fixture.originalIndex].home_score" />
+                                                    <button type="button" class="w-full py-1 rounded-b-md bg-slate-100 hover:bg-slate-200 text-xs border border-slate-200 border-t-0" :disabled="fixture.is_locked" @click="dec(fixture.originalIndex, 'home_score')">-</button>
                                                 </div>
-                                                <span class="text-xl font-bold text-gray-400 mt-6">×</span>
-                                                <div class="text-center">
-                                                    <label class="block text-xs font-medium text-gray-600 mb-2">مهمان</label>
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        max="20"
-                                                        class="score-input score-input-mobile"
-                                                        :class="{
-                                                            'bg-gray-100 cursor-not-allowed': fixture.is_locked,
-                                                            'border-red-300 bg-red-50': isPredictionIncomplete(fixture.originalIndex)
-                                                        }"
-                                                        v-model="form.predictions[fixture.originalIndex].away_score"
-                                                        :disabled="fixture.is_locked"
-                                                        placeholder="0"
-                                                    />
+                                                <span class="text-slate-500">-</span>
+                                                <div class="score-control flex flex-col items-center">
+                                                    <button type="button" class="w-full py-1 rounded-t-md bg-slate-100 hover:bg-slate-200 text-xs border border-slate-200 border-b-0" :disabled="fixture.is_locked" @click="inc(fixture.originalIndex, 'away_score')">+</button>
+                                                    <input :disabled="fixture.is_locked" type="number" min="0" max="20" class="score-input score-input-mobile text-center appearance-none border-x border-slate-200 focus:z-10" :class="{ 'bg-red-50': isPredictionIncomplete(fixture.originalIndex) }" v-model.number="form.predictions[fixture.originalIndex].away_score" />
+                                                    <button type="button" class="w-full py-1 rounded-b-md bg-slate-100 hover:bg-slate-200 text-xs border border-slate-200 border-t-0" :disabled="fixture.is_locked" @click="dec(fixture.originalIndex, 'away_score')">-</button>
                                                 </div>
                                             </div>
                                             
@@ -480,6 +434,14 @@ const hasIncompletePredictions = computed(() => {
                                             <div v-if="isPredictionIncomplete(fixture.originalIndex)" class="text-center text-xs text-red-600 mt-2">
                                                 لطفاً هر دو نتیجه را وارد کنید
                                             </div>
+                                        </div>
+                                        <!-- Status/Footer -->
+                                        <div class="mt-6 flex justify-between items-center">
+                                            <div class="flex items-center gap-2">
+                                                <span v-if="fixture.is_locked" class="status-badge inline-flex items-center px-3 py-1 rounded-full text-xs bg-slate-200 text-slate-700 border border-slate-300">قفل شده</span>
+                                                <span v-else class="status-badge inline-flex items-center px-3 py-1 rounded-full text-xs bg-amber-50 text-amber-700 border border-amber-200">{{ getTimeUntilLock(fixture) }}</span>
+                                            </div>
+                                            <div class="text-xs text-slate-500">{{ formatDateTime(fixture.match_datetime) }}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -506,49 +468,25 @@ const hasIncompletePredictions = computed(() => {
                     </div>
                 </form>
 
-                <!-- Toast -->
-                <div
-                    v-if="showToast"
-                    :class="['toast', toastType === 'success' ? 'toast-success' : toastType === 'error' ? 'toast-error' : 'toast-info']"
-                >
-                    {{ toastMsg }}
-                </div>
+                <Toast :show="showToast" :message="toastMsg" :type="toastType" position="bottom-right" @close="showToast=false" />
             </div>
         </div>
     </AuthenticatedLayout>
 </template>
 
 <style>
-/* Toast styles (shared with Dashboard) */
-.toast {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    min-width: 200px;
-    max-width: 300px;
-    padding: 16px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    font-size: 14px;
-    line-height: 1.5;
-    transition: opacity 0.3s ease;
-}
-
-.toast-success {
-    background-color: #f0fff4;
-    color: #38a169;
-    border: 1px solid #c6f6d5;
-}
-
-.toast-info {
-    background-color: #e6f7ff;
-    color: #3182ce;
-    border: 1px solid #b2ebf2;
-}
-.toast-error {
-    background-color: #fff5f5;
-    color: #e53e3e;
-    border: 1px solid #fed7d7;
-}
+/* Score controls styling (toast now shared component) */
+/* existing below */
+</style>
+<style>
+/* Added score controls styling to align with dashboard */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { appearance: textfield; -moz-appearance: textfield; }
+.score-input { border-top: 0; border-bottom: 0; border-radius: 0; height: 2.5rem; }
+.score-input:focus { outline: none; border-color: var(--brand-2); box-shadow: 0 0 0 1px var(--brand-2); }
+.score-control { filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.05)); }
+.score-control button:hover:not(:disabled) { background-color: var(--brand-2); color: white; border-color: var(--brand-2); }
+.score-input-mobile { width: 3rem; }
+.team-logo { background-color: white; border-radius: 0.25rem; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.05)); }
 </style>

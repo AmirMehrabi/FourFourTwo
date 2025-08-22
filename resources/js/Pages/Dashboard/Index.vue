@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import Toast from '@/Components/Toast.vue';
 import { useTranslations } from '@/composables/useTranslations.js';
 import { computed, ref, watch, defineAsyncComponent } from 'vue';
 
@@ -23,6 +24,7 @@ const isAutoSaving = ref(false);
 const lastSaved = ref(null);
 const showToast = ref(false);
 const toastMsg = ref('');
+const toastType = ref('success');
 
 // useForm will wrap our prediction data, making submission easy
 const form = useForm({
@@ -57,11 +59,16 @@ function autoSavePredictions() {
             lastSaved.value = new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
             isAutoSaving.value = false;
             toastMsg.value = 'پیش‌بینی ذخیره شد';
+            toastType.value = 'success';
             showToast.value = true;
             setTimeout(() => (showToast.value = false), 2000);
         },
         onError: () => {
             isAutoSaving.value = false;
+            toastMsg.value = 'خطا در ذخیره';
+            toastType.value = 'error';
+            showToast.value = true;
+            setTimeout(() => (showToast.value = false), 2500);
         },
     });
 }
@@ -384,8 +391,7 @@ function dec(index, field) { const v = Number(form.predictions[index][field] ?? 
                     </div>
                 </div>
             </div>
-            <!-- Toast -->
-            <div v-if="showToast" class="toast toast-success">{{ toastMsg }}</div>
+            <Toast :show="showToast" :message="toastMsg" :type="toastType" position="bottom-right" @close="showToast=false" />
         </div>
     </AuthenticatedLayout>
 </template>
@@ -410,15 +416,9 @@ input[type=number] {
     height: 2.5rem;
 }
 
-.score-input:focus {
-    outline: none;
-    border-color: var(--brand-2);
-    box-shadow: 0 0 0 1px var(--brand-2);
-}
+.score-input:focus { outline: none; border-color: var(--brand-2); box-shadow: 0 0 0 1px var(--brand-2); }
 
-.score-control {
-    filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.05));
-}
+.score-control { filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.05)); }
 
 .score-control button:hover:not(:disabled) {
     background-color: var(--brand-2);
