@@ -55,7 +55,7 @@ class LeagueTableService
             ->get();
             
         // Create table data for all teams (with 0 stats if no fixtures played yet)
-        $tableData = $teams->map(function ($team, $index) use ($seasonId, $existingTableEntries, $liveMatches) {
+    $tableData = $teams->map(function ($team, $index) use ($seasonId, $existingTableEntries, $liveMatches) {
             // Get existing stats or create default 0 stats
             $existingEntry = $existingTableEntries->get($team->id);
             
@@ -83,7 +83,22 @@ class LeagueTableService
                     'goals_for' => 0,
                     'goals_against' => 0,
                     'is_playing' => false,
-                    'current_match' => null
+                    'current_match' => null,
+                    'played' => 0,
+                    'won' => 0,
+                    'drawn' => 0,
+                    'lost' => 0,
+                ],
+                // Preserve base values in case needed on frontend
+                'base_stats' => [
+                    'played' => $existingEntry ? $existingEntry->played : 0,
+                    'won' => $existingEntry ? $existingEntry->won : 0,
+                    'drawn' => $existingEntry ? $existingEntry->drawn : 0,
+                    'lost' => $existingEntry ? $existingEntry->lost : 0,
+                    'goals_for' => $existingEntry ? $existingEntry->goals_for : 0,
+                    'goals_against' => $existingEntry ? $existingEntry->goals_against : 0,
+                    'goal_difference' => $existingEntry ? $existingEntry->goal_difference : 0,
+                    'points' => $existingEntry ? $existingEntry->points : 0,
                 ]
             ];
             
@@ -100,38 +115,51 @@ class LeagueTableService
                     ];
                     
                     // Calculate potential points from current live score
+                    // Provisional played increment while match is live
+                    $teamStats['live_adjustments']['played'] = 1;
+
                     if ($match->home_score !== null && $match->away_score !== null) {
-                        if ($match->home_team_id == $team->id) {
-                            // Team is playing at home
-                            $teamStats['live_adjustments']['goals_for'] = $match->home_score;
-                            $teamStats['live_adjustments']['goals_against'] = $match->away_score;
-                            
-                            if ($match->home_score > $match->away_score) {
-                                $teamStats['live_adjustments']['points'] = 3;
-                            } elseif ($match->home_score == $match->away_score) {
-                                $teamStats['live_adjustments']['points'] = 1;
-                            }
+                        $isHome = $match->home_team_id == $team->id;
+                        $for = $isHome ? $match->home_score : $match->away_score;
+                        $against = $isHome ? $match->away_score : $match->home_score;
+                        $teamStats['live_adjustments']['goals_for'] = $for;
+                        $teamStats['live_adjustments']['goals_against'] = $against;
+
+                        if ($for > $against) {
+                            $teamStats['live_adjustments']['won'] = 1;
+                            $teamStats['live_adjustments']['points'] = 3;
+                        } elseif ($for == $against) {
+                            $teamStats['live_adjustments']['drawn'] = 1;
+                            $teamStats['live_adjustments']['points'] = 1;
                         } else {
-                            // Team is playing away
-                            $teamStats['live_adjustments']['goals_for'] = $match->away_score;
-                            $teamStats['live_adjustments']['goals_against'] = $match->home_score;
-                            
-                            if ($match->away_score > $match->home_score) {
-                                $teamStats['live_adjustments']['points'] = 3;
-                            } elseif ($match->away_score == $match->home_score) {
-                                $teamStats['live_adjustments']['points'] = 1;
-                            }
+                            $teamStats['live_adjustments']['lost'] = 1;
                         }
                     }
                     break;
                 }
             }
             
-            // Calculate live totals
+            // Calculate live totals (base + adjustments)
             $teamStats['live_points'] = $teamStats['points'] + $teamStats['live_adjustments']['points'];
             $teamStats['live_goals_for'] = $teamStats['goals_for'] + $teamStats['live_adjustments']['goals_for'];
             $teamStats['live_goals_against'] = $teamStats['goals_against'] + $teamStats['live_adjustments']['goals_against'];
             $teamStats['live_goal_difference'] = $teamStats['live_goals_for'] - $teamStats['live_goals_against'];
+            $teamStats['live_played'] = $teamStats['played'] + $teamStats['live_adjustments']['played'];
+            $teamStats['live_won'] = $teamStats['won'] + $teamStats['live_adjustments']['won'];
+            $teamStats['live_drawn'] = $teamStats['drawn'] + $teamStats['live_adjustments']['drawn'];
+            $teamStats['live_lost'] = $teamStats['lost'] + $teamStats['live_adjustments']['lost'];
+
+            // Overwrite primary displayed stats with live versions if currently playing
+            if ($teamStats['live_adjustments']['is_playing']) {
+                $teamStats['played'] = $teamStats['live_played'];
+                $teamStats['won'] = $teamStats['live_won'];
+                $teamStats['drawn'] = $teamStats['live_drawn'];
+                $teamStats['lost'] = $teamStats['live_lost'];
+                $teamStats['goals_for'] = $teamStats['live_goals_for'];
+                $teamStats['goals_against'] = $teamStats['live_goals_against'];
+                $teamStats['goal_difference'] = $teamStats['live_goal_difference'];
+                $teamStats['points'] = $teamStats['live_points'];
+            }
             
             return $teamStats;
         });
