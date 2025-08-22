@@ -62,7 +62,7 @@
     <div class="max-w-3xl mx-auto mt-10 px-4">
       <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col md:flex-row items-center gap-6">
         <div class="flex items-center gap-4">
-          <img :src=" '/assets/team-logos/default.png'" :alt="nextMatch.value.opponent_name || 'حریف'" class="w-16 h-16 rounded-full object-contain border-2 border-slate-200" />
+          <img :src=" '/assets/team-logos/default.png'" :alt=" 'حریف'" class="w-16 h-16 rounded-full object-contain border-2 border-slate-200" />
           <div>
             <div class="text-xl font-bold text-slate-900">هفته {{ nextMatch.value.matchweek }}: {{ nextMatch.value.opponent_name }}</div>
             <div class="text-slate-500">{{ nextMatch.value.date }} | {{ nextMatch.value.time }} | {{ nextMatch.value.venue }}</div>
