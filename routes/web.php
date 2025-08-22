@@ -1,5 +1,3 @@
-use App\Http\Controllers\TeamController;
-Route::get('/teams/{slug}', [TeamController::class, 'show'])->name('teams.show');
 <?php
 
 use App\Http\Controllers\DashboardController;
@@ -11,6 +9,7 @@ use App\Http\Controllers\MyPredictionsController;
 use App\Http\Controllers\PredictionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\TeamController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -25,6 +24,8 @@ Route::get('/', [WelcomeController::class, 'index']);
 Route::get('/api/league-table', [LeagueTableController::class, 'index'])->name('league-table.index');
 Route::post('/api/league-table/update', [LeagueTableController::class, 'update'])->name('league-table.update');
 
+
+Route::get('/teams/{slug}', [TeamController::class, 'show'])->name('teams.show');
 
 
 Route::get('/debug-csrf', function (Request $request) {
