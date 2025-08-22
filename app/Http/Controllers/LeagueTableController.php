@@ -37,6 +37,7 @@ class LeagueTableController extends Controller
                 'live_position' => $row['live_position'],
                 'team' => [
                     'id' => $row['team']['id'],
+                    'slug' => $row['team']['slug'],
                     'name' => $row['team']['name'],
                     'name_fa' => $row['team']['name_fa'],
                     'display_name' => $row['team']['display_name'],
