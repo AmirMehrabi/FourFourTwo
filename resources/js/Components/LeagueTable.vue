@@ -118,16 +118,21 @@
                 <!-- Mobile / Tablet Tabbed Table -->
                 <div class="lg:hidden p-4">
                     <!-- Tabs -->
-                    <div class="flex items-center gap-2 mb-4 text-sm">
-                        <button
-                            v-for="tab in mobileTabs"
-                            :key="tab.key"
-                            @click="activeTab = tab.key"
-                            class="px-3 py-1.5 rounded-full border transition-colors"
-                            :class="activeTab === tab.key ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'"
-                        >
-                            {{ tab.label }}
-                        </button>
+                    <div class="mb-4">
+                        <div class="flex w-full rounded-xl bg-slate-100 p-1 shadow-inner text-sm" role="tablist" aria-label="نمایش جدول">
+                            <button
+                                v-for="tab in mobileTabs"
+                                :key="tab.key"
+                                @click="activeTab = tab.key"
+                                class="flex-1 py-2 rounded-lg font-600 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/60 focus-visible:ring-offset-1 focus-visible:ring-offset-slate-100"
+                                role="tab"
+                                :aria-selected="activeTab === tab.key"
+                                :class="activeTab === tab.key
+                                    ? 'bg-white text-slate-900 shadow-sm'
+                                    : 'text-slate-600 hover:text-slate-800'">
+                                <span class="inline-block">{{ tab.label }}</span>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 p-1">
