@@ -55,7 +55,6 @@
                                               :class="getPositionColor(entry.position)">
                                             {{ entry.position }}
                                         </span>
-                                        <div v-if="entry.has_live_match" class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                                     </div>
                                 </td>
                                 
@@ -66,9 +65,13 @@
                                              :alt="entry.team.name_fa || entry.team.name"
                                              class="w-8 h-8 object-contain flex-shrink-0"
                                              @error="handleImageError">
-                                        <div>
-                                            <div class="font-600 text-slate-900 text-lg">
+                                        <div class="flex items-center gap-2">
+                                            <div class="font-600 text-slate-900 text-lg flex items-center gap-2">
                                                 {{ translateTeamName(entry.team.name) }}
+                                                <span v-if="entry.team.is_live || entry.has_live_match" class="flex items-center gap-1 text-xs font-600 text-red-600">
+                                                    <span class="w-2 h-2 bg-green-600 rounded-full animate-pulse inline-block"></span>
+                                                    زنده
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -241,7 +244,7 @@ const { translateTeamName, t } = useTranslations();
 
 // Computed properties
 const hasLiveMatches = computed(() => {
-    return tableData.value.some(entry => entry.has_live_match)
+    return tableData.value.some(entry => entry.team?.is_live || entry.has_live_match)
 })
 
 // Methods
