@@ -10,117 +10,153 @@ use Carbon\Carbon;
 
 class UpdateFixtureResults extends Command
 {
-    protected $signature = 'fixtures:update-results {--minutes=90 : Minutes ago to look for fixtures} {--debug : Show debug information}';
-    protected $description = 'Interactively update fixture results for matches that should be finished';
+    protected $signature = 'fixtures:update-results 
+        {--minutes=90 : Minutes ago to look for finalize candidates} 
+        {--live : Only handle starting & in-play matches (update live score)} 
+        {--finalize : Only finalize matches likely finished} 
+        {--fixture= : Target a single fixture ID} 
+        {--auto : Non-interactive; assume defaults} 
+        {--debug : Show debug information}';
+    protected $description = 'Update fixture scores: start, live update, and finalize matches';
 
     protected $leagueTableService;
+    protected \App\Services\FixtureUpdateService $fixtureUpdateService;
 
-    public function __construct(LeagueTableService $leagueTableService)
+    public function __construct(LeagueTableService $leagueTableService, \App\Services\FixtureUpdateService $fixtureUpdateService)
     {
         parent::__construct();
         $this->leagueTableService = $leagueTableService;
+        $this->fixtureUpdateService = $fixtureUpdateService;
     }
 
     public function handle()
     {
         $minutes = (int) $this->option('minutes') ?: 90;
         $debug = $this->option('debug');
-        
-        $this->info('🏆 Fixture Results Update Tool');
-        $this->info("Looking for fixtures that started more than {$minutes} minutes ago...");
-        
-        // Get fixtures that started more than X minutes ago and are not finished
+        $onlyLive = $this->option('live');
+        $onlyFinalize = $this->option('finalize');
+        $fixtureId = $this->option('fixture');
+        $auto = $this->option('auto');
+
+        if ($onlyLive && $onlyFinalize) {
+            $this->error('Use only one of --live or --finalize, not both.');
+            return 1;
+        }
+
+        $this->info('🏆 Fixture Lifecycle Update Tool');
+        $this->line('Modes: start -> live scoring (in_play) -> finalize (finished)');
+        $this->newLine();
+
+        // Pre-load candidates
         $cutoffTime = Carbon::now()->subMinutes($minutes);
-        
+
+        // Show debug info
         if ($debug) {
             $this->info("Current time: " . Carbon::now()->format('Y-m-d H:i:s'));
-            $this->info("Cutoff time ({$minutes} min ago): " . $cutoffTime->format('Y-m-d H:i:s'));
-            $this->newLine();
-            
-            // Debug: Show all fixtures regardless of time first
-            $allFixtures = Fixture::with(['homeTeam', 'awayTeam', 'season'])
-                ->whereIn('status', ['scheduled', 'in_play'])
-                ->orderBy('match_datetime', 'desc')
-                ->get();
-                
-            $this->info("Debug: All fixtures with status 'scheduled' or 'in_play':");
-            foreach ($allFixtures as $fixture) {
-                $matchTime = Carbon::parse($fixture->match_datetime);
-                $isOld = $matchTime->lt($cutoffTime);
-                $this->info("- {$fixture->homeTeam->name} vs {$fixture->awayTeam->name} at {$fixture->match_datetime} (Should include: " . ($isOld ? 'YES' : 'NO') . ")");
-            }
+            $this->info("Finalize cutoff (>{$minutes} min ago): " . $cutoffTime->format('Y-m-d H:i:s'));
             $this->newLine();
         }
-        
-        $fixtures = Fixture::with(['homeTeam', 'awayTeam', 'season'])
-            ->where('match_datetime', '<', $cutoffTime)
-            ->whereIn('status', ['scheduled', 'in_play'])
-            ->orderBy('match_datetime', 'desc')
-            ->get();
 
-        if ($fixtures->isEmpty()) {
-            $this->info('✅ No fixtures found that need updating.');
-            if (!$debug) {
-                $this->info('💡 Try running with --debug to see more information.');
-                $this->info('💡 Or try with fewer minutes: --minutes=30');
-            }
+        // Start any due fixtures (scheduled whose time has passed) automatically before processing
+        $startedCount = $this->fixtureUpdateService->startDueFixtures($fixtureId);
+        if ($startedCount > 0) {
+            $this->info("⏱️  Auto-started {$startedCount} scheduled fixture(s) now in play.");
+        }
+
+        $liveCandidates = $onlyFinalize ? collect([]) : $this->fixtureUpdateService->getLiveCandidates($fixtureId);
+        $finalizeCandidates = $onlyLive ? collect([]) : $this->fixtureUpdateService->getFinalizeCandidates($minutes, $fixtureId);
+
+        if ($debug) {
+            $this->line('Debug: Live candidates: ' . $liveCandidates->count());
+            $this->line('Debug: Finalize candidates: ' . $finalizeCandidates->count());
+            $this->newLine();
+        }
+
+        if ($liveCandidates->isEmpty() && $finalizeCandidates->isEmpty()) {
+            $this->info('✅ No fixtures need attention right now.');
             return 0;
         }
 
-        $this->info("Found {$fixtures->count()} fixture(s) that may need updating:");
-        $this->newLine();
+        $updatedLive = 0;
+        $finalized = 0;
+        $skipped = 0;
 
-        $updatedCount = 0;
-        $skippedCount = 0;
+        // Process live updates
+        if ($liveCandidates->isNotEmpty()) {
+            $this->info('🎬 Live / Starting Fixtures:');
+            foreach ($liveCandidates as $fixture) {
+                $this->displayFixtureInfo($fixture);
+                if ($onlyFinalize) {
+                    continue; // safety
+                }
 
-        foreach ($fixtures as $fixture) {
-            $this->displayFixtureInfo($fixture);
-            
-            // Ask if the game is finished
-            if (!$this->confirm('Is this match finished?', true)) {
-                $this->info('⏭️  Skipping this match.');
-                $skippedCount++;
+                if ($auto) {
+                    // In auto mode we don't change scores unless both null -> skip
+                    if ($fixture->home_score === null && $fixture->away_score === null) {
+                        $skipped++; continue;
+                    }
+                } else {
+                    $action = $this->choice('Action', ['Live Update', 'Finalize', 'Skip', 'Quit'], 0);
+                    if ($action === 'Quit') { break; }
+                    if ($action === 'Skip') { $skipped++; $this->newLine(); continue; }
+                    if ($action === 'Finalize') {
+                        // fallthrough to finalize section later by adding to finalize list if not already
+                        if (!$finalizeCandidates->contains('id', $fixture->id)) {
+                            $finalizeCandidates->push($fixture);
+                        }
+                        continue; // skip live update for now
+                    }
+                }
+
+                // Live Update path
+                $homeScore = $this->askScoreNullable($fixture->homeTeam->name, 'home', $fixture->home_score, $auto);
+                $awayScore = $this->askScoreNullable($fixture->awayTeam->name, 'away', $fixture->away_score, $auto);
+
+                if ($homeScore === $fixture->home_score && $awayScore === $fixture->away_score) {
+                    $this->line('No score change.');
+                    $skipped++; $this->newLine(); continue;
+                }
+
+                $this->fixtureUpdateService->updateLiveScore($fixture, $homeScore, $awayScore);
+                $this->info("✅ Live score updated: {$fixture->homeTeam->name} {$homeScore} - {$awayScore} {$fixture->awayTeam->name}");
+                $updatedLive++;
                 $this->newLine();
-                continue;
             }
+        }
 
-            // Get scores
-            $homeScore = $this->getScore($fixture->homeTeam->name, 'home');
-            $awayScore = $this->getScore($fixture->awayTeam->name, 'away');
+        // Process finalizations
+        if ($finalizeCandidates->isNotEmpty()) {
+            $this->info('🏁 Finalization Candidates:');
+            foreach ($finalizeCandidates as $fixture) {
+                // Skip if finished already
+                if ($fixture->status === 'finished') { continue; }
+                $this->displayFixtureInfo($fixture);
+                if ($onlyLive) { continue; }
+                if (!$auto) {
+                    if (!$this->confirm('Finalize this match?', true)) { $skipped++; $this->newLine(); continue; }
+                }
 
-            // Confirm the result
-            $result = "{$fixture->homeTeam->name} {$homeScore} - {$awayScore} {$fixture->awayTeam->name}";
-            
-            if (!$this->confirm("Confirm result: {$result}?", true)) {
-                $this->warn('❌ Result not confirmed. Skipping this match.');
-                $skippedCount++;
+                $homeScore = $this->askScoreNullable($fixture->homeTeam->name, 'home', $fixture->home_score, $auto, false);
+                $awayScore = $this->askScoreNullable($fixture->awayTeam->name, 'away', $fixture->away_score, $auto, false);
+
+                $result = "{$fixture->homeTeam->name} {$homeScore} - {$awayScore} {$fixture->awayTeam->name}";
+                if (!$auto && !$this->confirm("Confirm final result: {$result}?", true)) { $skipped++; $this->newLine(); continue; }
+
+                $this->fixtureUpdateService->finalizeFixture($fixture, $homeScore, $awayScore);
+                $this->info("🏁 Finalized: {$result}");
+                $finalized++;
                 $this->newLine();
-                continue;
             }
-
-            // Update the fixture
-            $fixture->update([
-                'home_score' => $homeScore,
-                'away_score' => $awayScore,
-                'status' => 'finished'
-            ]);
-
-            $this->info("✅ Updated: {$result}");
-            $updatedCount++;
-
-            // The league table will be automatically updated via the Fixture model event
-            $this->newLine();
         }
 
         // Summary
-        $this->info('📊 Update Summary:');
-        $this->info("✅ Updated: {$updatedCount} fixture(s)");
-        $this->info("⏭️  Skipped: {$skippedCount} fixture(s)");
-
-        if ($updatedCount > 0) {
-            $this->info('🔄 League table has been automatically updated!');
+        $this->info('📊 Summary:');
+        $this->info("🔄 Live updates: {$updatedLive}");
+        $this->info("🏁 Finalized: {$finalized}");
+        $this->info("⏭️  Skipped: {$skipped}");
+        if (($updatedLive + $finalized) > 0) {
+            $this->info('🔄 League table updated via model events.');
         }
-
         return 0;
     }
 
@@ -146,11 +182,25 @@ class UpdateFixtureResults extends Command
     {
         while (true) {
             $score = $this->ask("⚽ Enter {$type} team ({$teamName}) score");
-            
-            if (is_numeric($score) && $score >= 0 && $score <= 20) {
-                return (int) $score;
+            if (is_numeric($score) && $score >= 0 && $score <= 20) { return (int)$score; }
+            $this->error('Please enter a valid score (0-20)');
+        }
+    }
+
+    private function askScoreNullable($teamName, $type, $current, $auto = false, $allowNull = true)
+    {
+        if ($auto) {
+            // In auto mode keep existing
+            return $current;
+        }
+        while (true) {
+            $prompt = "⚽ Enter {$type} team ({$teamName}) score" . ($current !== null ? " [current: {$current}]" : '') . ($allowNull ? ' (blank=leave unchanged)' : '');
+            $value = $this->ask($prompt);
+            if ($value === null || $value === '') {
+                if ($allowNull) { return $current; }
+                $this->error('Score required'); continue;            
             }
-            
+            if (is_numeric($value) && $value >= 0 && $value <= 20) { return (int)$value; }
             $this->error('Please enter a valid score (0-20)');
         }
     }
