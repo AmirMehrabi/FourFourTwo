@@ -25,8 +25,8 @@
                 </div>
 
                 <!-- Desktop Table -->
-                <div class="hidden lg:block overflow-x-auto bg-slate-50 p-2">
-                    <table class="w-full border-separate border-spacing-y-2">
+                <div class="hidden lg:block overflow-x-auto bg-slate-50">
+                    <table class="w-full border-separate border-spacing-y-4">
                         <thead class="bg-slate-50 border-b border-slate-200">
                             <tr class="text-right">
                                 <th class="px-4 py-3 text-xs font-600 text-slate-700 uppercase tracking-wider">رتبه</th>
