@@ -168,6 +168,10 @@ class LeagueTableService
                 if (isset($teamStats['live_form'])) {
                     $teamStats['form'] = $teamStats['live_form'];
                 }
+                // Set directly on team for UI to place indicator next to name
+                $teamStats['team']['is_live'] = true;
+            } else {
+                $teamStats['team']['is_live'] = false;
             }
             
             return $teamStats;
