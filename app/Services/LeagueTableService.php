@@ -128,12 +128,18 @@ class LeagueTableService
                         if ($for > $against) {
                             $teamStats['live_adjustments']['won'] = 1;
                             $teamStats['live_adjustments']['points'] = 3;
+                            $provisionalForm = 'W';
                         } elseif ($for == $against) {
                             $teamStats['live_adjustments']['drawn'] = 1;
                             $teamStats['live_adjustments']['points'] = 1;
+                            $provisionalForm = 'D';
                         } else {
                             $teamStats['live_adjustments']['lost'] = 1;
+                            $provisionalForm = 'L';
                         }
+                        // Provisional form (most recent first): prepend
+                        $currentForm = $teamStats['form'];
+                        $teamStats['live_form'] = array_merge([$provisionalForm], $currentForm);
                     }
                     break;
                 }
@@ -159,6 +165,9 @@ class LeagueTableService
                 $teamStats['goals_against'] = $teamStats['live_goals_against'];
                 $teamStats['goal_difference'] = $teamStats['live_goal_difference'];
                 $teamStats['points'] = $teamStats['live_points'];
+                if (isset($teamStats['live_form'])) {
+                    $teamStats['form'] = $teamStats['live_form'];
+                }
             }
             
             return $teamStats;
@@ -187,7 +196,10 @@ class LeagueTableService
         
         // Add live positions
         $sortedTable = $sortedTable->map(function ($item, $index) {
-            $item['live_position'] = $index + 1;
+            $livePos = $index + 1;
+            $item['live_position'] = $livePos;
+            // Overwrite displayed position with live ordering for all teams
+            $item['position'] = $livePos;
             return $item;
         });
         
