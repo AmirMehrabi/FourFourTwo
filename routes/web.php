@@ -1,3 +1,5 @@
+use App\Http\Controllers\TeamController;
+Route::get('/teams/{slug}', [TeamController::class, 'show'])->name('teams.show');
 <?php
 
 use App\Http\Controllers\DashboardController;
