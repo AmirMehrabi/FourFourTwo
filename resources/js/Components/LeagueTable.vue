@@ -76,7 +76,7 @@
                                              @error="handleImageError">
                                         <div class="flex items-center gap-2">
                                             <div class="font-800 text-slate-900 text-lg flex items-center gap-2">
-                                                {{ translateTeamName(entry.team.name) }}
+                                                <a :href="`/teams/${entry.team.slug}`" class="hover:underline text-slate-900">{{ translateTeamName(entry.team.name) }}</a>
                                                 <span v-if="entry.team.is_live || entry.has_live_match" class="flex items-center gap-1 text-xs font-600 text-green-600">
                                                     <span class="w-2 h-2 bg-green-600 rounded-full animate-pulse inline-block"></span>
                                                     زنده
@@ -159,19 +159,19 @@
                                             <span class="text-xs font-800 w-5 text-center rounded" :class="getPositionColor(entry.position)" :title="qualificationLabel(entry.position)">
                                                 {{ entry.position }}
                                             </span>
-                                                                          <span v-if="entry.position_change > 0"
-                                                                              class="text-[10px] font-700 text-green-600"
-                                                                              :title="'صعود ' + entry.position_change">▲</span>
-                                                                          <span v-else-if="entry.position_change < 0"
-                                                                              class="text-[10px] font-700 text-red-600"
-                                                                              :title="'سقوط ' + Math.abs(entry.position_change)">▼</span>
-                                                                          <span v-else class="text-[10px] text-slate-400" title="بدون تغییر">•</span>
+                                            <span v-if="entry.position_change > 0"
+                                                class="text-[10px] font-700 text-green-600"
+                                                :title="'صعود ' + entry.position_change">▲</span>
+                                            <span v-else-if="entry.position_change < 0"
+                                                class="text-[10px] font-700 text-red-600"
+                                                :title="'سقوط ' + Math.abs(entry.position_change)">▼</span>
+                                            <span v-else class="text-[10px] text-slate-400" title="بدون تغییر">•</span>
                                             <img :src="`/assets/team-logos/${entry.team.name}.png`" 
-                                                 :alt="entry.team.name_fa || entry.team.name"
-                                                 class="w-6 h-6 object-contain flex-shrink-0"
-                                                 @error="handleImageError">
+                                                :alt="entry.team.name_fa || entry.team.name"
+                                                class="w-6 h-6 object-contain flex-shrink-0"
+                                                @error="handleImageError">
                                             <div class="flex items-center gap-1">
-                                                <span class="text-[13px] font-800 truncate max-w-[90px]">{{ translateTeamName(entry.team.name) }}</span>
+                                                <a :href="`/teams/${entry.team.slug}`" class="text-[13px] font-800 truncate max-w-[90px] hover:underline text-slate-900">{{ translateTeamName(entry.team.name) }}</a>
                                                 <span v-if="entry.team.is_live || entry.has_live_match" class="w-1.5 h-1.5 bg-green-600 rounded-full animate-pulse"></span>
                                             </div>
                                         </div>
