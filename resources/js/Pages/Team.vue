@@ -1,25 +1,29 @@
 <template>
   <section class="min-h-screen bg-gradient-to-br from-slate-50 to-white pb-16">
-    <!-- Hero/Header -->
-    <div class="max-w-5xl mx-auto px-4 pt-8">
-      <div class="flex flex-col md:flex-row items-center gap-6 md:gap-10">
-        <div class="flex-shrink-0">
-          <img :src="team.logoUrl" :alt="team.displayName" class="w-28 h-28 rounded-full border-4 border-slate-200 shadow-lg bg-white object-contain" />
+    <!-- Colorful Hero -->
+    <div class="w-full bg-gradient-to-r from-[var(--team-primary,#7b0681)] to-[var(--team-secondary,#16a34a)] py-10 px-4 flex flex-col md:flex-row items-center gap-8 shadow-lg">
+      <img :src="team.logoUrl" :alt="team.displayName" class="w-32 h-32 rounded-full border-4 border-white shadow-xl object-contain" />
+      <div class="flex-1 text-white">
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-2 flex items-center gap-3">
+          <span>{{ team.displayName }}</span>
+          <span v-if="team.name !== team.displayName" class="text-2xl text-white/70 font-normal">({{ team.name }})</span>
+        </h1>
+        <div class="flex flex-wrap gap-3 mb-3">
+          <span class="inline-block px-4 py-2 rounded-full text-base font-bold bg-white/20">رتبه: {{ league.position }}</span>
+          <span class="inline-block px-4 py-2 rounded-full text-base font-bold bg-white/20">امتیاز: {{ league.points }}</span>
+          <span class="inline-block px-4 py-2 rounded-full text-base font-bold bg-white/20">تفاضل: {{ league.goal_difference }}</span>
+          <span class="inline-block px-4 py-2 rounded-full text-base font-bold bg-white/20">بازی: {{ league.played }}</span>
         </div>
-        <div class="flex-1">
-          <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2 flex items-center gap-3">
-            <span>{{ team.displayName }}</span>
-            <span v-if="team.name !== team.displayName" class="text-lg text-slate-500 font-normal">({{ team.name }})</span>
-          </h1>
-          <div class="flex items-center gap-2 mb-2">
-            <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">رتبه: {{ league.position }}</span>
-            <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">امتیاز: {{ league.points }}</span>
-            <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">تفاضل: {{ league.goal_difference }}</span>
-            <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-700">بازی: {{ league.played }}</span>
-          </div>
-          <div class="flex gap-2">
-            <span v-for="(result, idx) in league.formArray" :key="idx" class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white" :class="formColor(result)">{{ result }}</span>
-          </div>
+        <div class="flex gap-2">
+          <span v-for="(result, idx) in league.formArray" :key="idx" class="w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold text-white shadow-lg" :class="formColor(result)">{{ result }}</span>
+        </div>
+        <div class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+          <div><span class="font-bold">تأسیس:</span> {{ team.founded_year || '-' }}</div>
+          <div><span class="font-bold">شهر:</span> {{ team.city_fa || team.city || '-' }}</div>
+          <div><span class="font-bold">ورزشگاه:</span> {{ team.stadium_name_fa || team.stadium_name || '-' }}</div>
+          <div><span class="font-bold">ظرفیت:</span> {{ team.stadium_capacity || '-' }}</div>
+          <div><span class="font-bold">مدیر:</span> {{ team.manager_fa || team.manager || '-' }}</div>
+          <div><span class="font-bold">وبسایت:</span> <a v-if="team.website_url" :href="team.website_url" target="_blank" class="underline">مشاهده</a><span v-else>-</span></div>
         </div>
       </div>
     </div>
@@ -53,73 +57,83 @@
       </div>
     </div>
 
-    <!-- KPIs -->
-    <div class="max-w-5xl mx-auto px-4 mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 text-center">
-      <div v-for="kpi in kpis" :key="kpi.label" class="bg-gradient-to-br from-slate-100 to-white rounded-lg shadow p-4">
-        <div class="text-lg font-extrabold text-slate-900">{{ kpi.value }}</div>
-        <div class="text-xs text-slate-500 mt-1">{{ kpi.label }}</div>
+
+    <!-- Next Match Card -->
+    <div class="max-w-3xl mx-auto mt-10 px-4">
+      <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col md:flex-row items-center gap-6">
+        <div class="flex items-center gap-4">
+          <img :src="nextMatch.opponent_logo" :alt="nextMatch.opponent_name" class="w-16 h-16 rounded-full object-contain border-2 border-slate-200" />
+          <div>
+            <div class="text-xl font-bold text-slate-900">هفته {{ nextMatch.matchweek }}: {{ nextMatch.opponent_name }}</div>
+            <div class="text-slate-500">{{ nextMatch.date }} | {{ nextMatch.time }} | {{ nextMatch.venue }}</div>
+          </div>
+        </div>
+        <div class="flex-1"></div>
+        <div v-if="!nextMatch.locked" class="flex flex-col items-center">
+          <form @submit.prevent="submitPrediction" class="flex gap-2 items-center">
+            <input type="number" v-model="userPrediction.home" min="0" max="10" class="w-16 px-2 py-1 rounded border border-slate-300" placeholder="گل تیم شما" />
+            <span class="font-bold text-slate-700">-</span>
+            <input type="number" v-model="userPrediction.away" min="0" max="10" class="w-16 px-2 py-1 rounded border border-slate-300" placeholder="گل حریف" />
+            <button type="submit" class="px-4 py-1 rounded bg-slate-900 text-white font-bold">ثبت</button>
+          </form>
+          <div v-if="predictionSubmitted" class="text-green-600 mt-2">پیش‌بینی شما ثبت شد!</div>
+        </div>
+        <div v-else class="text-slate-400 font-bold">پیش‌بینی بسته شده است</div>
       </div>
     </div>
 
-    <!-- Recent Results & Upcoming Fixtures -->
-    <div class="max-w-5xl mx-auto px-4 mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div>
-        <h2 class="text-lg font-bold text-slate-800 mb-3">نتایج اخیر</h2>
-        <ul class="space-y-2">
-          <li v-for="fixture in recentResults" :key="fixture.id" class="bg-white rounded-lg shadow p-3 flex items-center gap-3">
-            <span class="w-8 h-8 flex-shrink-0"><img :src="fixture.opponent_logo" :alt="fixture.opponent_name" class="w-8 h-8 object-contain rounded-full" /></span>
-            <span class="font-bold text-slate-700">{{ fixture.home_or_away === 'home' ? 'خانه' : 'مهمان' }}</span>
-            <span class="text-slate-500">{{ fixture.opponent_name }}</span>
-            <span class="mx-2 font-bold text-lg" :class="resultColor(fixture.result)">{{ fixture.home_score }} - {{ fixture.away_score }}</span>
-            <span class="text-xs px-2 py-1 rounded-full" :class="resultColor(fixture.result)">{{ fixture.result }}</span>
-            <span class="text-xs text-slate-400 ml-auto">{{ fixture.date }}</span>
-          </li>
-        </ul>
-      </div>
-      <div>
-        <h2 class="text-lg font-bold text-slate-800 mb-3">برنامه آینده</h2>
-        <ul class="space-y-2">
-          <li v-for="fixture in upcomingFixtures" :key="fixture.id" class="bg-white rounded-lg shadow p-3 flex items-center gap-3">
-            <span class="w-8 h-8 flex-shrink-0"><img :src="fixture.opponent_logo" :alt="fixture.opponent_name" class="w-8 h-8 object-contain rounded-full" /></span>
-            <span class="font-bold text-slate-700">{{ fixture.home_or_away === 'home' ? 'خانه' : 'مهمان' }}</span>
-            <span class="text-slate-500">{{ fixture.opponent_name }}</span>
-            <span class="mx-2 font-bold text-lg text-slate-700">هفته {{ fixture.matchweek }}</span>
-            <span class="text-xs px-2 py-1 rounded-full bg-slate-200 text-slate-600">{{ fixture.status }}</span>
-            <span class="text-xs text-slate-400 ml-auto">{{ fixture.date }}</span>
-          </li>
-        </ul>
+
+    <!-- Team Forms Timeline -->
+    <div class="max-w-5xl mx-auto px-4 mt-10">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Team Forms</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm border-separate border-spacing-y-2">
+          <thead class="bg-slate-50">
+            <tr>
+              <th class="px-3 py-2">MW</th>
+              <th class="px-3 py-2">Avatar</th>
+              <th class="px-3 py-2">Team Name</th>
+              <th class="px-3 py-2">Home/Away</th>
+              <th class="px-3 py-2">Score/Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="form in teamForms" :key="form.matchweek" class="bg-white rounded shadow">
+              <td class="px-3 py-2 font-bold">{{ form.matchweek }}</td>
+              <td class="px-3 py-2"><img :src="form.avatar" :alt="form.team_name" class="w-8 h-8 rounded-full object-contain" /></td>
+              <td class="px-3 py-2 font-bold">{{ form.team_name }}</td>
+              <td class="px-3 py-2">{{ form.home_or_away }}</td>
+              <td class="px-3 py-2">
+                <span v-if="form.is_past" class="font-bold text-lg" :class="resultColor(form.result)">{{ form.score }}</span>
+                <span v-else class="text-slate-500">{{ form.date }} {{ form.time }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <!-- Form & Streaks -->
-    <div class="max-w-5xl mx-auto px-4 mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div>
-        <h2 class="text-lg font-bold text-slate-800 mb-3">فرم تیم</h2>
-        <div class="flex gap-2 mb-2">
-          <span v-for="(result, idx) in league.formArray" :key="idx" class="w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold text-white" :class="formColor(result)">{{ result }}</span>
-        </div>
-        <div class="text-slate-500">{{ streakText }}</div>
-      </div>
-      <div>
-        <h2 class="text-lg font-bold text-slate-800 mb-3">جدول لیگ (موقعیت فعلی)</h2>
-        <div class="bg-white rounded-lg shadow p-3">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="text-right text-slate-500">
-                <th>رتبه</th>
-                <th>تیم</th>
-                <th>امتیاز</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="row in leagueContext" :key="row.team_id" :class="row.team_id === team.id ? 'bg-slate-100 font-bold' : ''">
-                <td>{{ row.position }}</td>
-                <td>{{ row.team_name }}</td>
-                <td>{{ row.points }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+
+    <!-- League Table with Permanent Hover -->
+    <div class="max-w-5xl mx-auto px-4 mt-10">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">جدول لیگ</h2>
+      <div class="bg-white rounded-lg shadow p-3">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-right text-slate-500">
+              <th>رتبه</th>
+              <th>تیم</th>
+              <th>امتیاز</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="row in leagueContext" :key="row.team_id" :class="row.team_id === team.id ? 'bg-gradient-to-r from-green-100 to-blue-100 font-bold shadow-lg' : 'hover:bg-slate-50'">
+              <td>{{ row.position }}</td>
+              <td>{{ row.team_name }}</td>
+              <td>{{ row.points }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -144,22 +158,42 @@
       </div>
     </div>
 
-    <!-- Position Trend & Goals Breakdown -->
+
+    <!-- Modern Trend & Goals Charts -->
     <div class="max-w-5xl mx-auto px-4 mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
       <div>
-        <h2 class="text-lg font-bold text-slate-800 mb-3">روند موقعیت تیم</h2>
-        <div class="bg-white rounded-lg shadow p-4 flex items-center justify-center">
-          <!-- Dummy sparkline -->
-          <svg width="180" height="40"><polyline :points="trendPoints" fill="none" stroke="#7b0681" stroke-width="3" /></svg>
+        <h2 class="text-xl font-bold text-slate-800 mb-4">روند موقعیت تیم</h2>
+        <div class="bg-white rounded-lg shadow p-6 flex items-center justify-center">
+          <!-- Modern dummy sparkline -->
+          <svg width="220" height="60">
+            <defs>
+              <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#7b0681" />
+                <stop offset="100%" stop-color="#16a34a" />
+              </linearGradient>
+            </defs>
+            <polyline :points="trendPoints" fill="none" stroke="url(#trendGrad)" stroke-width="4" />
+            <circle v-for="(pt, i) in trendCirclePoints" :key="i" :cx="pt.x" :cy="pt.y" r="4" fill="#7b0681" />
+          </svg>
         </div>
       </div>
       <div>
-        <h2 class="text-lg font-bold text-slate-800 mb-3">گل‌های زده و خورده</h2>
-        <div class="bg-white rounded-lg shadow p-4 flex items-center justify-center">
-          <!-- Dummy bar chart -->
-          <svg width="180" height="40">
-            <rect v-for="(g, i) in goalsFor" :key="i" :x="i*18" :y="40-g" width="8" :height="g" fill="#16a34a" />
-            <rect v-for="(g, i) in goalsAgainst" :key="i" :x="i*18+8" :y="40-g" width="8" :height="g" fill="#dc2626" />
+        <h2 class="text-xl font-bold text-slate-800 mb-4">گل‌های زده و خورده</h2>
+        <div class="bg-white rounded-lg shadow p-6 flex items-center justify-center">
+          <!-- Modern dummy bar chart -->
+          <svg width="220" height="60">
+            <defs>
+              <linearGradient id="gfGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#16a34a" />
+                <stop offset="100%" stop-color="#bbf7d0" />
+              </linearGradient>
+              <linearGradient id="gaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#dc2626" />
+                <stop offset="100%" stop-color="#fee2e2" />
+              </linearGradient>
+            </defs>
+            <rect v-for="(g, i) in goalsFor" :key="'gf'+i" :x="i*24+10" :y="60-g" width="10" :height="g" fill="url(#gfGrad)" rx="3" />
+            <rect v-for="(g, i) in goalsAgainst" :key="'ga'+i" :x="i*24+22" :y="60-g" width="10" :height="g" fill="url(#gaGrad)" rx="3" />
           </svg>
         </div>
       </div>
