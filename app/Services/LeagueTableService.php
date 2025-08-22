@@ -68,6 +68,8 @@ class LeagueTableService
                     'logo_url' => $team->logo_url, // Use the model accessor
                 ],
                 'position' => $existingEntry ? $existingEntry->position : ($index + 1),
+                // Persisted table position before live recalculation
+                'base_position' => $existingEntry ? $existingEntry->position : null,
                 'played' => $existingEntry ? $existingEntry->played : 0,
                 'won' => $existingEntry ? $existingEntry->won : 0,
                 'drawn' => $existingEntry ? $existingEntry->drawn : 0,
@@ -204,6 +206,8 @@ class LeagueTableService
             $item['live_position'] = $livePos;
             // Overwrite displayed position with live ordering for all teams
             $item['position'] = $livePos;
+            $item['previous_position'] = $item['base_position'];
+            $item['position_change'] = $item['previous_position'] ? ($item['previous_position'] - $livePos) : 0; // positive => moved up
             return $item;
         });
         

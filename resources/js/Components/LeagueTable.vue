@@ -45,7 +45,7 @@
                         <tbody class="divide-y divide-slate-100">
                             <tr v-for="entry in tableData" :key="entry.team.id" 
                                 class="hover:bg-slate-50 transition-colors relative"
-                                :class="rowQualificationClass(entry.position, entry.has_live_match)">
+                                :class="qualificationBorder(entry.position)">
                                 <!-- Position -->
                                 <td class="px-4 py-4">
                                     <div class="flex items-center gap-1">
@@ -54,12 +54,12 @@
                                               :title="qualificationLabel(entry.position)">
                                             {{ entry.position }}
                                         </span>
-                                        <span v-if="positionChanges[entry.team.id] !== undefined && positionChanges[entry.team.id] !== 0"
-                                              :class="['text-xs font-700', positionChanges[entry.team.id] < 0 ? 'text-red-600' : 'text-green-600']"
-                                              :title="positionChanges[entry.team.id] < 0 ? 'سقوط ' + Math.abs(positionChanges[entry.team.id]) : 'صعود ' + positionChanges[entry.team.id]">
-                                            {{ positionChanges[entry.team.id] < 0 ? '▼' : '▲' }}
+                                                                                <span v-if="entry.position_change !== 0"
+                                                                                            :class="['text-xs font-700', entry.position_change < 0 ? 'text-red-600' : 'text-green-600']"
+                                                                                            :title="entry.position_change < 0 ? 'سقوط ' + Math.abs(entry.position_change) : 'صعود ' + entry.position_change">
+                                                                                        {{ entry.position_change < 0 ? '▼' : '▲' }}
                                         </span>
-                                        <span v-else-if="positionChanges[entry.team.id] === 0" class="text-xs text-slate-400" title="بدون تغییر">•</span>
+                                                                                <span v-else class="text-xs text-slate-400" title="بدون تغییر">•</span>
                                     </div>
                                 </td>
                                 
@@ -144,19 +144,19 @@
                             </thead>
                             <tbody>
                                 <tr v-for="entry in tableData" :key="entry.team.id" class="border-t hover:bg-slate-50 text-slate-800"
-                                    :class="rowQualificationClass(entry.position, entry.has_live_match)">
+                                    :class="qualificationBorder(entry.position)">
                                     <!-- Team sticky column -->
                                     <td class="sticky right-0 bg-white px-3 py-2 max-w-[170px] z-10 shadow-[_-4px_0_4px_-2px_rgba(0,0,0,0.05)]">
                                         <div class="flex items-center gap-2">
                                             <span class="text-xs font-800 w-5 text-center rounded" :class="getPositionColor(entry.position)" :title="qualificationLabel(entry.position)">
                                                 {{ entry.position }}
                                             </span>
-                                            <span v-if="positionChanges[entry.team.id] !== undefined && positionChanges[entry.team.id] !== 0"
-                                                  :class="['text-[10px] font-700', positionChanges[entry.team.id] < 0 ? 'text-red-600' : 'text-green-600']"
-                                                  :title="positionChanges[entry.team.id] < 0 ? 'سقوط ' + Math.abs(positionChanges[entry.team.id]) : 'صعود ' + positionChanges[entry.team.id]">
-                                                {{ positionChanges[entry.team.id] < 0 ? '▼' : '▲' }}
+                                                                                        <span v-if="entry.position_change !== 0"
+                                                                                                    :class="['text-[10px] font-700', entry.position_change < 0 ? 'text-red-600' : 'text-green-600']"
+                                                                                                    :title="entry.position_change < 0 ? 'سقوط ' + Math.abs(entry.position_change) : 'صعود ' + entry.position_change">
+                                                                                                {{ entry.position_change < 0 ? '▼' : '▲' }}
                                             </span>
-                                            <span v-else-if="positionChanges[entry.team.id] === 0" class="text-[10px] text-slate-400" title="بدون تغییر">•</span>
+                                                                                        <span v-else class="text-[10px] text-slate-400" title="بدون تغییر">•</span>
                                             <img :src="`/assets/team-logos/${entry.team.name}.png`" 
                                                  :alt="entry.team.name_fa || entry.team.name"
                                                  class="w-6 h-6 object-contain flex-shrink-0"
@@ -263,40 +263,13 @@ const mobileTabs = [
 ]
 const activeTab = ref('short')
 
-// Track previous positions to show movement arrows
-const previousPositions = ref({}) // teamId -> position
-const positionChanges = ref({})   // teamId -> delta (positive = up, negative = down)
-
-watch(tableData, (newVal) => {
-    const newChanges = {}
-    newVal.forEach(entry => {
-        const prev = previousPositions.value[entry.team.id]
-        if (prev !== undefined) {
-            const delta = prev - entry.position // smaller number is better (upwards)
-            if (delta !== 0) {
-                newChanges[entry.team.id] = delta
-            } else {
-                newChanges[entry.team.id] = 0
-            }
-        } else {
-            // First load: mark no change
-            newChanges[entry.team.id] = 0
-        }
-    })
-    positionChanges.value = newChanges
-    // Update stored positions after computing deltas
-    const updatedPrev = {}
-    newVal.forEach(e => { updatedPrev[e.team.id] = e.position })
-    previousPositions.value = updatedPrev
-}, { deep: true })
-
-// Row highlighting based on qualification / relegation
-const rowQualificationClass = (position, isLive) => {
-    if (position <= 4) return 'bg-green-50'
-    if (position === 5) return 'bg-blue-50'
-    if (position === 6) return 'bg-yellow-50'
-    if (position >= 18) return 'bg-red-50'
-    return isLive ? 'bg-slate-50/40' : ''
+// Row qualification border (aggressive right border color) based on live position
+const qualificationBorder = (position) => {
+    if (position <= 4) return 'border-r-4 border-green-600'
+    if (position === 5) return 'border-r-4 border-blue-600'
+    if (position === 6) return 'border-r-4 border-yellow-500'
+    if (position >= 18) return 'border-r-4 border-red-600'
+    return ''
 }
 
 const qualificationLabel = (position) => {
