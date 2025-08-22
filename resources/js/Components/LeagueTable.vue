@@ -147,10 +147,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="entry in tableData" :key="entry.team.id" class=" hover:bg-slate-50 text-slate-800"
-                                >
+                                <tr v-for="entry in tableData" :key="entry.team.id" class=" hover:bg-slate-50 text-slate-800">
                                     <!-- Team sticky column -->
-                                    <td class="sticky right-0 bg-white px-3 py-2 max-w-[170px] z-10 shadow-[_-4px_0_4px_-2px_rgba(0,0,0,0.05)]">
+                                    <td class="sticky right-0 bg-white px-3 py-2 max-w-[170px] z-10 shadow-[_-4px_0_4px_-2px_rgba(0,0,0,0.05)] border-r" :class="qualificationBorder(entry.position)">
                                         <div class="flex items-center gap-2">
                                             <span class="text-xs font-800 w-5 text-center rounded" :class="getPositionColor(entry.position)" :title="qualificationLabel(entry.position)">
                                                 {{ entry.position }}
