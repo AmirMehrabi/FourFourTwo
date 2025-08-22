@@ -17,7 +17,6 @@ class TeamController extends Controller
         // You can eager load relations here as needed
         // $team->load(['homeFixtures', 'awayFixtures', 'leagueTableEntries']);
 
-        // For now, just pass the team data (add more as needed for widgets)
         // Dummy next match data (replace with real query later)
         $nextMatch = [
             'opponent_logo' => '/assets/team-logos/Arsenal.png',
@@ -28,6 +27,17 @@ class TeamController extends Controller
             'venue' => 'اتحاد',
             'locked' => false,
         ];
+
+        // Defensive: ensure all keys exist, fallback to defaults if missing
+        $nextMatch = array_merge([
+            'opponent_logo' => '/assets/team-logos/default.png',
+            'opponent_name' => 'حریف',
+            'matchweek' => '-',
+            'date' => '-',
+            'time' => '-',
+            'venue' => '-',
+            'locked' => true,
+        ], $nextMatch ?? []);
 
         return Inertia::render('Team', [
             'team' => $team,
