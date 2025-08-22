@@ -1,6 +1,4 @@
 <?php
-use Illuminate\Support\Str;
-<?php
 
 namespace App\Http\Controllers;
 
@@ -8,6 +6,7 @@ use App\Models\LeagueTable;
 use App\Models\Season;
 use App\Services\LeagueTableService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class LeagueTableController extends Controller
 {
