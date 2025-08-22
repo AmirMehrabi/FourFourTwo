@@ -119,7 +119,7 @@
                                       :class="getPositionColor(entry.position)">
                                     {{ entry.position }}
                                 </span>
-                                <img :src="entry.team.logo" 
+                                <img :src="`/assets/team-logos/${entry.team.name}.png`" 
                                      :alt="entry.team.name_fa || entry.team.name"
                                      class="w-8 h-8 object-contain flex-shrink-0"
                                      @error="handleImageError">
