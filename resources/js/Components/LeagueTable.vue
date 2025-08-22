@@ -68,7 +68,7 @@
                                         <div class="flex items-center gap-2">
                                             <div class="font-600 text-slate-900 text-lg flex items-center gap-2">
                                                 {{ translateTeamName(entry.team.name) }}
-                                                <span v-if="entry.team.is_live || entry.has_live_match" class="flex items-center gap-1 text-xs font-600 text-red-600">
+                                                <span v-if="entry.team.is_live || entry.has_live_match" class="flex items-center gap-1 text-xs font-600 text-green-600">
                                                     <span class="w-2 h-2 bg-green-600 rounded-full animate-pulse inline-block"></span>
                                                     زنده
                                                 </span>
