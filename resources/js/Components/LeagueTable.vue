@@ -25,8 +25,8 @@
                 </div>
 
                 <!-- Desktop Table -->
-                <div class="hidden lg:block overflow-x-auto">
-                    <table class="w-full">
+                <div class="hidden lg:block overflow-x-auto bg-slate-50 p-2">
+                    <table class="w-full border-separate border-spacing-y-2">
                         <thead class="bg-slate-50 border-b border-slate-200">
                             <tr class="text-right">
                                 <th class="px-4 py-3 text-xs font-600 text-slate-700 uppercase tracking-wider">رتبه</th>
@@ -42,9 +42,9 @@
                                 <th class="px-4 py-3 text-xs font-600 text-slate-700 uppercase tracking-wider text-center">فرم</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
+                        <tbody>
                             <tr v-for="entry in tableData" :key="entry.team.id" 
-                                class="hover:bg-slate-50 transition-colors relative">
+                                class="transition-colors relative bg-white hover:bg-slate-100 rounded-md shadow-sm">
                                 <!-- Position -->
                                 <td class="px-4 py-4 border-r" :class="qualificationBorder(entry.position)">
                                     <div class="flex items-center gap-1">
@@ -130,8 +130,8 @@
                         </button>
                     </div>
 
-                    <div class="overflow-x-auto rounded-lg border border-slate-200">
-                        <table class="min-w-full text-right text-sm">
+                    <div class="overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 p-1">
+                        <table class="min-w-full text-right text-sm border-separate border-spacing-y-2">
                             <thead class="bg-slate-50 text-xs text-slate-600">
                                 <tr>
                                     <th class="sticky right-0 bg-slate-50 px-3 py-2 z-10">رتبه / تیم</th>
@@ -147,7 +147,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="entry in tableData" :key="entry.team.id" class=" hover:bg-slate-50 text-slate-800">
+                                <tr v-for="entry in tableData" :key="entry.team.id" class="text-slate-800 bg-white hover:bg-slate-100 rounded-md shadow-sm">
                                     <!-- Team sticky column -->
                                     <td class="sticky right-0 bg-white px-3 py-2 max-w-[170px] z-10 shadow-[_-4px_0_4px_-2px_rgba(0,0,0,0.05)] border-r" :class="qualificationBorder(entry.position)">
                                         <div class="flex items-center gap-2">
