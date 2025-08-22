@@ -1,4 +1,6 @@
 <?php
+use Illuminate\Support\Str;
+<?php
 
 namespace App\Http\Controllers;
 
@@ -37,7 +39,7 @@ class LeagueTableController extends Controller
                 'live_position' => $row['live_position'],
                 'team' => [
                     'id' => $row['team']['id'],
-                    'slug' => $row['team']['slug'],
+                    'slug' => $row['team']['slug'] ?? Str::slug($row['team']['name']),
                     'name' => $row['team']['name'],
                     'name_fa' => $row['team']['name_fa'],
                     'display_name' => $row['team']['display_name'],

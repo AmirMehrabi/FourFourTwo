@@ -63,6 +63,7 @@ class LeagueTableService
                 'team' => [
                     'id' => $team->id,
                     'name' => $team->name,
+                    'slug' => $team->slug,
                     'name_fa' => $team->name_fa,
                     'display_name' => $team->display_name,
                     'logo_url' => $team->logo_url, // Use the model accessor
