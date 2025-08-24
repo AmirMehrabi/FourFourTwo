@@ -180,10 +180,13 @@ function dec(index, field) {
 
 // Statistics
 const completedPredictions = computed(() => {
-    return form.predictions.filter(p => 
-        p.home_score !== null && p.home_score !== '' && 
-        p.away_score !== null && p.away_score !== ''
-    ).length;
+    return form.predictions.filter((p, index) => {
+        // Only count predictions for unlocked fixtures
+        const fixture = props.fixtures[index];
+        return !fixture.is_locked && 
+               p.home_score !== null && p.home_score !== '' && 
+               p.away_score !== null && p.away_score !== '';
+    }).length;
 });
 
 const totalFixtures = computed(() => {
