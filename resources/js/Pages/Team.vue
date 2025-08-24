@@ -2,11 +2,11 @@
   <section class="min-h-screen bg-gradient-to-br from-slate-50 to-white pb-16">
     <!-- Colorful Hero -->
     <div class="w-full bg-gradient-to-r from-[var(--team-primary,#7b0681)] to-[var(--team-secondary,#16a34a)] py-10 px-4 flex flex-col md:flex-row items-center gap-8 shadow-lg">
-      <img :src="team.logoUrl" :alt="team.displayName" class="w-32 h-32 rounded-full border-4 border-white shadow-xl object-contain" />
+      <img :src="team.logo_url" :alt="team.display_name" class="w-32 h-32 rounded-full border-4 border-white shadow-xl object-contain" />
       <div class="flex-1 text-white">
         <h1 class="text-4xl md:text-5xl font-extrabold mb-2 flex items-center gap-3">
-          <span>{{ team.displayName }}</span>
-          <span v-if="team.name !== team.displayName" class="text-2xl text-white/70 font-normal">({{ team.name }})</span>
+          <span>{{ team.display_name }}</span>
+          <span v-if="team.name !== team.display_name" class="text-2xl text-white/70 font-normal">({{ team.name }})</span>
         </h1>
         <div class="flex flex-wrap gap-3 mb-3">
           <span class="inline-block px-4 py-2 rounded-full text-base font-bold bg-white/20">رتبه: {{ league.position }}</span>
@@ -28,7 +28,7 @@
       </div>
     </div>
 
-    <!-- Quick Facts -->
+    <!-- Quick Facts -->F
     <div class="max-w-5xl mx-auto px-4 mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 text-sm">
       <div class="bg-white rounded-lg shadow p-3 flex flex-col items-center">
         <span class="font-bold text-slate-700">تأسیس</span>
@@ -62,14 +62,14 @@
     <div class="max-w-3xl mx-auto mt-10 px-4">
       <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col md:flex-row items-center gap-6">
         <div class="flex items-center gap-4">
-          <img :src="nextMatch.value.opponent_logo || '/assets/team-logos/default.png'" :alt="nextMatch.value.opponent_name || 'حریف'" class="w-16 h-16 rounded-full object-contain border-2 border-slate-200" />
+          <img :src="nextMatch.opponent_logo || '/assets/team-logos/default.png'" :alt="nextMatch.opponent_name || 'حریف'" class="w-16 h-16 rounded-full object-contain border-2 border-slate-200" />
           <div>
-            <div class="text-xl font-bold text-slate-900">هفته {{ nextMatch.value.matchweek }}: {{ nextMatch.value.opponent_name }}</div>
-            <div class="text-slate-500">{{ nextMatch.value.date }} | {{ nextMatch.value.time }} | {{ nextMatch.value.venue }}</div>
+            <div class="text-xl font-bold text-slate-900">هفته {{ nextMatch.matchweek || '-' }}: {{ nextMatch.opponent_name || 'حریف' }}</div>
+            <div class="text-slate-500">{{ nextMatch.date }} | {{ nextMatch.time }} | {{ nextMatch.venue }}</div>
           </div>
         </div>
         <div class="flex-1"></div>
-        <div v-if="!nextMatch.value.locked" class="flex flex-col items-center">
+        <div v-if="!nextMatch.locked" class="flex flex-col items-center">
           <form @submit.prevent="submitPrediction" class="flex gap-2 items-center">
             <input type="number" v-model="userPrediction.home" min="0" max="10" class="w-16 px-2 py-1 rounded border border-slate-300" placeholder="گل تیم شما" />
             <span class="font-bold text-slate-700">-</span>
@@ -98,14 +98,13 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="form in teamForms" :key="form.matchweek" class="bg-white rounded shadow">
-              <td class="px-3 py-2 font-bold">{{ form.matchweek }}</td>
-              <td class="px-3 py-2"><img :src="form.avatar" :alt="form.team_name" class="w-8 h-8 rounded-full object-contain" /></td>
-              <td class="px-3 py-2 font-bold">{{ form.team_name }}</td>
+            <tr v-for="form in recentResults" :key="form.id" class="bg-white rounded shadow">
+              <td class="px-3 py-2 font-bold">MW {{ form.id }}</td>
+              <td class="px-3 py-2"><img :src="form.opponent_logo" :alt="form.opponent_name" class="w-8 h-8 rounded-full object-contain" /></td>
+              <td class="px-3 py-2 font-bold">{{ form.opponent_name }}</td>
               <td class="px-3 py-2">{{ form.home_or_away }}</td>
               <td class="px-3 py-2">
-                <span v-if="form.is_past" class="font-bold text-lg" :class="resultColor(form.result)">{{ form.score }}</span>
-                <span v-else class="text-slate-500">{{ form.date }} {{ form.time }}</span>
+                <span class="font-bold text-lg" :class="resultColor(form.result)">{{ form.home_score }}-{{ form.away_score }}</span>
               </td>
             </tr>
           </tbody>
@@ -173,7 +172,7 @@
               </linearGradient>
             </defs>
             <polyline :points="trendPoints" fill="none" stroke="url(#trendGrad)" stroke-width="4" />
-            <circle v-for="(pt, i) in trendCirclePoints" :key="i" :cx="pt.x" :cy="pt.y" r="4" fill="#7b0681" />
+            <!-- <circle v-for="(pt, i) in trendCirclePoints" :key="i" :cx="pt.x" :cy="pt.y" r="4" fill="#7b0681" /> -->
           </svg>
         </div>
       </div>
@@ -314,12 +313,12 @@ const props = defineProps({
 });
 
 const nextMatch = computed(() => props.nextMatch ?? defaultNextMatch);
-// Dummy data for widgets not yet implemented
-const team = ref({
+// Use props.team instead of dummy data
+const team = computed(() => props.team ?? {
   id: 1,
   name: 'Manchester City',
-  displayName: 'منچسترسیتی',
-  logoUrl: '/assets/team-logos/Manchester City.png',
+  display_name: 'منچسترسیتی',
+  logo_url: '/assets/team-logos/Manchester City.png',
   founded_year: 1880,
   city: 'Manchester',
   city_fa: 'منچستر',
@@ -343,14 +342,14 @@ const league = ref({
   form: 'WWDWL',
   formArray: ['W','W','D','W','L'],
 });
-const kpis = [
+const kpis = computed(() => [
   { label: 'برد', value: league.value.won },
   { label: 'مساوی', value: league.value.drawn },
   { label: 'باخت', value: league.value.lost },
   { label: 'گل زده', value: league.value.goals_for },
   { label: 'گل خورده', value: league.value.goals_against },
   { label: 'درصد برد', value: Math.round((league.value.won/league.value.played)*100)+'%' },
-];
+]);
 const recentResults = [
   { id: 1, opponent_logo: '/assets/team-logos/Arsenal.png', opponent_name: 'آرسنال', home_or_away: 'home', home_score: 2, away_score: 1, result: 'W', date: '2025-08-10' },
   { id: 2, opponent_logo: '/assets/team-logos/Liverpool.png', opponent_name: 'لیورپول', home_or_away: 'away', home_score: 1, away_score: 1, result: 'D', date: '2025-08-03' },
