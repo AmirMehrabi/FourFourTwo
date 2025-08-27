@@ -7,6 +7,8 @@ import { useTranslations } from '@/composables/useTranslations.js';
 const LeaderboardDemo = defineAsyncComponent(() => import('@/Components/LeaderboardDemo.vue'));
 const GamificationExplainer = defineAsyncComponent(() => import('@/Components/GamificationExplainer.vue'));
 const LeagueTable = defineAsyncComponent(() => import('@/Components/LeagueTable.vue'));
+const PredictionDemo = defineAsyncComponent(() => import('@/Components/PredictionDemo.vue'));
+const SimpleFlowDiagram = defineAsyncComponent(() => import('@/Components/SimpleFlowDiagram.vue'));
 
 const { translateTeamName, t } = useTranslations();
 
@@ -348,13 +350,13 @@ onUnmounted(() => { document.removeEventListener('keydown', handleEscClose); });
             </div>
         </section>
 
-        <!-- How It Works -->
+        <!-- Interactive Demo - How It Works -->
+        <PredictionDemo />
 
-    <LeaderboardDemo :top-predictors="topPredictors" :trending-matches="trendingMatches" />
-
-    <LeagueTable />
-
-    <GamificationExplainer />
+        <!-- Simplified sections -->
+        <GamificationExplainer />
+        
+        <LeaderboardDemo :top-predictors="topPredictors" :trending-matches="trendingMatches" />
 
         <!-- Mobile Sticky Signup Bar - Only for unauthenticated users -->
         <div v-if="showStickySignup && !$page.props.auth.user" class="fixed bottom-0 inset-x-0 sm:hidden z-40">
@@ -440,61 +442,15 @@ onUnmounted(() => { document.removeEventListener('keydown', handleEscClose); });
             </div>
         </section> -->
 
-        <!-- Mobile-First Live Trending Matches -->
-        <section id="live" class="py-12 sm:py-16 md:py-20 bg-slate-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-6 sm:mb-8">
-                    <div class="text-center sm:text-right">
-                        <h3 class="text-xl sm:text-2xl font-800 text-slate-900">بازی‌های داغ امروز</h3>
-                        <p class="text-slate-600 text-sm mt-1">احتمالات برد/مساوی/باخت و زمان شروع</p>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" v-if="trendingMatches && trendingMatches.length">
-                    <div v-for="(m, i) in trendingMatches" :key="i" class="bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-4 sm:p-5 hover:shadow-md transition-shadow">
-                        <div class="flex items-center justify-between text-xs sm:text-sm text-slate-500 mb-3 sm:mb-4">
-                            <span>🕒 {{ m?.match_datetime ? formatFarsiDate(m.match_datetime) : '—' }}</span>
-                            <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">{{ m?.league || '—' }}</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2 flex-1 min-w-0">
-                                <img loading="lazy" :src="`/assets/team-logos/${m?.home_team}.png`" :alt="translateTeamName(m?.home_team)" class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0" @error="$event.target.style.display='none'"/>
-                                <div class="font-600 text-slate-900 text-sm sm:text-base truncate">{{ translateTeamName(m?.home_team) }}</div>
-                            </div>
-                            <div class="text-slate-400 text-xs sm:text-sm mx-2">vs</div>
-                            <div class="flex items-center gap-2 flex-1 min-w-0 justify-end">
-                                <div class="font-600 text-slate-900 text-sm sm:text-base truncate">{{ translateTeamName(m?.away_team) }}</div>
-                                <img loading="lazy" :src="`/assets/team-logos/${m?.away_team}.png`" :alt="translateTeamName(m?.away_team)" class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0" @error="$event.target.style.display='none'"/>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-3 gap-1 sm:gap-2 mt-3 sm:mt-4 text-center text-xs">
-                            <div class="px-2 py-1.5 sm:py-2 rounded-lg bg-brand-50 text-slate-900">
-                                <div class="font-600">برد میزبان</div>
-                                <div class="font-800 text-slate-900">{{ (m?.prob_home ?? 0) }}%</div>
-                            </div>
-                            <div class="px-2 py-1.5 sm:py-2 rounded-lg bg-slate-100">
-                                <div class="font-600">مساوی</div>
-                                <div class="font-800 text-slate-900">{{ (m?.prob_draw ?? 0) }}%</div>
-                            </div>
-                            <div class="px-2 py-1.5 sm:py-2 rounded-lg bg-brand-50 text-slate-900">
-                                <div class="font-600">برد مهمان</div>
-                                <div class="font-800 text-slate-900">{{ (m?.prob_away ?? 0) }}%</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div v-else class="text-center text-slate-500 py-8">
-                    <div class="text-4xl mb-4">⚽</div>
-                    <div>داده‌ای برای نمایش موجود نیست</div>
-                </div>
-            </div>
-        </section>
+        <!-- Simplified Process Flow -->
+        <SimpleFlowDiagram />
 
-        <!-- Mobile-First Recent Community Predictions -->
+        <!-- Simplified Community Preview -->
         <section class="py-12 sm:py-16 md:py-20 bg-slate-50">
-            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-8 sm:mb-12">
-                    <h3 class="text-2xl sm:text-3xl md:text-4xl font-800 text-slate-900 mb-2 sm:mb-4">جامعه چه پیش‌بینی می‌کند؟</h3>
-                    <p class="text-base sm:text-lg md:text-xl text-slate-600 font-300">آخرین پیش‌بینی‌های کاربران</p>
+                    <h3 class="text-2xl sm:text-3xl font-800 text-slate-900 mb-2 sm:mb-4">🔴 پیش‌بینی‌های زنده</h3>
+                    <p class="text-base sm:text-lg text-slate-600 font-300">کاربران همین الان دارن پیش‌بینی می‌کنن</p>
                 </div>
 
                 <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
@@ -509,7 +465,7 @@ onUnmounted(() => { document.removeEventListener('keydown', handleEscClose); });
                     </div>
                     
                     <div class="divide-y divide-slate-100">
-                        <div v-for="(prediction, index) in recentPredictions" :key="index" 
+                        <div v-for="(prediction, index) in recentPredictions.slice(0, 3)" :key="index" 
                              class="p-3 sm:p-4 hover:bg-slate-50 transition-colors">
                             <!-- Desktop Layout -->
                             <div class="hidden sm:flex sm:items-center sm:justify-between gap-3">
