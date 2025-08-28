@@ -57,6 +57,10 @@ Route::get('/fixtures', [FixtureController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('fixtures.index');
 
+Route::get('/fixtures/{id}', [FixtureController::class, 'show'])
+    ->middleware(['auth', 'verified'])
+    ->name('fixtures.show');
+
 Route::get('/gameweek', [GameweekController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('gameweek.index');

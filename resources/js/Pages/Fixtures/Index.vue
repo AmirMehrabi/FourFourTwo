@@ -354,7 +354,12 @@ const hasIncompletePredictions = computed(() => {
                                             <!-- Home Team -->
                                             <div class="col-span-2 flex items-center justify-end gap-3">
                                                 <div class="text-right">
-                                                    <h4 class="team-name text-gray-900">{{ translateTeamName(fixture.home_team.name) }}</h4>
+                                                    <Link 
+                                                        :href="route('fixtures.show', fixture.id)" 
+                                                        class="team-name text-gray-900 hover:text-blue-600 transition-colors duration-200"
+                                                    >
+                                                        {{ translateTeamName(fixture.home_team.name) }}
+                                                    </Link>
                                                 </div>
                                                 <div class="flex-shrink-0">
                                                     <img :src="`/assets/team-logos/${fixture.home_team.name}.png`" :alt="fixture.home_team.name" class="team-logo w-12 h-12 object-contain" @error="$event.target.style.display = 'none'" />
@@ -380,7 +385,12 @@ const hasIncompletePredictions = computed(() => {
                                                     <img :src="`/assets/team-logos/${fixture.away_team.name}.png`" :alt="fixture.away_team.name" class="team-logo w-12 h-12 object-contain" @error="$event.target.style.display = 'none'" />
                                                 </div>
                                                 <div class="text-left">
-                                                    <h4 class="team-name text-gray-900">{{ translateTeamName(fixture.away_team.name) }}</h4>
+                                                    <Link 
+                                                        :href="route('fixtures.show', fixture.id)" 
+                                                        class="team-name text-gray-900 hover:text-blue-600 transition-colors duration-200"
+                                                    >
+                                                        {{ translateTeamName(fixture.away_team.name) }}
+                                                    </Link>
                                                 </div>
                                             </div>
                                         </div>
@@ -443,6 +453,16 @@ const hasIncompletePredictions = computed(() => {
                                             <div class="flex items-center gap-2">
                                                 <span v-if="fixture.is_locked" class="status-badge inline-flex items-center px-3 py-1 rounded-full text-xs bg-slate-200 text-slate-700 border border-slate-300">قفل شده</span>
                                                 <span v-else class="status-badge inline-flex items-center px-3 py-1 rounded-full text-xs bg-amber-50 text-amber-700 border border-amber-200">{{ getTimeUntilLock(fixture) }}</span>
+                                                <Link 
+                                                    :href="route('fixtures.show', fixture.id)" 
+                                                    class="inline-flex items-center px-2 py-1 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors duration-200"
+                                                >
+                                                    <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                    جزئیات
+                                                </Link>
                                             </div>
                                             <div class="text-xs text-slate-500">{{ formatDateTime(fixture.match_datetime) }}</div>
                                         </div>

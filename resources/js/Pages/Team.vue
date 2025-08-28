@@ -28,7 +28,7 @@
       </div>
     </div>
 
-    <!-- Quick Facts -->F
+         <!-- Quick Facts -->
     <div class="max-w-5xl mx-auto px-4 mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 text-sm">
       <div class="bg-white rounded-lg shadow p-3 flex flex-col items-center">
         <span class="font-bold text-slate-700">تأسیس</span>

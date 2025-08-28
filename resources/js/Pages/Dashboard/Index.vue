@@ -205,9 +205,12 @@ function dec(index, field) { const v = Number(form.predictions[index][field] ?? 
                                 <div class="hidden sm:grid sm:grid-cols-5 sm:items-center sm:gap-4">
                                     <div class="col-span-2 flex items-center justify-end gap-3">
                                         <div class="text-right">
-                                            <h4 class="team-name text-end text-slate-900 font-medium">{{
-                                                translateTeamName(fixture.home_team?.name)
-                                            }}</h4>
+                                            <Link 
+                                                :href="route('fixtures.show', fixture.id)" 
+                                                class="team-name text-end text-slate-900 font-medium hover:text-blue-600 transition-colors duration-200"
+                                            >
+                                                {{ translateTeamName(fixture.home_team?.name) }}
+                                            </Link>
                                         </div>
                                         <div class="flex-shrink-0">
 
@@ -244,9 +247,12 @@ function dec(index, field) { const v = Number(form.predictions[index][field] ?? 
                                             />
                                         </div>
                                         <div class="text-left">
-                                            <h4 class="team-name text-start text-slate-900 font-medium">{{
-                                                translateTeamName(fixture.away_team?.name)
-                                            }}</h4>
+                                            <Link 
+                                                :href="route('fixtures.show', fixture.id)" 
+                                                class="team-name text-start text-slate-900 font-medium hover:text-blue-600 transition-colors duration-200"
+                                            >
+                                                {{ translateTeamName(fixture.away_team?.name) }}
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>
@@ -261,10 +267,20 @@ function dec(index, field) { const v = Number(form.predictions[index][field] ?? 
                                                 @error="$event.target.style.display = 'none'"
                                                 loading="lazy"
                                             />
-                                            <span class="team-name text-slate-900 text-sm font-medium">{{ translateTeamName(fixture.home_team?.name) }}</span>
+                                            <Link 
+                                                :href="route('fixtures.show', fixture.id)" 
+                                                class="team-name text-slate-900 text-sm font-medium hover:text-blue-600 transition-colors duration-200"
+                                            >
+                                                {{ translateTeamName(fixture.home_team?.name) }}
+                                            </Link>
                                         </div>
                                         <div class="flex items-center gap-2">
-                                            <span class="team-name text-slate-900 text-sm font-medium">{{ translateTeamName(fixture.away_team?.name) }}</span>
+                                            <Link 
+                                                :href="route('fixtures.show', fixture.id)" 
+                                                class="team-name text-slate-900 text-sm font-medium hover:text-blue-600 transition-colors duration-200"
+                                            >
+                                                {{ translateTeamName(fixture.away_team?.name) }}
+                                            </Link>
                                             <img 
                                                 :src="`/assets/team-logos/${fixture.away_team?.name}.png`"
                                                 :alt="fixture.away_team?.name"
