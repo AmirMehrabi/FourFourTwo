@@ -54,4 +54,36 @@ class User extends Authenticatable
     {
         return $this->hasMany(Prediction::class);
     }
+
+    /**
+     * Get the comments made by this user.
+     */
+    public function comments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    /**
+     * Get the comment reactions made by this user.
+     */
+    public function commentReactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CommentReaction::class);
+    }
+
+    /**
+     * Get the notifications for this user.
+     */
+    public function notifications(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Notification::class)->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Get unread notifications count.
+     */
+    public function unreadNotificationsCount(): int
+    {
+        return $this->notifications()->unread()->count();
+    }
 }

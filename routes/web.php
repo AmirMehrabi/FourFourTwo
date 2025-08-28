@@ -87,6 +87,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Comment routes
+    Route::get('/fixtures/{fixture}/comments', [App\Http\Controllers\CommentController::class, 'index'])
+        ->name('comments.index');
+    Route::post('/comments', [App\Http\Controllers\CommentController::class, 'store'])
+        ->name('comments.store');
+    Route::put('/comments/{comment}', [App\Http\Controllers\CommentController::class, 'update'])
+        ->name('comments.update');
+    Route::delete('/comments/{comment}', [App\Http\Controllers\CommentController::class, 'destroy'])
+        ->name('comments.destroy');
+    Route::post('/comments/{comment}/react', [App\Http\Controllers\CommentController::class, 'toggleReaction'])
+        ->name('comments.react');
+
+    // Notification API routes
+    Route::get('/api/notifications', [App\Http\Controllers\Api\NotificationController::class, 'index'])
+        ->name('api.notifications.index');
+    Route::get('/api/notifications/unread-count', [App\Http\Controllers\Api\NotificationController::class, 'unreadCount'])
+        ->name('api.notifications.unread-count');
+    Route::post('/api/notifications/{notification}/read', [App\Http\Controllers\Api\NotificationController::class, 'markAsRead'])
+        ->name('api.notifications.mark-as-read');
+    Route::post('/api/notifications/mark-all-read', [App\Http\Controllers\Api\NotificationController::class, 'markAllAsRead'])
+        ->name('api.notifications.mark-all-read');
 });
 
 

@@ -2,6 +2,7 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";
 import Toast from '@/Components/Toast.vue';
+import CommentSection from '@/Components/Comments/CommentSection.vue';
 import { useTranslations } from '@/composables/useTranslations.js';
 import { computed, ref, watch } from 'vue';
 
@@ -509,6 +510,11 @@ const hasUserPrediction = computed(() => {
                             <div class="font-semibold text-gray-900">{{ matchStatus }}</div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Comments Section -->
+                <div class="mt-8">
+                    <CommentSection :fixture-id="fixture.id" />
                 </div>
 
                 <Toast :show="showToast" :message="toastMsg" :type="toastType" position="bottom-right" @close="showToast=false" />

@@ -98,4 +98,22 @@ class Fixture extends Model
     {
         return $this->hasMany(Prediction::class);
     }
+
+    /**
+     * Get all comments for this fixture.
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class)
+                   ->whereNull('parent_id') // Only top-level comments
+                   ->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Get all comments including replies for this fixture.
+     */
+    public function allComments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
 }
