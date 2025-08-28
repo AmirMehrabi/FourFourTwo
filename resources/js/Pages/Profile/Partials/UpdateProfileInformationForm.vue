@@ -21,6 +21,7 @@ const user = usePage().props.auth.user;
 
 const form = useForm({
     name: user.name,
+    username: user.username || '',
     email: user.email,
 });
 </script>
@@ -55,6 +56,34 @@ const form = useForm({
                 />
 
                 <InputError class="mt-2" :message="form.errors.name" />
+            </div>
+
+            <div v-if="!user.username">
+                <InputLabel for="username" value="Username" />
+
+                <TextInput
+                    id="username"
+                    type="text"
+                    class="mt-1 block w-full"
+                    v-model="form.username"
+                    required
+                    autocomplete="username"
+                />
+
+                <InputError class="mt-2" :message="form.errors.username" />
+                <p class="mt-1 text-sm text-gray-600">
+                    Once set, your username cannot be changed.
+                </p>
+            </div>
+
+            <div v-else>
+                <InputLabel for="username" value="Username" />
+                <div class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-gray-500">
+                    {{ user.username }}
+                </div>
+                <p class="mt-1 text-sm text-gray-600">
+                    Your username cannot be changed.
+                </p>
             </div>
 
             <div>

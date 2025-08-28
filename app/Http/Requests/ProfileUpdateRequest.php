@@ -15,7 +15,7 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
@@ -26,5 +26,19 @@ class ProfileUpdateRequest extends FormRequest
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
         ];
+
+        // Only validate username if user doesn't have one yet
+        if (!$this->user()->username) {
+            $rules['username'] = [
+                'required',
+                'string',
+                'max:255',
+                'alpha_dash',
+                'min:3',
+                Rule::unique(User::class),
+            ];
+        }
+
+        return $rules;
     }
 }

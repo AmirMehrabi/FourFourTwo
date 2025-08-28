@@ -69,6 +69,7 @@ const loginForm = useForm({
 
 const registerForm = useForm({
     name: '',
+    username: '',
     email: '',
     password: '',
     password_confirmation: '',
@@ -702,6 +703,18 @@ onUnmounted(() => { document.removeEventListener('keydown', handleEscClose); });
                             placeholder="نام شما"
                         >
                         <div v-if="registerForm.errors.name" class="text-red-600 text-sm mt-1">{{ registerForm.errors.name }}</div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-600 text-slate-900 mb-2">نام کاربری</label>
+                        <input 
+                            v-model="registerForm.username"
+                            type="text" 
+                            required
+                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-200 focus:border-brand-200 transition-all bg-white text-slate-900"
+                            placeholder="نام کاربری شما"
+                        >
+                        <div v-if="registerForm.errors.username" class="text-red-600 text-sm mt-1">{{ registerForm.errors.username }}</div>
                     </div>
                     
                     <div>
