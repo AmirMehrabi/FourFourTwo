@@ -393,6 +393,11 @@ const editProfile = () => {
 </script>
 
 <style scoped>
+:root {
+  --brand-1: #005724;
+  --brand-2: #009c42;
+  --brand-3: #006a2d;
+}
 /* Same styling patterns as other pages */
 .fixture-card {
     background-color: white;
