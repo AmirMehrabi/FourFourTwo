@@ -72,6 +72,45 @@
                 </span>
             </Link>
             
+                <!-- Activity Feed -->
+            <Link
+                :href="route('activity.index')"
+                    class="flex flex-col items-center justify-center py-2 px-1 group relative overflow-hidden"
+                    :class="{ 'text-gray-900': route().current('activity.index'), 'text-gray-500': !route().current('activity.index') }"
+                >
+                    <div class="relative mb-1">
+                        <!-- Activity Icon -->
+                        <svg 
+                            v-if="!route().current('activity.index')"
+                            class="w-6 h-6 transition-all duration-300 group-active:scale-90"
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-3.5-3.5a8.38 8.38 0 01-1.5-5V7a6 6 0 10-12 0v1.5c0 2.215-.553 4.315-1.5 5L5 17h5m5 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        <!-- Activity Icon Filled -->
+                        <svg 
+                            v-else
+                            class="w-6 h-6 transition-all duration-300"
+                    fill="currentColor" 
+                            viewBox="0 0 24 24"
+                >
+                            <path fill-rule="evenodd" d="M5.25 9a6.75 6.75 0 0113.5 0v.75c0 2.123.8 4.057 2.118 5.52a.75.75 0 01-.297 1.206c-1.544.57-3.16.99-4.831 1.243a3.75 3.75 0 11-7.48 0 24.585 24.585 0 01-4.831-1.244.75.75 0 01-.298-1.205A8.217 8.217 0 005.25 9.75V9zm4.502 8.9a2.25 2.25 0 104.496 0 25.057 25.057 0 01-4.496 0z" clip-rule="evenodd"/>
+                </svg>
+                        <!-- Active indicator -->
+                        <div v-if="route().current('activity.index')" class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-gray-900 rounded-full"></div>
+                        
+                        <!-- Unread notification badge -->
+                        <div v-if="unreadCount > 0" class="absolute -top-1 -right-1 min-w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
+                            {{ unreadCount > 9 ? '9+' : unreadCount }}
+                        </div>
+                    </div>
+                    <span class="text-xs font-medium" :class="{ 'text-gray-900': route().current('activity.index'), 'text-gray-500': !route().current('activity.index') }">
+                        فعالیت
+                </span>
+            </Link>
+            
                 <!-- My Predictions -->
             <Link
                 :href="route('my-predictions.index')"
@@ -228,9 +267,11 @@
 
 <script setup>
 import { Link, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import axios from 'axios';
 
 const showProfileMenu = ref(false);
+const unreadCount = ref(0);
 
 const userInitials = computed(() => {
     const name = window.Laravel?.user?.name || '';
@@ -249,6 +290,28 @@ const toggleProfileMenu = () => {
 const logout = () => {
     router.post(route('logout'));
 };
+
+// Load unread notifications count
+const loadUnreadCount = async () => {
+    try {
+        const response = await axios.get('/api/notifications/unread-count');
+        unreadCount.value = response.data.count || 0;
+    } catch (error) {
+        console.error('Error loading unread count:', error);
+    }
+};
+
+// Lifecycle
+onMounted(() => {
+    loadUnreadCount();
+    
+    // Set up periodic refresh of unread count
+    const interval = setInterval(loadUnreadCount, 30000); // Every 30 seconds
+    
+    onUnmounted(() => {
+        clearInterval(interval);
+    });
+});
 </script>
 
 <style scoped>
