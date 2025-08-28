@@ -153,15 +153,31 @@ class CommentController extends Controller
                 // Update reaction type
                 $existingReaction->update(['type' => $type]);
                 $userReaction = $type;
+                
+                // Create notification for reaction change (only if not reacting to own comment)
+                if ($comment->user_id !== $userId) {
+                    \App\Models\Notification::createCommentReactionNotification(
+                        $comment->user_id,
+                        $existingReaction->fresh(['user', 'comment'])
+                    );
+                }
             }
         } else {
             // Create new reaction
-            CommentReaction::create([
+            $newReaction = CommentReaction::create([
                 'user_id' => $userId,
                 'comment_id' => $comment->id,
                 'type' => $type,
             ]);
             $userReaction = $type;
+            
+            // Create notification for new reaction (only if not reacting to own comment)
+            if ($comment->user_id !== $userId) {
+                \App\Models\Notification::createCommentReactionNotification(
+                    $comment->user_id,
+                    $newReaction->load(['user', 'comment'])
+                );
+            }
         }
 
         return response()->json([
