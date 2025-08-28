@@ -38,7 +38,7 @@
                                 <button
                                     v-if="!isFollowing"
                                     @click="followUser"
-                                    class="nav-btn inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-all duration-200"
+                                    class=" inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-[--brand-2] rounded-lg hover:bg-[--brand-2]/90 transition-all duration-200"
                                 >
                                     <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -48,7 +48,7 @@
                                 <button
                                     v-else
                                     @click="unfollowUser"
-                                    class="nav-btn inline-flex items-center px-6 py-3 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-all duration-200"
+                                    class=" inline-flex items-center px-6 py-3 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-all duration-200"
                                 >
                                     <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -59,7 +59,7 @@
                             <button
                                 v-else
                                 @click="editProfile"
-                                class="nav-btn inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-green-800 rounded-lg hover:bg-green-900 transition-all duration-200"
+                                class=" inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-[--brand-1] rounded-lg hover:bg-[--brand-1]/90 transition-all duration-200"
                             >
                                 <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -78,7 +78,7 @@
                         <div class="text-2xl font-extrabold text-slate-900">{{ profileUser.stats.total_points.toLocaleString('fa-IR') }}</div>
                         <div class="mt-2">
                             <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-gradient-to-r from-green-600 to-green-800 h-2 rounded-full transition-all duration-500" 
+                                <div class="bg-gradient-to-r from-[--brand-2] to-[--brand-3] h-2 rounded-full transition-all duration-500" 
                                      :style="{ width: Math.min((profileUser.stats.total_points / 1000) * 100, 100) + '%' }"></div>
                             </div>
                             <p class="text-xs text-slate-500 mt-1">هدف: 1000 امتیاز</p>
@@ -90,7 +90,7 @@
                         <div class="text-xs text-slate-500 mb-2">امتیازات فصل</div>
                         <div class="text-2xl font-extrabold text-slate-900">{{ profileUser.stats.current_season_points.toLocaleString('fa-IR') }}</div>
                         <div class="mt-2">
-                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[--brand-2]/10 text-[--brand-2]">
                                 رتبه #{{ profileUser.stats.current_season_rank || 'نامشخص' }}
                             </span>
                         </div>
@@ -113,10 +113,10 @@
                         <div class="text-xs text-slate-500 mb-2">کل پیش‌بینی‌ها</div>
                         <div class="text-2xl font-extrabold text-slate-900">{{ profileUser.stats.total_predictions.toLocaleString('fa-IR') }}</div>
                         <div class="mt-2">
-                                                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                                    <span class="text-xs text-slate-600">نظرات:</span>
-                                    <span class="text-xs font-semibold text-green-800">{{ profileUser.stats.total_comments }}</span>
-                                </div>
+                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                                <span class="text-xs text-slate-600">نظرات:</span>
+                                <span class="text-xs font-semibold text-[--brand-1]">{{ profileUser.stats.total_comments }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -182,7 +182,7 @@
                                 @click="activeTab = 'predictions'"
                                 :class="[
                                     activeTab === 'predictions'
-                                        ? 'border-green-600 text-green-600 bg-white shadow-sm'
+                                        ? 'border-[--brand-2] text-[--brand-2] bg-white shadow-sm'
                                         : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100',
                                     'whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-all duration-200 rounded-t-lg'
                                 ]"
@@ -198,7 +198,7 @@
                                 @click="activeTab = 'comments'"
                                 :class="[
                                     activeTab === 'comments'
-                                        ? 'border-green-600 text-green-600 bg-white shadow-sm'
+                                        ? 'border-[--brand-2] text-[--brand-2] bg-white shadow-sm'
                                         : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100',
                                     'whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-all duration-200 rounded-t-lg'
                                 ]"
@@ -393,6 +393,7 @@ const editProfile = () => {
 </script>
 
 <style scoped>
+
 /* Same styling patterns as other pages */
 .fixture-card {
     background-color: white;
