@@ -22,7 +22,14 @@
 
                         <!-- Username and Name -->
                         <div class="mb-4">
-                            <h1 class="text-3xl font-bold text-slate-900 mb-2">@{{ profileUser.username }}</h1>
+                            <h1 class="text-3xl font-bold text-slate-900 mb-2">
+                                <Link 
+                                    :href="`/@${profileUser.username}`" 
+                                    class="hover:text-green-600 transition-colors duration-200"
+                                >
+                                    @{{ profileUser.username }}
+                                </Link>
+                            </h1>
                             <p class="text-xl text-slate-600">{{ profileUser.name }}</p>
                         </div>
                         
@@ -331,7 +338,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Head, router } from '@inertiajs/vue3'
+import { Head, Link, router } from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { useTranslations } from '@/composables/useTranslations.js'
 

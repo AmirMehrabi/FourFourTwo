@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 
 const props = defineProps({
     leaderboard: Array,
@@ -35,7 +35,16 @@ const props = defineProps({
                         <div class="text-center">
                             <div class="text-3xl font-extrabold text-blue-600 mb-1">#1</div>
                             <div class="text-sm text-gray-600">رتبه برتر</div>
-                            <div class="mt-2 text-base font-semibold text-gray-900 truncate">{{ leaderboard[0]?.name }}</div>
+                            <div class="mt-2 text-base font-semibold text-gray-900 truncate">
+                                <Link 
+                                    v-if="leaderboard[0]?.username" 
+                                    :href="`/@${leaderboard[0].username}`" 
+                                    class="hover:text-green-600 transition-colors duration-200"
+                                >
+                                    {{ leaderboard[0]?.name }}
+                                </Link>
+                                <span v-else>{{ leaderboard[0]?.name }}</span>
+                            </div>
                         </div>
                         <div class="text-center">
                             <div class="text-3xl font-extrabold text-green-600 mb-1">{{ leaderboard[0]?.total_points ?? 0 }}</div>
@@ -72,7 +81,16 @@ const props = defineProps({
                                     {{ (player.name || '?').slice(0, 2).toUpperCase() }}
                                 </div>
                                 <div>
-                                    <div class="font-medium text-gray-900">{{ player.name }}</div>
+                                    <div class="font-medium text-gray-900">
+                                        <Link 
+                                            v-if="player.username" 
+                                            :href="`/@${player.username}`" 
+                                            class="hover:text-green-600 transition-colors duration-200"
+                                        >
+                                            {{ player.name }}
+                                        </Link>
+                                        <span v-else>{{ player.name }}</span>
+                                    </div>
                                     <div class="text-xs text-gray-500 mt-0.5">
                                         <span v-if="index === 0" class="status-badge inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-yellow-100 text-yellow-800">🥇 اول</span>
                                         <span v-else-if="index === 1" class="status-badge inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-200 text-gray-800">🥈 دوم</span>
@@ -121,7 +139,16 @@ const props = defineProps({
                                             <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 font-semibold">
                                                 {{ (player.name || '?').slice(0, 2).toUpperCase() }}
                                             </div>
-                                            <span class="font-medium">{{ player.name }}</span>
+                                            <span class="font-medium">
+                                                <Link 
+                                                    v-if="player.username" 
+                                                    :href="`/@${player.username}`" 
+                                                    class="hover:text-green-600 transition-colors duration-200"
+                                                >
+                                                    {{ player.name }}
+                                                </Link>
+                                                <span v-else>{{ player.name }}</span>
+                                            </span>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
