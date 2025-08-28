@@ -65,6 +65,12 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     جدول امتیازات
                                 </NavLink>
+                                <NavLink
+                                    :href="route('activity.index')"
+                                    :active="route().current('activity.index')"
+                                >
+                                    فعالیت‌ها
+                                </NavLink>
                             </div>
                         </div>
 
@@ -191,6 +197,12 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('leaderboard.index')"
                         >
                             جدول امتیازات
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('activity.index')"
+                            :active="route().current('activity.index')"
+                        >
+                            فعالیت‌ها
                         </ResponsiveNavLink>
                     </div>
 

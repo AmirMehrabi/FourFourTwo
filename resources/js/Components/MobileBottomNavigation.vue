@@ -106,41 +106,42 @@
                     پیش‌بینی‌ها
                 </span>
             </Link>
-            
-                <!-- Leaderboard -->
-            <Link
-                    :href="route('leaderboard.index')"
+                            <!-- Activities -->
+                            <Link
+                    :href="route('activity.index')"
                     class="flex flex-col items-center justify-center py-2 px-1 group relative overflow-hidden"
-                    :class="{ 'text-gray-900': route().current('leaderboard.index'), 'text-gray-500': !route().current('leaderboard.index') }"
+                    :class="{ 'text-gray-900': route().current('activity.index'), 'text-gray-500': !route().current('activity.index') }"
                 >
                     <div class="relative mb-1">
-                        <!-- Trophy Icon -->
+                        <!-- Bell Icon -->
                         <svg 
-                            v-if="!route().current('leaderboard.index')"
+                            v-if="!route().current('activity.index')"
                             class="w-6 h-6 transition-all duration-300 group-active:scale-90"
                             fill="none" 
                             stroke="currentColor" 
                             viewBox="0 0 24 24"
                         >
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-3.5-3.5a8.38 8.38 0 01-1.5-5V7a6 6 0 10-12 0v1.5c0 2.215-.553 4.315-1.5 5L5 17h5m5 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                         </svg>
-                        <!-- Trophy Icon Filled -->
+                        <!-- Bell Icon Filled -->
                         <svg 
                             v-else
-                            class="w-6 h-6 transition-all duration-300 text-yellow-500"
-                    fill="currentColor" 
+                            class="w-6 h-6 transition-all duration-300 text-blue-500"
+                            fill="currentColor" 
                             viewBox="0 0 24 24"
-                >
-                            <path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0 1 12 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 0 1 3.498 1.307 4.491 4.491 0 0 1 1.307 3.497A4.49 4.49 0 0 1 21.75 12a4.49 4.49 0 0 1-1.549 3.397 4.491 4.491 0 0 1-1.307 3.497 4.491 4.491 0 0 1-3.497 1.307A4.49 4.49 0 0 1 12 21.75a4.49 4.49 0 0 1-3.397-1.549 4.49 4.49 0 0 1-3.498-1.306 4.491 4.491 0 0 1-1.307-3.498A4.49 4.49 0 0 1 2.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 0 1 1.307-3.497 4.49 4.49 0 0 1 3.497-1.307Zm7.007 6.387a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd"/>
-                </svg>
+                        >
+                            <path d="M5.25 9a6.75 6.75 0 0112.5 0v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h9.19c1.73 0 2.813-1.874 1.948-3.374L13.949 9.75c-.866-1.5-3.032-1.5-3.898 0zM6.75 9.75v.01V9.75zm10.5-3.01v.01V6.74zm-13.5.01v.01V6.74z"/>
+                        </svg>
                         <!-- Active indicator -->
-                        <div v-if="route().current('leaderboard.index')" class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-yellow-500 rounded-full"></div>
+                        <div v-if="route().current('activity.index')" class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-500 rounded-full"></div>
+                        
+                        <!-- Notification badge -->
+                        <div v-if="unreadCount > 0" class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border border-white"></div>
                     </div>
-                    <span class="text-xs font-medium" :class="{ 'text-yellow-600': route().current('leaderboard.index'), 'text-gray-500': !route().current('leaderboard.index') }">
-                        امتیازات
-                </span>
-            </Link>
-            
+                    <span class="text-xs font-medium" :class="{ 'text-blue-600': route().current('activity.index'), 'text-gray-500': !route().current('activity.index') }">
+                        فعالیت‌ها
+                    </span>
+                </Link>
                 <!-- Profile with Logout -->
                 <button
                     @click="toggleProfileMenu"
@@ -161,10 +162,14 @@
                     </div>
                     <span class="text-xs font-medium" :class="{ 'text-gray-900': showProfileMenu, 'text-gray-500': !showProfileMenu }">
                         پروفایل
-                </span>
+                    </span>
                 </button>
+            
+
             </div>
         </div>
+
+
 
         <!-- Profile Menu Overlay -->
         <Transition
@@ -192,21 +197,7 @@
                         <!-- Menu Items -->
                         <div class="space-y-2">
                             <!-- Activity Feed -->
-                            <Link
-                                :href="route('activity.index')"
-                                class="flex items-center justify-between space-x-3 space-x-reverse p-3 rounded-xl hover:bg-gray-50 transition-colors duration-200"
-                                @click="showProfileMenu = false"
-                            >
-                                <div class="flex items-center space-x-3 space-x-reverse">
-                                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-3.5-3.5a8.38 8.38 0 01-1.5-5V7a6 6 0 10-12 0v1.5c0 2.215-.553 4.315-1.5 5L5 17h5m5 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                                    </svg>
-                                    <span class="text-gray-900 font-medium">فعالیت‌ها و اعلان‌ها</span>
-                                </div>
-                                <div v-if="unreadCount > 0" class="min-w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
-                                    {{ unreadCount > 99 ? '99+' : unreadCount }}
-                                </div>
-                            </Link>
+
 
                             <Link
                                 :href="route('profile.edit')"
