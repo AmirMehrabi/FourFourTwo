@@ -108,4 +108,20 @@ class Comment extends Model
         
         return $query->exists();
     }
+
+    /**
+     * Get all mentions in this comment.
+     */
+    public function mentions(): HasMany
+    {
+        return $this->hasMany(Mention::class);
+    }
+
+    /**
+     * Get all mentioned users in this comment.
+     */
+    public function mentionedUsers(): HasMany
+    {
+        return $this->belongsToMany(User::class, 'mentions', 'comment_id', 'mentioned_user_id');
+    }
 }

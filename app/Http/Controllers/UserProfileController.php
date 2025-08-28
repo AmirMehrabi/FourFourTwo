@@ -169,4 +169,21 @@ class UserProfileController extends Controller
             ],
         ]);
     }
+
+    /**
+     * Get current user's following list for mentions (API endpoint).
+     */
+    public function getFollowingForMentions()
+    {
+        $currentUser = Auth::user();
+        
+        $following = $currentUser->following()
+            ->select('id', 'name', 'username', 'avatar')
+            ->orderBy('name')
+            ->get();
+
+        return response()->json([
+            'data' => $following
+        ]);
+    }
 }

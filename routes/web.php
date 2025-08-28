@@ -123,6 +123,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/@{username}/unfollow', [UserProfileController::class, 'unfollow'])->name('user.profile.unfollow');
     Route::get('/@{username}/followers', [UserProfileController::class, 'followers'])->name('user.profile.followers');
     Route::get('/@{username}/following', [UserProfileController::class, 'following'])->name('user.profile.following');
+    
+    // API routes for mentions
+    Route::get('/api/user/following', [UserProfileController::class, 'getFollowingForMentions'])->name('api.user.following');
 });
 
 

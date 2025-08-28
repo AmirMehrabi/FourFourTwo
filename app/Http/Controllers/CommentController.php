@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Comment;
 use App\Models\CommentReaction;
 use App\Models\Fixture;
+use App\Models\Mention;
+use App\Models\User;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -73,13 +76,16 @@ class CommentController extends Controller
                 ->find($request->input('parent_id'));
             
             if ($parentComment && $parentComment->user_id !== Auth::id()) {
-                \App\Models\Notification::createCommentReplyNotification(
+                Notification::createCommentReplyNotification(
                     $parentComment->user_id,
                     $comment,
                     $parentComment
                 );
             }
         }
+
+        // Process mentions
+        $this->processMentions($comment);
 
         return response()->json([
             'message' => 'Comment posted successfully',
@@ -185,5 +191,43 @@ class CommentController extends Controller
             'user_reaction' => $userReaction,
             'reaction_counts' => $comment->fresh()->getReactionCounts()
         ]);
+    }
+
+    /**
+     * Process mentions in a comment and create notifications.
+     */
+    private function processMentions(Comment $comment): void
+    {
+        $content = $comment->content;
+        $mentionedUsernames = [];
+        
+        // Extract usernames mentioned with @ symbol
+        preg_match_all('/@(\w+)/', $content, $matches);
+        
+        if (empty($matches[1])) {
+            return;
+        }
+        
+        $mentionedUsernames = array_unique($matches[1]);
+        
+        // Get mentioned users
+        $mentionedUsers = User::whereIn('username', $mentionedUsernames)
+            ->where('id', '!=', $comment->user_id) // Don't notify self
+            ->get();
+        
+        foreach ($mentionedUsers as $mentionedUser) {
+            // Create mention record
+            Mention::create([
+                'comment_id' => $comment->id,
+                'mentioned_user_id' => $mentionedUser->id,
+            ]);
+            
+            // Create notification
+            Notification::createMentionNotification(
+                $mentionedUser->id,
+                $comment->load(['user', 'fixture.homeTeam', 'fixture.awayTeam']),
+                $mentionedUser
+            );
+        }
     }
 }

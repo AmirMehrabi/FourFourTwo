@@ -104,4 +104,27 @@ class Notification extends Model
             ],
         ]);
     }
+
+    /**
+     * Create a mention notification.
+     */
+    public static function createMentionNotification(int $userId, Comment $comment, User $mentionedUser): self
+    {
+        return self::create([
+            'user_id' => $userId,
+            'type' => 'mention',
+            'data' => [
+                'comment_id' => $comment->id,
+                'fixture_id' => $comment->fixture_id,
+                'commenter_name' => $comment->user->name,
+                'commenter_username' => $comment->user->username,
+                'comment_content' => $comment->content,
+                'fixture_teams' => [
+                    'home' => $comment->fixture->homeTeam->name,
+                    'away' => $comment->fixture->awayTeam->name,
+                ],
+                'mentioned_user_username' => $mentionedUser->username,
+            ],
+        ]);
+    }
 }

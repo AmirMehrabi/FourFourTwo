@@ -18,6 +18,7 @@
                         :placeholder="placeholder"
                         :disabled="posting"
                         @keydown.enter.prevent="handleEnterKey"
+                        @keydown="handleKeydown"
                         @input="handleInput"
                         ref="textareaRef"
                         class="w-full resize-none bg-gray-50 border-0 rounded-xl px-4 py-3 text-sm placeholder-gray-500 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all duration-200"
@@ -27,6 +28,18 @@
                         }"
                         rows="1"
                     ></textarea>
+
+                    <!-- Mention Dropdown -->
+                    <MentionDropdown
+                        :show="showMentionDropdown"
+                        :search-term="mentionSearchTerm"
+                        :style="{
+                            position: 'fixed',
+                            left: mentionDropdownPosition.x + 'px',
+                            top: mentionDropdownPosition.y + 'px'
+                        }"
+                        @select-user="handleMentionSelect"
+                    />
 
                     <!-- Character Counter & Send Button -->
                     <div v-if="content.length > 0" class="absolute left-2 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
@@ -89,6 +102,7 @@
 <script setup>
 import { ref, computed, nextTick, watch } from 'vue';
 import axios from 'axios';
+import MentionDropdown from './MentionDropdown.vue';
 
 const props = defineProps({
     fixtureId: {
@@ -109,6 +123,11 @@ const posting = ref(false);
 const error = ref('');
 const textareaRef = ref(null);
 const maxLength = 1000;
+
+// Mention functionality
+const showMentionDropdown = ref(false);
+const mentionSearchTerm = ref('');
+const mentionDropdownPosition = ref({ x: 0, y: 0 });
 
 // Computed
 const userInitials = computed(() => {
@@ -137,6 +156,7 @@ const canSubmit = computed(() => {
 const handleInput = () => {
     error.value = '';
     autoResize();
+    checkForMentions();
 };
 
 const autoResize = () => {
@@ -213,6 +233,90 @@ const showSuccessFeedback = () => {
         setTimeout(() => {
             textarea.style.transform = 'scale(1)';
         }, 150);
+    }
+};
+
+// Mention methods
+const checkForMentions = () => {
+    const text = content.value;
+    const lastAtSymbol = text.lastIndexOf('@');
+    
+    if (lastAtSymbol !== -1) {
+        const afterAt = text.substring(lastAtSymbol + 1);
+        const spaceIndex = afterAt.indexOf(' ');
+        
+        if (spaceIndex === -1 || spaceIndex > 0) {
+            // Show dropdown if we have @ and some text after it
+            mentionSearchTerm.value = afterAt.substring(0, spaceIndex > 0 ? spaceIndex : afterAt.length);
+            showMentionDropdown.value = true;
+            updateMentionDropdownPosition();
+        } else {
+            showMentionDropdown.value = false;
+        }
+    } else {
+        showMentionDropdown.value = false;
+    }
+};
+
+const updateMentionDropdownPosition = () => {
+    const textarea = textareaRef.value;
+    if (textarea) {
+        const rect = textarea.getBoundingClientRect();
+        const text = content.value;
+        const lastAtSymbol = text.lastIndexOf('@');
+        
+        // Calculate cursor position for @ symbol
+        const beforeAt = text.substring(0, lastAtSymbol);
+        const tempTextarea = document.createElement('textarea');
+        tempTextarea.style.position = 'absolute';
+        tempTextarea.style.visibility = 'hidden';
+        tempTextarea.style.whiteSpace = 'pre-wrap';
+        tempTextarea.style.wordWrap = 'break-word';
+        tempTextarea.style.width = textarea.offsetWidth + 'px';
+        tempTextarea.style.font = window.getComputedStyle(textarea).font;
+        tempTextarea.value = beforeAt;
+        
+        document.body.appendChild(tempTextarea);
+        const height = tempTextarea.scrollHeight;
+        document.body.removeChild(tempTextarea);
+        
+        mentionDropdownPosition.value = {
+            x: rect.left,
+            y: rect.top + height - 20
+        };
+    }
+};
+
+const handleMentionSelect = (user) => {
+    const text = content.value;
+    const lastAtSymbol = text.lastIndexOf('@');
+    
+    if (lastAtSymbol !== -1) {
+        const beforeAt = text.substring(0, lastAtSymbol);
+        const afterAt = text.substring(lastAtSymbol + 1);
+        const spaceIndex = afterAt.indexOf(' ');
+        
+        if (spaceIndex > 0) {
+            const afterSpace = afterAt.substring(spaceIndex);
+            content.value = beforeAt + '@' + user.username + ' ' + afterSpace;
+        } else {
+            content.value = beforeAt + '@' + user.username + ' ';
+        }
+    }
+    
+    showMentionDropdown.value = false;
+    nextTick(() => {
+        textareaRef.value?.focus();
+        autoResize();
+    });
+};
+
+const handleKeydown = (event) => {
+    if (showMentionDropdown.value) {
+        if (event.key === 'Escape') {
+            showMentionDropdown.value = false;
+            event.preventDefault();
+        }
     }
 };
 

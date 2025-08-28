@@ -1,6 +1,6 @@
 <template>
     <div
-        @click="$emit('click')"
+        @click="handleNotificationClick"
         class="p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-200"
         :class="{ 'bg-blue-50 border-l-4 border-blue-500': !notification.read_at }"
     >
@@ -49,17 +49,36 @@
 
 <script setup>
 import { h } from 'vue';
+import { router } from '@inertiajs/vue3';
 
-defineProps({
+const props = defineProps({
     notification: {
         type: Object,
         required: true
     }
 });
 
-defineEmits(['click', 'mark-as-read']);
+const emit = defineEmits(['click', 'mark-as-read']);
 
 // Methods
+const handleNotificationClick = () => {
+    const { type, data } = props.notification;
+    
+    // Navigate based on notification type
+    switch (type) {
+        case 'comment_reply':
+        case 'comment_reaction':
+        case 'mention':
+            if (data.fixture_id) {
+                router.visit(route('fixtures.show', data.fixture_id));
+            }
+            break;
+        default:
+            // Emit click event for other notification types
+            emit('click');
+    }
+};
+
 const getNotificationIcon = (type) => {
     const icons = {
         comment_reply: () => h('svg', {
@@ -82,6 +101,17 @@ const getNotificationIcon = (type) => {
             'stroke-linejoin': 'round',
             'stroke-width': '2',
             d: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'
+        })),
+        
+        mention: () => h('svg', {
+            fill: 'none',
+            stroke: 'currentColor',
+            viewBox: '0 0 24 24'
+        }, h('path', {
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round',
+            'stroke-width': '2',
+            d: 'M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a2 2 0 00-2 2v1c0 8.284 6.716 15 15 15h1a2 2 0 002-2v-3.28a1 1 0 00-.684-.948l-4.493-1.498a1 1 0 00-1.21.502l-1.13 2.257a11.042 11.042 0 01-5.516-5.517l2.257-1.128a1 1 0 00.502-1.21L9.228 3.683A1 1 0 008.279 3H5z'
         })),
         
         friend_request: () => h('svg', {
@@ -114,6 +144,7 @@ const getNotificationIconClass = (type) => {
     const classes = {
         comment_reply: 'bg-blue-100 text-blue-600',
         comment_reaction: 'bg-red-100 text-red-600',
+        mention: 'bg-purple-100 text-purple-600',
         friend_request: 'bg-green-100 text-green-600',
         match_update: 'bg-yellow-100 text-yellow-600'
     };
@@ -129,6 +160,8 @@ const getNotificationMessage = (notification) => {
             return `${data.replier_name} به نظر شما پاسخ داد`;
         case 'comment_reaction':
             return `${data.reactor_name} به نظر شما واکنش نشان داد`;
+        case 'mention':
+            return `${data.commenter_name} شما را در نظر خود ذکر کرد`;
         case 'friend_request':
             return `${data.requester_name} درخواست دوستی فرستاد`;
         case 'match_update':
@@ -146,6 +179,8 @@ const getNotificationContext = (notification) => {
             return `در مسابقه ${data.fixture_teams?.home} در برابر ${data.fixture_teams?.away}: "${data.content}"`;
         case 'comment_reaction':
             return `"${data.comment_content}"`;
+        case 'mention':
+            return `در مسابقه ${data.fixture_teams?.home} در برابر ${data.fixture_teams?.away}: "${data.comment_content}"`;
         case 'friend_request':
             return 'می‌توانید درخواست را از بخش دوستان مدیریت کنید';
         case 'match_update':
