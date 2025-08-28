@@ -104,9 +104,14 @@ const showingNavigationDropdown = ref(false);
 
                                     <template #content>
                                         <DropdownLink
+                                            :href="`/@${$page.props.auth.user.username}`"
+                                        >
+                                            پروفایل من
+                                        </DropdownLink>
+                                        <DropdownLink
                                             :href="route('profile.edit')"
                                         >
-                                            پروفایل
+                                            تنظیمات
                                         </DropdownLink>
                                         <DropdownLink
                                             :href="route('logout')"

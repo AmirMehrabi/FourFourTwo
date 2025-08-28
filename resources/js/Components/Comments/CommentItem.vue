@@ -14,7 +14,12 @@
                 <!-- Header -->
                 <div class="flex items-center gap-2 mb-1">
                     <span class="font-semibold text-sm text-gray-900">{{ comment.user.name }}</span>
-                    <span class="text-xs text-gray-500">@{{ comment.user.username || 'user' + comment.user.id }}</span>
+                    <Link 
+                        :href="`/@${comment.user.username || 'user' + comment.user.id}`"
+                        class="text-xs text-gray-500 hover:text-blue-600 transition-colors cursor-pointer"
+                    >
+                        @{{ comment.user.username || 'user' + comment.user.id }}
+                    </Link>
                     <span class="text-xs text-gray-400">•</span>
                     <span class="text-xs text-gray-500">{{ formatTimeAgo(comment.created_at) }}</span>
                     <span v-if="comment.is_edited" class="text-xs text-gray-400">(ویرایش شده)</span>
@@ -146,6 +151,7 @@
 <script setup>
 import { ref, computed, nextTick } from 'vue';
 import axios from 'axios';
+import { Link } from '@inertiajs/vue3';
 import CommentInput from './CommentInput.vue';
 
 const props = defineProps({

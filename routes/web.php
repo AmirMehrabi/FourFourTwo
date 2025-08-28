@@ -11,6 +11,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\ActivityFeedController;
+use App\Http\Controllers\UserProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -27,6 +28,9 @@ Route::post('/api/league-table/update', [LeagueTableController::class, 'update']
 
 
 Route::get('/teams/{slug}', [TeamController::class, 'show'])->name('teams.show');
+
+// User Profile Routes
+Route::get('/@{username}', [UserProfileController::class, 'show'])->name('user.profile.show');
 
 
 Route::get('/debug-csrf', function (Request $request) {
@@ -113,6 +117,12 @@ Route::middleware('auth')->group(function () {
         ->name('api.notifications.mark-as-read');
     Route::post('/api/notifications/mark-all-read', [App\Http\Controllers\Api\NotificationController::class, 'markAllAsRead'])
         ->name('api.notifications.mark-all-read');
+
+    // User Profile API Routes
+    Route::post('/@{username}/follow', [UserProfileController::class, 'follow'])->name('user.profile.follow');
+    Route::post('/@{username}/unfollow', [UserProfileController::class, 'unfollow'])->name('user.profile.unfollow');
+    Route::get('/@{username}/followers', [UserProfileController::class, 'followers'])->name('user.profile.followers');
+    Route::get('/@{username}/following', [UserProfileController::class, 'following'])->name('user.profile.following');
 });
 
 

@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useTranslations } from '@/composables/useTranslations.js';
+import { Link } from '@inertiajs/vue3';
 
 const props = defineProps({
   topPredictors: { type: Array, default: () => [] },
@@ -39,7 +40,12 @@ const demoView = computed(() => {
                   {{ (user.name||'?').charAt(0).toUpperCase() }}
                 </div>
                 <div>
-                  <div class="font-700 text-slate-900">{{ user.name }}</div>
+                  <Link 
+                    :href="`/@${user.username || 'user' + user.id}`"
+                    class="font-700 text-slate-900 hover:text-blue-600 transition-colors cursor-pointer"
+                  >
+                    {{ user.name }}
+                  </Link>
                   <div class="text-xs text-slate-500">رتبه {{ i+1 }}</div>
                 </div>
               </div>

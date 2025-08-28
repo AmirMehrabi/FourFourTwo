@@ -386,7 +386,12 @@ function dec(index, field) { const v = Number(form.predictions[index][field] ?? 
                                 <div v-for="(user, i) in topLeaderboard" :key="user.id" :class="['flex items-center justify-between px-4 py-3 rounded-lg border', user.id === $page.props.auth.user.id ? 'bg-[var(--brand-2)]/10 border-[var(--brand-2)]/30' : 'bg-gray-50 hover:bg-gray-100 border-gray-100']">
                                     <div class="flex items-center gap-3">
                                         <span class="w-6 h-6 inline-flex items-center justify-center rounded-full text-xs" :class="i===0 ? 'bg-amber-100 text-amber-700' : i===1 ? 'bg-slate-100 text-slate-700' : i===2 ? 'bg-orange-100 text-orange-700' : 'bg-white border'">{{ (i+1).toLocaleString('fa-IR') }}</span>
-                                        <span class="text-slate-800 text-sm">{{ user.name }}</span>
+                                        <Link 
+                                          :href="`/@${user.username || 'user' + user.id}`"
+                                          class="text-slate-800 text-sm hover:text-blue-600 transition-colors cursor-pointer"
+                                        >
+                                          {{ user.name }}
+                                        </Link>
                                     </div>
                                     <div class="text-slate-700 text-sm">{{ (user.total_points ?? 0).toLocaleString('fa-IR') }} امتیاز</div>
                                 </div>
