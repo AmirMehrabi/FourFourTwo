@@ -81,8 +81,9 @@
                         </button>
                     </div>
 
-                    <!-- Reply Button -->
+                    <!-- Reply Button (only show for top-level comments) -->
                     <button
+                        v-if="!isReply"
                         @click="toggleReply"
                         class="text-gray-500 hover:text-blue-600 font-medium transition-colors duration-200"
                     >
@@ -111,8 +112,8 @@
                     </div>
                 </div>
 
-                <!-- Reply Input -->
-                <div v-if="showReplyInput" class="mt-3 bg-gray-50 rounded-lg p-3">
+                <!-- Reply Input (only for top-level comments) -->
+                <div v-if="showReplyInput && !isReply" class="mt-3 bg-gray-50 rounded-lg p-3">
                     <CommentInput
                         :fixture-id="fixtureId"
                         :parent-comment="comment"
@@ -241,13 +242,7 @@ const toggleReply = () => {
 const handleReplyPosted = (reply) => {
     showReplyInput.value = false;
     
-    // Add reply to local replies array
-    if (!props.comment.replies) {
-        props.comment.replies = [];
-    }
-    props.comment.replies.push(reply);
-    props.comment.replies_count = (props.comment.replies_count || 0) + 1;
-
+    // Only emit the event, let the parent (CommentSection) handle adding the reply
     emit('reply-posted', reply, props.comment.id);
 };
 

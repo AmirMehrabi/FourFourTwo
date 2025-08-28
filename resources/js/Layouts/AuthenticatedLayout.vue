@@ -15,7 +15,7 @@ const showingNavigationDropdown = ref(false);
     <div>
         <div class="min-h-screen bg-gray-100 pb-16 sm:pb-0">
             <nav
-                class="sticky top-0 z-40 border-b border-gray-100 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60"
+                class="hidden sm:block sticky top-0 z-40 border-b border-gray-100 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60"
             >
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -227,7 +227,7 @@ const showingNavigationDropdown = ref(false);
 
             <!-- Page Heading -->
             <header
-                class="bg-white/80 backdrop-blur shadow"
+                class="hidden sm:block bg-white/80 backdrop-blur shadow"
                 v-if="$slots.header"
             >
                 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
