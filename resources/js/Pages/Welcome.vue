@@ -38,7 +38,7 @@ const heroContent = {
     stats: {
         accuracy: `${props.stats?.accuracy_rate || 0}% دقت اخیر`,
         users: `${props.stats?.total_users?.toLocaleString() || '0'} کاربر`,
-        predictions: `${props.stats?.weekly_predictions || 0} پیش‌بینی این هفته`
+        predictions: `${props.stats?.weekly_predictions || 0} پیش‌بینی `
     }
 };
 
