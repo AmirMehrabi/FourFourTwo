@@ -6,6 +6,10 @@ import { ref, computed } from 'vue';
 const props = defineProps({
     leaderboard: Array,
     weeklyLeaderboard: Array,
+    seasonLeaderboard: Array,
+    allTimeHighscorer: Object,
+    seasonHighscorer: Object,
+    weeklyHighscorer: Object,
 });
 
 const activeTab = ref('weekly'); // Default to weekly tab
@@ -41,6 +45,68 @@ const switchTab = (tab) => {
 
         <div class="py-8">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Global Highscorers Header -->
+                <div class="fixture-card bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8" v-if="allTimeHighscorer || seasonHighscorer || weeklyHighscorer">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- All-time Highscorer -->
+                        <div class="text-center">
+                            <div class="text-3xl font-extrabold text-purple-600 mb-1">
+                                {{ allTimeHighscorer?.total_points ?? 0 }}
+                            </div>
+                            <div class="text-sm text-gray-600">رکورد کل</div>
+                            <div class="mt-2 text-base font-semibold text-gray-900 truncate">
+                                <Link 
+                                    v-if="allTimeHighscorer?.username" 
+                                    :href="`/@${allTimeHighscorer.username}`" 
+                                    class="hover:text-green-600 transition-colors duration-200"
+                                >
+                                    {{ allTimeHighscorer?.name }}
+                                </Link>
+                                <span v-else-if="allTimeHighscorer">{{ allTimeHighscorer?.name }}</span>
+                                <span v-else>-</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Season Highscorer -->
+                        <div class="text-center">
+                            <div class="text-3xl font-extrabold text-green-600 mb-1">
+                                {{ seasonHighscorer?.season_points ?? 0 }}
+                            </div>
+                            <div class="text-sm text-gray-600">رکورد فصل</div>
+                            <div class="mt-2 text-base font-semibold text-gray-900 truncate">
+                                <Link 
+                                    v-if="seasonHighscorer?.username" 
+                                    :href="`/@${seasonHighscorer.username}`" 
+                                    class="hover:text-green-600 transition-colors duration-200"
+                                >
+                                    {{ seasonHighscorer?.name }}
+                                </Link>
+                                <span v-else-if="seasonHighscorer">{{ seasonHighscorer?.name }}</span>
+                                <span v-else>-</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Weekly Highscorer -->
+                        <div class="text-center">
+                            <div class="text-3xl font-extrabold text-orange-600 mb-1">
+                                {{ weeklyHighscorer?.weekly_points ?? 0 }}
+                            </div>
+                            <div class="text-sm text-gray-600">رکورد هفته</div>
+                            <div class="mt-2 text-base font-semibold text-gray-900 truncate">
+                                <Link 
+                                    v-if="weeklyHighscorer?.username" 
+                                    :href="`/@${weeklyHighscorer.username}`" 
+                                    class="hover:text-green-600 transition-colors duration-200"
+                                >
+                                    {{ weeklyHighscorer?.name }}
+                                </Link>
+                                <span v-else-if="weeklyHighscorer">{{ weeklyHighscorer?.name }}</span>
+                                <span v-else>-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Tab Navigation -->
                 <div class="mb-6">
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-1">
@@ -82,7 +148,7 @@ const switchTab = (tab) => {
                     </div>
                 </div>
 
-                <!-- Summary card -->
+                <!-- Current Tab Leader Summary -->
                 <div class="fixture-card bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8" v-if="currentLeaderboard && currentLeaderboard.length">
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                         <div class="text-center">
@@ -108,36 +174,15 @@ const switchTab = (tab) => {
                             </div>
                         </div>
                         <div class="text-center">
-                            <div class="text-3xl font-extrabold text-purple-600 mb-1">
-                                {{ props.leaderboard && props.leaderboard[0] ? props.leaderboard[0].total_points : 0 }}
-                            </div>
-                            <div class="text-sm text-gray-600">رکورد کل</div>
-                            <div class="mt-2 text-base font-semibold text-gray-900 truncate">
-                                <Link 
-                                    v-if="props.leaderboard && props.leaderboard[0]?.username" 
-                                    :href="`/@${props.leaderboard[0].username}`" 
-                                    class="hover:text-green-600 transition-colors duration-200"
-                                >
-                                    {{ props.leaderboard[0]?.name }}
-                                </Link>
-                                <span v-else-if="props.leaderboard && props.leaderboard[0]">{{ props.leaderboard[0]?.name }}</span>
-                                <span v-else>-</span>
-                            </div>
+                            <div class="text-3xl font-extrabold text-purple-600 mb-1">{{ currentLeaderboard.length }}</div>
+                            <div class="text-sm text-gray-600">تعداد بازیکنان</div>
                         </div>
                         <div class="text-center">
                             <div class="text-3xl font-extrabold text-orange-600 mb-1">
-                                {{ props.weeklyLeaderboard && props.weeklyLeaderboard[0] ? props.weeklyLeaderboard[0].weekly_points : 0 }}
+                                {{ activeTab === 'weekly' ? '📅' : '🏆' }}
                             </div>
-                            <div class="text-sm text-gray-600">رکورد هفته</div>
-                            <div class="mt-2 text-base font-semibold text-gray-900 truncate">
-                                <Link 
-                                    v-if="props.weeklyLeaderboard && props.weeklyLeaderboard[0]?.username" 
-                                    class="hover:text-green-600 transition-colors duration-200"
-                                >
-                                    {{ props.weeklyLeaderboard[0]?.name }}
-                                </Link>
-                                <span v-else-if="props.weeklyLeaderboard && props.weeklyLeaderboard[0]">{{ props.weeklyLeaderboard[0]?.name }}</span>
-                                <span v-else>-</span>
+                            <div class="text-sm text-gray-600">
+                                {{ activeTab === 'weekly' ? 'هفته جاری' : 'کل فصل' }}
                             </div>
                         </div>
                     </div>
