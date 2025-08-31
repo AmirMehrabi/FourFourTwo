@@ -1,5 +1,5 @@
 <template>
-    <div class="relative">
+    <div class="relative notification-bell">
         <!-- Notification Bell Button -->
         <button
             @click="toggleNotifications"
@@ -156,8 +156,25 @@ const handleNotificationClick = async (notification) => {
     }
     
     // Navigate based on notification type
-    if (notification.type === 'comment_reply' && notification.data.fixture_id) {
-        window.location.href = `/fixtures/${notification.data.fixture_id}`;
+    switch (notification.type) {
+        case 'comment_reply':
+            if (notification.data.fixture_id) {
+                window.location.href = `/fixtures/${notification.data.fixture_id}`;
+            }
+            break;
+        case 'badge_awarded':
+            // Navigate to profile or achievements page
+            window.location.href = route('profile.edit');
+            break;
+        case 'new_follower':
+            // Navigate to user's profile
+            if (notification.data.follower_username) {
+                window.location.href = `/@${notification.data.follower_username}`;
+            }
+            break;
+        default:
+            // For other types, let the NotificationItem handle navigation
+            break;
     }
     
     showNotifications.value = false;
@@ -192,21 +209,17 @@ onMounted(() => {
     // Set up periodic refresh of unread count
     const interval = setInterval(loadUnreadCount, 30000); // Every 30 seconds
     
+    // Close dropdown when clicking outside
+    const handleClickOutside = (event) => {
+        if (!event.target.closest('.notification-bell')) {
+            showNotifications.value = false;
+        }
+    };
+    
+    document.addEventListener('click', handleClickOutside);
+    
     onUnmounted(() => {
         clearInterval(interval);
-    });
-});
-
-// Close dropdown when clicking outside
-const handleClickOutside = (event) => {
-    if (!event.target.closest('.notification-bell')) {
-        showNotifications.value = false;
-    }
-};
-
-onMounted(() => {
-    document.addEventListener('click', handleClickOutside);
-    onUnmounted(() => {
         document.removeEventListener('click', handleClickOutside);
     });
 });

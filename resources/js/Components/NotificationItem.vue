@@ -73,6 +73,16 @@ const handleNotificationClick = () => {
                 router.visit(route('fixtures.show', data.fixture_id));
             }
             break;
+        case 'badge_awarded':
+            // Navigate to profile or achievements page
+            router.visit(route('profile.edit'));
+            break;
+        case 'new_follower':
+            // Navigate to user's profile
+            if (data.follower_username) {
+                router.visit(`/@${data.follower_username}`);
+            }
+            break;
         default:
             // Emit click event for other notification types
             emit('click');
@@ -134,6 +144,28 @@ const getNotificationIcon = (type) => {
             'stroke-linejoin': 'round',
             'stroke-width': '2',
             d: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
+        })),
+        
+        badge_awarded: () => h('svg', {
+            fill: 'none',
+            stroke: 'currentColor',
+            viewBox: '0 0 24 24'
+        }, h('path', {
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round',
+            'stroke-width': '2',
+            d: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z'
+        })),
+        
+        new_follower: () => h('svg', {
+            fill: 'none',
+            stroke: 'currentColor',
+            viewBox: '0 0 24 24'
+        }, h('path', {
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round',
+            'stroke-width': '2',
+            d: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
         }))
     };
     
@@ -146,7 +178,9 @@ const getNotificationIconClass = (type) => {
         comment_reaction: 'bg-red-100 text-red-600',
         mention: 'bg-purple-100 text-purple-600',
         friend_request: 'bg-green-100 text-green-600',
-        match_update: 'bg-yellow-100 text-yellow-600'
+        match_update: 'bg-yellow-100 text-yellow-600',
+        badge_awarded: 'bg-orange-100 text-orange-600',
+        new_follower: 'bg-indigo-100 text-indigo-600'
     };
     
     return classes[type] || classes.comment_reply;
@@ -166,6 +200,10 @@ const getNotificationMessage = (notification) => {
             return `${data.requester_name} درخواست دوستی فرستاد`;
         case 'match_update':
             return `نتیجه مسابقه ${data.home_team} در برابر ${data.away_team} اعلام شد`;
+        case 'badge_awarded':
+            return `شما نشان "${data.badge_name}" را دریافت کردید!`;
+        case 'new_follower':
+            return `${data.follower_name} شما را دنبال کرد`;
         default:
             return 'اعلان جدید';
     }
@@ -185,6 +223,10 @@ const getNotificationContext = (notification) => {
             return 'می‌توانید درخواست را از بخش دوستان مدیریت کنید';
         case 'match_update':
             return `نتیجه نهایی: ${data.final_score}`;
+        case 'badge_awarded':
+            return data.badge_description || 'تبریک! شما یک موفقیت جدید کسب کردید.';
+        case 'new_follower':
+            return `اکنون ${data.follower_count || 1} نفر شما را دنبال می‌کنند`;
         default:
             return '';
     }
