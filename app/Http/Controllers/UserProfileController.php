@@ -36,7 +36,12 @@ class UserProfileController extends Controller
             'best_streak' => $user->getBestPredictionStreak(),
             'current_streak' => $user->getCurrentPredictionStreak(),
             'has_current_season_predictions' => $user->hasCurrentSeasonPredictions(),
+            'badges_count' => $user->getBadgesCount(),
         ];
+
+        // Get user badges
+        $badgesByTier = $user->getBadgesByTier();
+        $recentBadges = $user->getRecentBadges(5);
 
         // Get recent activity
         $recentPredictions = $user->getRecentPredictions(10);
@@ -80,6 +85,78 @@ class UserProfileController extends Controller
                         ],
                         'created_at' => $comment->created_at->diffForHumans(),
                         'reactions_count' => $comment->reactions()->count(),
+                    ];
+                }),
+                'badges_by_tier' => [
+                    'diamond' => $badgesByTier['diamond']->map(function($badge) {
+                        return [
+                            'id' => $badge->id,
+                            'key' => $badge->key,
+                            'name' => $badge->name,
+                            'description' => $badge->description,
+                            'icon' => $badge->icon,
+                            'tier' => $badge->tier,
+                            'category' => $badge->category,
+                            'tier_color' => $badge->tier_color,
+                            'rarity' => $badge->rarity,
+                            'awarded_at' => $badge->pivot->awarded_at,
+                        ];
+                    }),
+                    'gold' => $badgesByTier['gold']->map(function($badge) {
+                        return [
+                            'id' => $badge->id,
+                            'key' => $badge->key,
+                            'name' => $badge->name,
+                            'description' => $badge->description,
+                            'icon' => $badge->icon,
+                            'tier' => $badge->tier,
+                            'category' => $badge->category,
+                            'tier_color' => $badge->tier_color,
+                            'rarity' => $badge->rarity,
+                            'awarded_at' => $badge->pivot->awarded_at,
+                        ];
+                    }),
+                    'silver' => $badgesByTier['silver']->map(function($badge) {
+                        return [
+                            'id' => $badge->id,
+                            'key' => $badge->key,
+                            'name' => $badge->name,
+                            'description' => $badge->description,
+                            'icon' => $badge->icon,
+                            'tier' => $badge->tier,
+                            'category' => $badge->category,
+                            'tier_color' => $badge->tier_color,
+                            'rarity' => $badge->rarity,
+                            'awarded_at' => $badge->pivot->awarded_at,
+                        ];
+                    }),
+                    'bronze' => $badgesByTier['bronze']->map(function($badge) {
+                        return [
+                            'id' => $badge->id,
+                            'key' => $badge->key,
+                            'name' => $badge->name,
+                            'description' => $badge->description,
+                            'icon' => $badge->icon,
+                            'tier' => $badge->tier,
+                            'category' => $badge->category,
+                            'tier_color' => $badge->tier_color,
+                            'rarity' => $badge->rarity,
+                            'awarded_at' => $badge->pivot->awarded_at,
+                        ];
+                    }),
+                ],
+                'recent_badges' => $recentBadges->map(function($badge) {
+                    return [
+                        'id' => $badge->id,
+                        'key' => $badge->key,
+                        'name' => $badge->name,
+                        'description' => $badge->description,
+                        'icon' => $badge->icon,
+                        'tier' => $badge->tier,
+                        'category' => $badge->category,
+                        'tier_color' => $badge->tier_color,
+                        'rarity' => $badge->rarity,
+                        'awarded_at' => $badge->pivot->awarded_at,
                     ];
                 }),
             ],

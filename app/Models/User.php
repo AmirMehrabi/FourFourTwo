@@ -317,4 +317,106 @@ class User extends Authenticatable
                     ->orderByDesc('prediction_count')
                     ->first();
     }
+
+    /**
+     * Get the badges earned by this user.
+     */
+    public function badges(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Badge::class, 'user_badges')
+                    ->withPivot('awarded_at', 'awarded_for')
+                    ->withTimestamps()
+                    ->orderByPivot('awarded_at', 'desc');
+    }
+
+    /**
+     * Check if user has a specific badge.
+     */
+    public function hasBadge(string $badgeKey): bool
+    {
+        return $this->badges()->where('badges.key', $badgeKey)->exists();
+    }
+
+    /**
+     * Award a badge to this user.
+     */
+    public function awardBadge(string $badgeKey, array $context = []): bool
+    {
+        $badge = Badge::findByKey($badgeKey);
+        if (!$badge || $this->hasBadge($badgeKey)) {
+            return false;
+        }
+
+        $this->badges()->attach($badge->id, [
+            'awarded_at' => now(),
+            'awarded_for' => json_encode($context),
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Get badges grouped by tier.
+     */
+    public function getBadgesByTier(): array
+    {
+        $badges = $this->badges()->get()->groupBy('tier');
+        
+        return [
+            'diamond' => $badges->get('diamond', collect()),
+            'gold' => $badges->get('gold', collect()),
+            'silver' => $badges->get('silver', collect()),
+            'bronze' => $badges->get('bronze', collect()),
+        ];
+    }
+
+    /**
+     * Get total badges count.
+     */
+    public function getBadgesCount(): int
+    {
+        return $this->badges()->count();
+    }
+
+    /**
+     * Get recent badges (last 5).
+     */
+    public function getRecentBadges(int $limit = 5)
+    {
+        return $this->badges()
+                    ->orderByPivot('awarded_at', 'desc')
+                    ->limit($limit)
+                    ->get();
+    }
+
+    /**
+     * Get user statistics for badge calculation.
+     */
+    public function getBadgeStats(): array
+    {
+        return [
+            'predictions_count' => $this->getTotalPredictionsCount(),
+            'comments_count' => $this->comments()->count(),
+            'followers_count' => $this->followers()->count(),
+            'following_count' => $this->following()->count(),
+            'accuracy_percentage' => $this->getPredictionAccuracy(),
+            'best_streak' => $this->getBestPredictionStreak(),
+            'current_streak' => $this->getCurrentPredictionStreak(),
+            'season_rank' => $this->getCurrentSeasonRank(),
+            'all_time_rank' => $this->getAllTimeRank(),
+            'exact_scores' => $this->getExactScoresCount(),
+            'has_bio' => !empty($this->bio),
+            'has_avatar' => !empty($this->avatar),
+        ];
+    }
+
+    /**
+     * Get exact scores count.
+     */
+    public function getExactScoresCount(): int
+    {
+        return $this->predictions()
+                    ->where('points_awarded', 5) // 5 points = exact score
+                    ->count();
+    }
 }

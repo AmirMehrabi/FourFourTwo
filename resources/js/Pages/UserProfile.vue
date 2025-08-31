@@ -217,6 +217,22 @@
                                     <span>نظرات اخیر</span>
                                 </span>
                             </button>
+                            <button
+                                @click="activeTab = 'badges'"
+                                :class="[
+                                    activeTab === 'badges'
+                                        ? 'border-[--brand-2] text-[--brand-2] bg-white shadow-sm'
+                                        : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100',
+                                    'whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-all duration-200 rounded-t-lg'
+                                ]"
+                            >
+                                <span class="flex items-center space-x-2 rtl:space-x-reverse">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span>نشان‌ها ({{ profileUser.stats.badges_count }})</span>
+                                </span>
+                            </button>
                         </nav>
                     </div>
 
@@ -329,6 +345,14 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Badges Tab -->
+                        <div v-if="activeTab === 'badges'">
+                            <BadgeDisplay 
+                                :badges-by-tier="profileUser.badges_by_tier"
+                                :recent-badges="profileUser.recent_badges"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -340,6 +364,7 @@
 import { ref } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import BadgeDisplay from '@/Components/BadgeDisplay.vue'
 import { useTranslations } from '@/composables/useTranslations.js'
 
 const props = defineProps({
