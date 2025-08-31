@@ -72,12 +72,12 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     فعالیت‌ها
                                 </NavLink>
-                                <NavLink
+                                <!-- <NavLink
                                     :href="route('notifications.index')"
                                     :active="route().current('notifications.index')"
                                 >
                                     اعلان‌ها
-                                </NavLink>
+                                </NavLink> -->
                             </div>
                         </div>
 
