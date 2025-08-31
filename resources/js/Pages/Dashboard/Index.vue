@@ -105,7 +105,18 @@ function isPredictionIncomplete(index) {
 }
 
 // Statistics
-const completedPredictions = computed(() => form.predictions.filter(p => p.home_score !== null && p.home_score !== '' && p.away_score !== null && p.away_score !== '').length);
+const completedPredictions = computed(() => {
+    return props.upcomingFixtures
+        .filter((fixture, index) => !fixture.is_locked) // Only count unlocked fixtures
+        .filter((fixture, index) => {
+            const prediction = form.predictions[index];
+            return prediction && 
+                   prediction.home_score !== null && 
+                   prediction.home_score !== '' && 
+                   prediction.away_score !== null && 
+                   prediction.away_score !== '';
+        }).length;
+});
 const totalEditableFixtures = computed(() => props.upcomingFixtures.filter(f => !f.is_locked).length);
 const progressPct = computed(() => totalEditableFixtures.value > 0 ? Math.round((completedPredictions.value / totalEditableFixtures.value) * 100) : 0);
 
