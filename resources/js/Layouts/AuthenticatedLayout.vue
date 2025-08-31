@@ -82,10 +82,7 @@ const showingNavigationDropdown = ref(false);
                         </div>
 
                         <div class="hidden sm:ms-6 sm:flex sm:items-center">
-                            <!-- Notification Bell -->
-                            <div class="me-4">
-                                <NotificationBell />
-                            </div>
+
                             
                             <!-- Settings Dropdown -->
                             <div class="relative ms-3">
@@ -134,6 +131,11 @@ const showingNavigationDropdown = ref(false);
                                         </DropdownLink>
                                     </template>
                                 </Dropdown>
+                            </div>
+
+                            <!-- Notification Bell -->
+                            <div class="me-4">
+                                <NotificationBell />
                             </div>
                         </div>
 

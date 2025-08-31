@@ -31,7 +31,7 @@
         >
             <div
                 v-if="showNotifications"
-                class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-50"
+                class="absolute left-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-50"
                 style="transform: translateX(0%);"
             >
                 <!-- Header -->
