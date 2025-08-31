@@ -78,7 +78,7 @@
                 <!-- View All Link -->
                 <div v-if="notifications.length > 0" class="p-3 border-t border-gray-100 text-center">
                     <Link
-                        href="/notifications"
+                        :href="route('notifications.index')"
                         class="text-sm text-blue-600 hover:text-blue-700 font-medium"
                         @click="showNotifications = false"
                     >

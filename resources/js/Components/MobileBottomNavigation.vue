@@ -106,42 +106,42 @@
                     پیش‌بینی‌ها
                 </span>
             </Link>
-                            <!-- Activities -->
-                            <Link
-                    :href="route('activity.index')"
-                    class="flex flex-col items-center justify-center py-2 px-1 group relative overflow-hidden"
-                    :class="{ 'text-gray-900': route().current('activity.index'), 'text-gray-500': !route().current('activity.index') }"
-                >
-                    <div class="relative mb-1">
-                        <!-- Bell Icon -->
-                        <svg 
-                            v-if="!route().current('activity.index')"
-                            class="w-6 h-6 transition-all duration-300 group-active:scale-90"
-                            fill="none" 
-                            stroke="currentColor" 
-                            viewBox="0 0 24 24"
-                        >
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-3.5-3.5a8.38 8.38 0 01-1.5-5V7a6 6 0 10-12 0v1.5c0 2.215-.553 4.315-1.5 5L5 17h5m5 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                        </svg>
-                        <!-- Bell Icon Filled -->
-                        <svg 
-                            v-else
-                            class="w-6 h-6 transition-all duration-300 text-blue-500"
-                            fill="currentColor" 
-                            viewBox="0 0 24 24"
-                        >
-                            <path d="M5.25 9a6.75 6.75 0 0112.5 0v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h9.19c1.73 0 2.813-1.874 1.948-3.374L13.949 9.75c-.866-1.5-3.032-1.5-3.898 0zM6.75 9.75v.01V9.75zm10.5-3.01v.01V6.74zm-13.5.01v.01V6.74z"/>
-                        </svg>
-                        <!-- Active indicator -->
-                        <div v-if="route().current('activity.index')" class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-500 rounded-full"></div>
-                        
-                        <!-- Notification badge -->
-                        <div v-if="unreadCount > 0" class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border border-white"></div>
-                    </div>
-                    <span class="text-xs font-medium" :class="{ 'text-blue-600': route().current('activity.index'), 'text-gray-500': !route().current('activity.index') }">
-                        فعالیت‌ها
-                    </span>
-                </Link>
+                            <!-- Notifications Bell -->
+                            <button
+                                @click="toggleNotifications"
+                                class="flex flex-col items-center justify-center py-2 px-1 group relative overflow-hidden"
+                                :class="{ 'text-indigo-600': showNotifications, 'text-gray-500': !showNotifications }"
+                            >
+                                <div class="relative mb-1">
+                                    <!-- Bell Icon -->
+                                    <svg 
+                                        v-if="!showNotifications"
+                                            class="w-6 h-6 transition-all duration-300 group-active:scale-90"
+                                            fill="none" 
+                                            stroke="currentColor" 
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-3.5-3.5a8.38 8.38 0 01-1.5-5V7a6 6 0 10-12 0v1.5c0 2.215-.553 4.315-1.5 5L5 17h5m5 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                        </svg>
+                                        <!-- Bell Icon Filled -->
+                                        <svg 
+                                            v-else
+                                            class="w-6 h-6 transition-all duration-300 text-indigo-500"
+                                            fill="currentColor" 
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path d="M5.25 9a6.75 6.75 0 0112.5 0v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h9.19c1.73 0 2.813-1.874 1.948-3.374L13.949 9.75c-.866-1.5-3.032-1.5-3.898 0zM6.75 9.75v.01V9.75zm10.5-3.01v.01V6.74zm-13.5.01v.01V6.74z"/>
+                                        </svg>
+                                        <!-- Active indicator -->
+                                        <div v-if="showNotifications" class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-indigo-500 rounded-full"></div>
+                                        
+                                        <!-- Notification badge -->
+                                        <div v-if="unreadCount > 0" class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border border-white"></div>
+                                    </div>
+                                    <span class="text-xs font-medium" :class="{ 'text-indigo-600': showNotifications, 'text-gray-500': !showNotifications }">
+                                        اعلان‌ها
+                                    </span>
+                                </button>
                 <!-- Profile with Logout -->
                 <button
                     @click="toggleProfileMenu"
@@ -235,6 +235,54 @@
                 </div>
             </div>
         </Transition>
+
+        <!-- Notifications Modal Overlay -->
+        <Transition
+            enter-active-class="transition-all duration-300 ease-out"
+            enter-from-class="opacity-0 translate-y-full"
+            enter-to-class="opacity-100 translate-y-0"
+            leave-active-class="transition-all duration-200 ease-in"
+            leave-from-class="opacity-100 translate-y-0"
+            leave-to-class="opacity-0 translate-y-full"
+        >
+            <div v-if="showNotifications" class="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm" @click="showNotifications = false">
+                <div class="absolute bottom-16 right-0 left-0 bg-white rounded-t-3xl shadow-2xl border-t border-gray-100 max-h-96 overflow-hidden" @click.stop>
+                    <div class="p-4 border-b border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-900">اعلان‌ها</h3>
+                            <button
+                                @click="showNotifications = false"
+                                class="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Notifications Content -->
+                    <div class="p-4">
+                        <div v-if="unreadCount === 0" class="text-center py-8">
+                            <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-3.5-3.5a8.38 8.38 0 01-1.5-5V7a6 6 0 10-12 0v1.5c0 2.215-.553 4.315-1.5 5L5 17h5m5 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <p class="text-gray-500 font-medium">هیچ اعلان جدیدی وجود ندارد</p>
+                        </div>
+                        <div v-else class="text-center py-4">
+                            <p class="text-gray-600 mb-3">{{ unreadCount }} اعلان خوانده نشده</p>
+                            <Link
+                                :href="route('notifications.index')"
+                                @click="showNotifications = false"
+                                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                مشاهده همه اعلان‌ها
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Transition>
     </div>
 </template>
 
@@ -244,6 +292,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import axios from 'axios';
 
 const showProfileMenu = ref(false);
+const showNotifications = ref(false);
 const unreadCount = ref(0);
 
 const userInitials = computed(() => {
@@ -258,6 +307,10 @@ const userInitials = computed(() => {
 
 const toggleProfileMenu = () => {
     showProfileMenu.value = !showProfileMenu.value;
+};
+
+const toggleNotifications = () => {
+    showNotifications.value = !showNotifications.value;
 };
 
 const logout = () => {

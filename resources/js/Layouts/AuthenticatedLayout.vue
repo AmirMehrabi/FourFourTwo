@@ -72,6 +72,12 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     فعالیت‌ها
                                 </NavLink>
+                                <NavLink
+                                    :href="route('notifications.index')"
+                                    :active="route().current('notifications.index')"
+                                >
+                                    اعلان‌ها
+                                </NavLink>
                             </div>
                         </div>
 
@@ -214,6 +220,12 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('activity.index')"
                         >
                             فعالیت‌ها
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('notifications.index')"
+                            :active="route().current('notifications.index')"
+                        >
+                            اعلان‌ها
                         </ResponsiveNavLink>
                     </div>
 
