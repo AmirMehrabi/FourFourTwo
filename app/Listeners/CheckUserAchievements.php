@@ -63,20 +63,18 @@ class CheckUserAchievements
      */
     public function handleUserFollowed($event)
     {
-        $follower = $event->follower ?? $event;
-        $followed = $event->followed ?? null;
+        $follower = $event->follower;
+        $followed = $event->followed;
         
-        // Check achievements for the follower
+        // Check achievements for the follower (first_follow badge)
         $this->achievementService->checkForTrigger($follower, 'user_followed', [
-            'followed_user_id' => $followed?->id
+            'followed_user_id' => $followed->id
         ]);
         
-        // Check achievements for the followed user (might get follower-based badges)
-        if ($followed) {
-            $this->achievementService->checkForTrigger($followed, 'gained_follower', [
-                'follower_user_id' => $follower->id
-            ]);
-        }
+        // Check achievements for the followed user (social_butterfly, influencer badges)
+        $this->achievementService->checkForTrigger($followed, 'gained_follower', [
+            'follower_user_id' => $follower->id
+        ]);
     }
 
     /**

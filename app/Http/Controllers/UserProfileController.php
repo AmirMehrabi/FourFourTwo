@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Notification;
+use App\Events\UserFollowed;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
@@ -179,6 +181,12 @@ class UserProfileController extends Controller
 
         if (!$currentUser->isFollowing($userToFollow)) {
             $currentUser->following()->attach($userToFollow->id);
+            
+            // Create notification for the followed user
+            Notification::createFollowerNotification($userToFollow->id, $currentUser);
+            
+            // Dispatch event for achievement checking
+            UserFollowed::dispatch($currentUser, $userToFollow);
         }
 
         return response()->json([

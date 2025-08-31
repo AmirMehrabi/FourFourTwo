@@ -127,4 +127,49 @@ class Notification extends Model
             ],
         ]);
     }
+
+    /**
+     * Create a new follower notification.
+     */
+    public static function createFollowerNotification(int $userId, User $follower): self
+    {
+        return self::create([
+            'user_id' => $userId,
+            'type' => 'new_follower',
+            'data' => [
+                'follower_id' => $follower->id,
+                'follower_name' => $follower->name,
+                'follower_username' => $follower->username,
+                'follower_avatar' => $follower->avatar,
+                'follower_stats' => [
+                    'predictions_count' => $follower->getTotalPredictionsCount(),
+                    'accuracy' => $follower->getPredictionAccuracy(),
+                    'badges_count' => $follower->getBadgesCount(),
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * Create a badge awarded notification.
+     */
+    public static function createBadgeNotification(int $userId, Badge $badge, array $context = []): self
+    {
+        return self::create([
+            'user_id' => $userId,
+            'type' => 'badge_awarded',
+            'data' => [
+                'badge_id' => $badge->id,
+                'badge_key' => $badge->key,
+                'badge_name' => $badge->name,
+                'badge_description' => $badge->description,
+                'badge_icon' => $badge->icon,
+                'badge_tier' => $badge->tier,
+                'badge_category' => $badge->category,
+                'badge_tier_color' => $badge->tier_color,
+                'badge_rarity' => $badge->rarity,
+                'context' => $context,
+            ],
+        ]);
+    }
 }

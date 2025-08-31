@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Event;
 use App\Listeners\CheckUserAchievements;
+use App\Events\UserFollowed;
 use App\Models\Prediction;
 use App\Models\Comment;
 use App\Models\User;
@@ -57,6 +58,6 @@ class AchievementServiceProvider extends ServiceProvider
         Event::listen('achievement.prediction.updated', [CheckUserAchievements::class, 'handlePredictionUpdated']);
         Event::listen('achievement.comment.created', [CheckUserAchievements::class, 'handleCommentCreated']);
         Event::listen('achievement.user.updated', [CheckUserAchievements::class, 'handleProfileUpdated']);
-        Event::listen('achievement.user.followed', [CheckUserAchievements::class, 'handleUserFollowed']);
+        Event::listen(UserFollowed::class, [CheckUserAchievements::class, 'handleUserFollowed']);
     }
 }

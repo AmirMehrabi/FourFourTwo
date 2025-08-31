@@ -352,6 +352,9 @@ class User extends Authenticatable
             'awarded_for' => json_encode($context),
         ]);
 
+        // Create notification for badge award
+        Notification::createBadgeNotification($this->id, $badge, $context);
+
         return true;
     }
 
