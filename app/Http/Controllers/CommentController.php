@@ -210,10 +210,10 @@ class CommentController extends Controller
         // Get users that the current user is following and match the search query
         $followedUsers = $user->following()
             ->where(function ($q) use ($query) {
-                $q->where('username', 'LIKE', '%' . $query . '%')
-                  ->orWhere('name', 'LIKE', '%' . $query . '%');
+                $q->where('users.username', 'LIKE', '%' . $query . '%')
+                  ->orWhere('users.name', 'LIKE', '%' . $query . '%');
             })
-            ->select('id', 'username', 'name', 'avatar')
+            ->select('users.id', 'users.username', 'users.name', 'users.avatar')
             ->limit($limit)
             ->get();
         
