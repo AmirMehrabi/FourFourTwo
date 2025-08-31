@@ -90,6 +90,7 @@
                 <div class="mt-3 flex items-center gap-3">
                     <button
                         v-if="notification.type === 'comment_reply'"
+                        @click.stop="$emit('click')"
                         class="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
                     >
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,7 +100,19 @@
                     </button>
                     
                     <button
+                        v-if="notification.type === 'friend_request'"
+                        @click.stop="$emit('click')"
+                        class="text-xs text-green-600 hover:text-green-700 font-medium flex items-center gap-1"
+                    >
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        مشاهده درخواست
+                    </button>
+                    
+                    <button
                         v-if="notification.type === 'match_update'"
+                        @click.stop="$emit('click')"
                         class="text-xs text-green-600 hover:text-green-700 font-medium flex items-center gap-1"
                     >
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,6 +123,7 @@
                     
                     <button
                         v-if="notification.type === 'new_follower'"
+                        @click.stop="viewFollowerProfile"
                         class="text-xs text-purple-600 hover:text-purple-700 font-medium flex items-center gap-1"
                     >
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -120,10 +134,11 @@
                     
                     <button
                         v-if="notification.type === 'achievement_unlocked'"
+                        @click.stop="viewAchievements"
                         class="text-xs text-yellow-600 hover:text-yellow-700 font-medium flex items-center gap-1"
                     >
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.706 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.706 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.706 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.706 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.706-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.706-1.946 3.42 3.42 0 013.138-3.138z" />
                         </svg>
                         مشاهده دستاوردها
                     </button>
@@ -135,6 +150,7 @@
 
 <script setup>
 import { computed, h } from 'vue';
+import { router, usePage } from '@inertiajs/vue3';
 
 const props = defineProps({
     notification: {
@@ -142,6 +158,8 @@ const props = defineProps({
         required: true
     }
 });
+
+const page = usePage();
 
 defineEmits(['click']);
 
@@ -338,6 +356,21 @@ const formatTimeAgo = (dateString) => {
     if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} روز پیش`;
     
     return date.toLocaleDateString('fa-IR');
+};
+
+// Navigation functions
+const viewFollowerProfile = () => {
+    const username = props.notification.data.follower_username;
+    if (username) {
+        router.visit(`/@${username}`);
+    }
+};
+
+const viewAchievements = () => {
+    const username = page.props.auth.user.username;
+    if (username) {
+        router.visit(`/@${username}`);
+    }
 };
 </script>
 
