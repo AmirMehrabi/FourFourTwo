@@ -242,8 +242,8 @@ class CommentController extends Controller
         
         // Get mentioned users that the current user is following
         $mentionedUsers = $currentUser->following()
-            ->whereIn('username', $mentionedUsernames)
-            ->where('id', '!=', $comment->user_id) // Don't notify self
+            ->whereIn('users.username', $mentionedUsernames)
+            ->where('users.id', '!=', $comment->user_id) // Don't notify self
             ->get();
         
         foreach ($mentionedUsers as $mentionedUser) {
