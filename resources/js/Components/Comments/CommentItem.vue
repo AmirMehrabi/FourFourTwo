@@ -26,8 +26,7 @@
                 </div>
 
                 <!-- Comment Text -->
-                <div v-if="!isEditing" class="text-sm text-gray-800 leading-relaxed mb-3 whitespace-pre-wrap">
-                    {{ comment.content }}
+                <div v-if="!isEditing" class="text-sm text-gray-800 leading-relaxed mb-3 whitespace-pre-wrap" v-html="formatCommentWithMentions(comment.content)">
                 </div>
 
                 <!-- Edit Form -->
@@ -207,6 +206,21 @@ const formatTimeAgo = (dateString) => {
     if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} روز پیش`;
     
     return date.toLocaleDateString('fa-IR');
+};
+
+const formatCommentWithMentions = (content) => {
+    if (!content) return '';
+    
+    // Escape HTML first to prevent XSS
+    const escaped = content
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    
+    // Replace @username with clickable links
+    return escaped.replace(/@(\w+)/g, '<a href="/@$1" class="text-blue-600 hover:text-blue-700 font-medium hover:underline transition-colors">@$1</a>');
 };
 
 const getReactionEmoji = (type) => {

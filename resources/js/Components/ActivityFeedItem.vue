@@ -100,6 +100,17 @@
                     </button>
                     
                     <button
+                        v-if="notification.type === 'mention'"
+                        @click.stop="$emit('click')"
+                        class="text-xs text-purple-600 hover:text-purple-700 font-medium flex items-center gap-1"
+                    >
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        مشاهده منشن
+                    </button>
+                    
+                    <button
                         v-if="notification.type === 'friend_request'"
                         @click.stop="$emit('click')"
                         class="text-xs text-green-600 hover:text-green-700 font-medium flex items-center gap-1"
@@ -169,15 +180,16 @@ const hasUserAvatar = computed(() => {
            props.notification.data.reactor_name || 
            props.notification.data.requester_name ||
            props.notification.data.follower_name ||
+           props.notification.data.commenter_name ||
            props.notification.data.user_name;
 });
 
 const showContextCard = computed(() => {
-    return props.notification.type === 'comment_reply' && props.notification.data.content;
+    return (props.notification.type === 'comment_reply' || props.notification.type === 'mention') && props.notification.data.content;
 });
 
 const shouldShowUserAvatar = computed(() => {
-    return ['comment_reply', 'comment_reaction', 'friend_request', 'new_follower'].includes(props.notification.type);
+    return ['comment_reply', 'comment_reaction', 'mention', 'friend_request', 'new_follower'].includes(props.notification.type);
 });
 
 // Methods
@@ -186,6 +198,7 @@ const getUserInitials = () => {
                  props.notification.data.reactor_name || 
                  props.notification.data.requester_name || 
                  props.notification.data.follower_name ||
+                 props.notification.data.commenter_name ||
                  props.notification.data.user_name ||
                  'کاربر';
     
@@ -246,6 +259,15 @@ const getNotificationIcon = () => {
             'clip-rule': 'evenodd'
         })),
         
+        mention: () => h('svg', {
+            fill: 'currentColor',
+            viewBox: '0 0 20 20'
+        }, h('path', {
+            'fill-rule': 'evenodd',
+            d: 'M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z',
+            'clip-rule': 'evenodd'
+        })),
+        
         achievement_unlocked: () => h('svg', {
             fill: 'currentColor',
             viewBox: '0 0 20 20'
@@ -265,6 +287,7 @@ const getNotificationIconClass = () => {
     const classes = {
         comment_reply: 'bg-blue-500 text-white',
         comment_reaction: 'bg-red-500 text-white',
+        mention: 'bg-purple-500 text-white',
         friend_request: 'bg-green-500 text-white',
         new_follower: 'bg-purple-500 text-white',
         achievement_unlocked: 'bg-yellow-500 text-white',
@@ -282,6 +305,8 @@ const getNotificationTitle = () => {
             return 'پاسخ جدید به نظر شما';
         case 'comment_reaction':
             return 'واکنش به نظر شما';
+        case 'mention':
+            return 'منشن شدن در نظر';
         case 'friend_request':
             return 'درخواست دوستی جدید';
         case 'new_follower':
@@ -303,6 +328,8 @@ const getNotificationMessage = () => {
             return `${data.replier_name} به نظر شما در مسابقه ${data.fixture_teams?.home} در برابر ${data.fixture_teams?.away} پاسخ داد.`;
         case 'comment_reaction':
             return `${data.reactor_name} به نظر شما واکنش ${getReactionEmoji(data.reaction_type)} نشان داد.`;
+        case 'mention':
+            return `${data.commenter_name} شما را در نظری در مسابقه ${data.fixture_teams?.home} در برابر ${data.fixture_teams?.away} منشن کرد.`;
         case 'friend_request':
             return `${data.requester_name} درخواست دوستی برای شما فرستاده است.`;
         case 'new_follower':
@@ -324,6 +351,8 @@ const getContextLabel = () => {
             return 'نظر اصلی شما:';
         case 'comment_reaction':
             return 'نظر شما:';
+        case 'mention':
+            return 'نظر منشن شده:';
         default:
             return 'محتوا:';
     }

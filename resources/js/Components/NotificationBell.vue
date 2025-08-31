@@ -31,8 +31,8 @@
         >
             <div
                 v-if="showNotifications"
-                class="absolute left-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-50"
-                style="transform: translateX(-75%);"
+                class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-50"
+                style="transform: translateX(0%);"
             >
                 <!-- Header -->
                 <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
