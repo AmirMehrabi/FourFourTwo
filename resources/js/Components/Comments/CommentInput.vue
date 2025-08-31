@@ -20,6 +20,8 @@
                         @keydown.enter.prevent="handleEnterKey"
                         @keydown="handleKeydown"
                         @input="handleInput"
+                        @keyup="handleInput"
+                        @click="handleInput"
                         ref="textareaRef"
                         class="w-full resize-none bg-gray-50 border-0 rounded-xl px-4 py-3 text-sm placeholder-gray-500 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all duration-200"
                         :class="{ 
@@ -30,16 +32,20 @@
                     ></textarea>
 
                     <!-- Mention Dropdown -->
-                    <MentionDropdown
-                        :show="showMentionDropdown"
-                        :search-term="mentionSearchTerm"
-                        :style="{
-                            position: 'fixed',
-                            left: mentionDropdownPosition.x + 'px',
-                            top: mentionDropdownPosition.y + 'px'
-                        }"
-                        @select-user="handleMentionSelect"
-                    />
+                    <Teleport to="body">
+                        <MentionDropdown
+                            :show="showMentionDropdown"
+                            :search-term="mentionSearchTerm"
+                            :style="{
+                                position: 'fixed',
+                                left: mentionDropdownPosition.x + 'px',
+                                top: mentionDropdownPosition.y + 'px',
+                                zIndex: 9999
+                            }"
+                            @select-user="handleMentionSelect"
+                            ref="mentionDropdownRef"
+                        />
+                    </Teleport>
 
                     <!-- Character Counter & Send Button -->
                     <div v-if="content.length > 0" class="absolute left-2 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
@@ -100,7 +106,7 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick, watch } from 'vue';
+import { ref, computed, nextTick, watch, Teleport } from 'vue';
 import axios from 'axios';
 import MentionDropdown from './MentionDropdown.vue';
 
@@ -122,12 +128,14 @@ const content = ref('');
 const posting = ref(false);
 const error = ref('');
 const textareaRef = ref(null);
+const mentionDropdownRef = ref(null);
 const maxLength = 1000;
 
 // Mention functionality
 const showMentionDropdown = ref(false);
 const mentionSearchTerm = ref('');
 const mentionDropdownPosition = ref({ x: 0, y: 0 });
+const currentMentionStart = ref(-1);
 
 // Computed
 const userInitials = computed(() => {
@@ -238,18 +246,35 @@ const showSuccessFeedback = () => {
 
 // Mention methods
 const checkForMentions = () => {
-    const text = content.value;
-    const lastAtSymbol = text.lastIndexOf('@');
+    const textarea = textareaRef.value;
+    if (!textarea) return;
     
-    if (lastAtSymbol !== -1) {
-        const afterAt = text.substring(lastAtSymbol + 1);
-        const spaceIndex = afterAt.indexOf(' ');
+    const text = content.value;
+    const cursorPosition = textarea.selectionStart;
+    
+    // Find the @ symbol closest to the cursor (going backwards)
+    let mentionStart = -1;
+    for (let i = cursorPosition - 1; i >= 0; i--) {
+        if (text[i] === '@') {
+            mentionStart = i;
+            break;
+        }
+        if (text[i] === ' ' || text[i] === '\n') {
+            // Stop if we hit a space or newline before finding @
+            break;
+        }
+    }
+    
+    if (mentionStart !== -1) {
+        // Check if there's a space or end of text after the mention
+        const afterAt = text.substring(mentionStart + 1, cursorPosition);
         
-        if (spaceIndex === -1 || spaceIndex > 0) {
-            // Show dropdown if we have @ and some text after it
-            mentionSearchTerm.value = afterAt.substring(0, spaceIndex > 0 ? spaceIndex : afterAt.length);
+        // Only show dropdown if we don't have a space in the mention part
+        if (afterAt.indexOf(' ') === -1 && afterAt.indexOf('\n') === -1) {
+            mentionSearchTerm.value = afterAt;
+            currentMentionStart.value = mentionStart;
             showMentionDropdown.value = true;
-            updateMentionDropdownPosition();
+            updateMentionDropdownPosition(mentionStart);
         } else {
             showMentionDropdown.value = false;
         }
@@ -258,64 +283,115 @@ const checkForMentions = () => {
     }
 };
 
-const updateMentionDropdownPosition = () => {
+const updateMentionDropdownPosition = (mentionStart) => {
     const textarea = textareaRef.value;
-    if (textarea) {
-        const rect = textarea.getBoundingClientRect();
-        const text = content.value;
-        const lastAtSymbol = text.lastIndexOf('@');
-        
-        // Calculate cursor position for @ symbol
-        const beforeAt = text.substring(0, lastAtSymbol);
-        const tempTextarea = document.createElement('textarea');
-        tempTextarea.style.position = 'absolute';
-        tempTextarea.style.visibility = 'hidden';
-        tempTextarea.style.whiteSpace = 'pre-wrap';
-        tempTextarea.style.wordWrap = 'break-word';
-        tempTextarea.style.width = textarea.offsetWidth + 'px';
-        tempTextarea.style.font = window.getComputedStyle(textarea).font;
-        tempTextarea.value = beforeAt;
-        
-        document.body.appendChild(tempTextarea);
-        const height = tempTextarea.scrollHeight;
-        document.body.removeChild(tempTextarea);
-        
-        mentionDropdownPosition.value = {
-            x: rect.left,
-            y: rect.top + height - 20
-        };
-    }
+    if (!textarea) return;
+    
+    const rect = textarea.getBoundingClientRect();
+    const style = window.getComputedStyle(textarea);
+    
+    // Create a temporary element to measure text dimensions
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.visibility = 'hidden';
+    tempDiv.style.whiteSpace = 'pre-wrap';
+    tempDiv.style.wordWrap = 'break-word';
+    tempDiv.style.width = textarea.offsetWidth - parseInt(style.paddingLeft) - parseInt(style.paddingRight) + 'px';
+    tempDiv.style.font = style.font;
+    tempDiv.style.lineHeight = style.lineHeight;
+    tempDiv.style.padding = '0';
+    tempDiv.style.border = '0';
+    tempDiv.style.margin = '0';
+    
+    // Get text up to the mention start
+    const textBeforeMention = content.value.substring(0, mentionStart);
+    tempDiv.textContent = textBeforeMention;
+    
+    document.body.appendChild(tempDiv);
+    
+    // Calculate position
+    const lines = textBeforeMention.split('\n');
+    const lineHeight = parseInt(style.lineHeight) || parseInt(style.fontSize) * 1.2;
+    const currentLine = lines.length - 1;
+    const yOffset = currentLine * lineHeight;
+    
+    // Get the width of the last line to position horizontally
+    const lastLine = lines[lines.length - 1];
+    tempDiv.textContent = lastLine;
+    const lastLineWidth = tempDiv.offsetWidth;
+    
+    document.body.removeChild(tempDiv);
+    
+    // Position the dropdown
+    const paddingLeft = parseInt(style.paddingLeft) || 0;
+    const paddingTop = parseInt(style.paddingTop) || 0;
+    
+    mentionDropdownPosition.value = {
+        x: rect.left + paddingLeft + lastLineWidth,
+        y: rect.top + paddingTop + yOffset + lineHeight + 5
+    };
 };
 
 const handleMentionSelect = (user) => {
-    const text = content.value;
-    const lastAtSymbol = text.lastIndexOf('@');
+    const textarea = textareaRef.value;
+    if (!textarea || currentMentionStart.value === -1) return;
     
-    if (lastAtSymbol !== -1) {
-        const beforeAt = text.substring(0, lastAtSymbol);
-        const afterAt = text.substring(lastAtSymbol + 1);
-        const spaceIndex = afterAt.indexOf(' ');
-        
-        if (spaceIndex > 0) {
-            const afterSpace = afterAt.substring(spaceIndex);
-            content.value = beforeAt + '@' + user.username + ' ' + afterSpace;
-        } else {
-            content.value = beforeAt + '@' + user.username + ' ';
+    const text = content.value;
+    const cursorPosition = textarea.selectionStart;
+    
+    // Find the end of the current mention (where cursor is or next space/newline)
+    let mentionEnd = cursorPosition;
+    for (let i = currentMentionStart.value + 1; i < text.length; i++) {
+        if (text[i] === ' ' || text[i] === '\n') {
+            mentionEnd = i;
+            break;
+        }
+        if (i >= cursorPosition) {
+            mentionEnd = cursorPosition;
+            break;
         }
     }
     
+    // Replace the mention text
+    const beforeMention = text.substring(0, currentMentionStart.value);
+    const afterMention = text.substring(mentionEnd);
+    const newText = beforeMention + '@' + user.username + ' ' + afterMention;
+    
+    content.value = newText;
+    
+    // Position cursor after the mention
+    const newCursorPosition = currentMentionStart.value + user.username.length + 2;
+    
     showMentionDropdown.value = false;
+    currentMentionStart.value = -1;
+    
     nextTick(() => {
-        textareaRef.value?.focus();
+        textarea.focus();
+        textarea.setSelectionRange(newCursorPosition, newCursorPosition);
         autoResize();
     });
 };
 
 const handleKeydown = (event) => {
-    if (showMentionDropdown.value) {
-        if (event.key === 'Escape') {
-            showMentionDropdown.value = false;
-            event.preventDefault();
+    if (showMentionDropdown.value && mentionDropdownRef.value) {
+        switch (event.key) {
+            case 'ArrowUp':
+                event.preventDefault();
+                mentionDropdownRef.value.moveSelection('up');
+                break;
+            case 'ArrowDown':
+                event.preventDefault();
+                mentionDropdownRef.value.moveSelection('down');
+                break;
+            case 'Enter':
+                event.preventDefault();
+                mentionDropdownRef.value.selectCurrentUser();
+                break;
+            case 'Escape':
+                event.preventDefault();
+                showMentionDropdown.value = false;
+                currentMentionStart.value = -1;
+                break;
         }
     }
 };

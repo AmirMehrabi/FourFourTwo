@@ -194,6 +194,33 @@ class CommentController extends Controller
     }
 
     /**
+     * Search followed users for mention autocomplete.
+     */
+    public function searchFollowedUsers(Request $request): JsonResponse
+    {
+        $query = $request->get('query', '');
+        $limit = min($request->get('limit', 10), 20); // Max 20 users
+        
+        if (strlen($query) < 1) {
+            return response()->json([]);
+        }
+        
+        $user = Auth::user();
+        
+        // Get users that the current user is following and match the search query
+        $followedUsers = $user->following()
+            ->where(function ($q) use ($query) {
+                $q->where('username', 'LIKE', '%' . $query . '%')
+                  ->orWhere('name', 'LIKE', '%' . $query . '%');
+            })
+            ->select('id', 'username', 'name', 'avatar')
+            ->limit($limit)
+            ->get();
+        
+        return response()->json($followedUsers);
+    }
+
+    /**
      * Process mentions in a comment and create notifications.
      */
     private function processMentions(Comment $comment): void
@@ -210,8 +237,12 @@ class CommentController extends Controller
         
         $mentionedUsernames = array_unique($matches[1]);
         
-        // Get mentioned users
-        $mentionedUsers = User::whereIn('username', $mentionedUsernames)
+        // Get current user
+        $currentUser = User::find($comment->user_id);
+        
+        // Get mentioned users that the current user is following
+        $mentionedUsers = $currentUser->following()
+            ->whereIn('username', $mentionedUsernames)
             ->where('id', '!=', $comment->user_id) // Don't notify self
             ->get();
         

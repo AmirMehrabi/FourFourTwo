@@ -110,6 +110,8 @@ Route::middleware('auth')->group(function () {
         ->name('comments.destroy');
     Route::post('/comments/{comment}/react', [App\Http\Controllers\CommentController::class, 'toggleReaction'])
         ->name('comments.react');
+    Route::get('/comments/search-followed-users', [App\Http\Controllers\CommentController::class, 'searchFollowedUsers'])
+        ->name('comments.search-followed-users');
 
     // Notification API routes
     Route::get('/api/notifications', [App\Http\Controllers\Api\NotificationController::class, 'index'])

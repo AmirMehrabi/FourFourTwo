@@ -70,7 +70,7 @@ const handleNotificationClick = () => {
         case 'comment_reaction':
         case 'mention':
             if (data.fixture_id) {
-                router.visit(route('fixtures.show', data.fixture_id));
+                router.visit(route('fixtures.show', data.fixture_id) + (data.comment_id ? `#comment-${data.comment_id}` : ''));
             }
             break;
         case 'badge_awarded':
@@ -121,7 +121,7 @@ const getNotificationIcon = (type) => {
             'stroke-linecap': 'round',
             'stroke-linejoin': 'round',
             'stroke-width': '2',
-            d: 'M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a2 2 0 00-2 2v1c0 8.284 6.716 15 15 15h1a2 2 0 002-2v-3.28a1 1 0 00-.684-.948l-4.493-1.498a1 1 0 00-1.21.502l-1.13 2.257a11.042 11.042 0 01-5.516-5.517l2.257-1.128a1 1 0 00.502-1.21L9.228 3.683A1 1 0 008.279 3H5z'
+            d: 'M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z'
         })),
         
         friend_request: () => h('svg', {
@@ -218,7 +218,10 @@ const getNotificationContext = (notification) => {
         case 'comment_reaction':
             return `"${data.comment_content}"`;
         case 'mention':
-            return `در مسابقه ${data.fixture_teams?.home} در برابر ${data.fixture_teams?.away}: "${data.comment_content}"`;
+            const truncatedContent = data.comment_content?.length > 100 
+                ? data.comment_content.substring(0, 100) + '...' 
+                : data.comment_content;
+            return `در مسابقه ${data.fixture_teams?.home} در برابر ${data.fixture_teams?.away}: "${truncatedContent}"`;
         case 'friend_request':
             return 'می‌توانید درخواست را از بخش دوستان مدیریت کنید';
         case 'match_update':

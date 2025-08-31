@@ -158,8 +158,10 @@ const handleNotificationClick = async (notification) => {
     // Navigate based on notification type
     switch (notification.type) {
         case 'comment_reply':
+        case 'mention':
+        case 'comment_reaction':
             if (notification.data.fixture_id) {
-                window.location.href = `/fixtures/${notification.data.fixture_id}`;
+                window.location.href = `/fixtures/${notification.data.fixture_id}#comment-${notification.data.comment_id}`;
             }
             break;
         case 'badge_awarded':
