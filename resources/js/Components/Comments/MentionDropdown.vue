@@ -14,7 +14,7 @@
                 جستجو...
             </div>
         </div>
-
+        
         <!-- Users List -->
         <div v-else-if="users.length > 0" class="max-h-60 overflow-y-auto">
             <div
@@ -47,7 +47,7 @@
                         {{ getUserInitials(user.name) }}
                     </div>
                 </div>
-
+                
                 <!-- User Info -->
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">

@@ -1,4 +1,4 @@
-or issu<?php
+<?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -27,13 +27,20 @@ return new class extends Migration
                 'mention'
             ) NOT NULL");
         } else {
-            // SQLite/PostgreSQL: Drop and recreate the column
+            // SQLite/PostgreSQL: Drop indexes first, then column, then recreate
+            Schema::table('notifications', function (Blueprint $table) {
+                // Drop indexes that reference the type column
+                $table->dropIndex(['user_id', 'type']);
+            });
+            
             Schema::table('notifications', function (Blueprint $table) {
                 $table->dropColumn('type');
             });
             
             Schema::table('notifications', function (Blueprint $table) {
                 $table->string('type', 50)->after('user_id');
+                // Recreate the index
+                $table->index(['user_id', 'type']);
             });
         }
     }
@@ -55,8 +62,19 @@ return new class extends Migration
                 'match_update'
             ) NOT NULL");
         } else {
-            // SQLite/PostgreSQL: Just keep the string column (no easy way to revert)
-            // The column will remain as string type
+            // SQLite/PostgreSQL: Drop indexes, drop column, recreate as enum-like
+            Schema::table('notifications', function (Blueprint $table) {
+                $table->dropIndex(['user_id', 'type']);
+            });
+            
+            Schema::table('notifications', function (Blueprint $table) {
+                $table->dropColumn('type');
+            });
+            
+            Schema::table('notifications', function (Blueprint $table) {
+                $table->string('type', 50)->after('user_id');
+                $table->index(['user_id', 'type']);
+            });
         }
     }
 };

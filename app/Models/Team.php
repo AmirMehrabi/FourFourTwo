@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Team extends Model
 {
@@ -22,6 +23,7 @@ class Team extends Model
         'stadium_name',
         'stadium_name_fa',
         'stadium_capacity',
+        'stadium_id',
         'city',
         'city_fa',
         'manager',
@@ -62,6 +64,14 @@ class Team extends Model
     public function leagueTableEntries(): HasMany
     {
         return $this->hasMany(LeagueTable::class);
+    }
+
+    /**
+     * Get the stadium/venue for this team
+     */
+    public function stadium(): BelongsTo
+    {
+        return $this->belongsTo(Venue::class, 'stadium_id');
     }
 
     /**
