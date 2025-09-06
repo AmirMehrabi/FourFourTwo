@@ -422,4 +422,28 @@ class User extends Authenticatable
                     ->where('points_awarded', 5) // 5 points = exact score
                     ->count();
     }
+
+    /**
+     * Get activity feed entries for this user.
+     */
+    public function activityFeeds(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ActivityFeed::class)->orderBy('activity_date', 'desc');
+    }
+
+    /**
+     * Get activity feed for users this user follows.
+     */
+    public function getFollowingActivityFeed(int $limit = 20)
+    {
+        $followingIds = $this->following()->pluck('users.id')->toArray();
+        
+        return ActivityFeed::whereIn('user_id', $followingIds)
+                          ->with('user')
+                          ->public()
+                          ->recent(30) // Last 30 days
+                          ->orderBy('activity_date', 'desc')
+                          ->limit($limit)
+                          ->get();
+    }
 }

@@ -7,6 +7,8 @@ use App\Models\Season;
 use App\Services\LeagueTableService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class LeagueTableController extends Controller
 {
@@ -20,7 +22,15 @@ class LeagueTableController extends Controller
     /**
      * Get the current season's league table with live updates
      */
-    public function index(Request $request)
+    public function index(Request $request): Response
+    {
+        return Inertia::render('LeagueTable');
+    }
+
+    /**
+     * Get league table data for API
+     */
+    public function getData(Request $request)
     {
         // Get current season or default to the latest active season
         $season = Season::where('is_active', true)->first();

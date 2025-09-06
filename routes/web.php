@@ -88,9 +88,21 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/leaderboard', [LeaderboardController::class, 'index'])
         ->name('leaderboard.index');
+    
+    Route::get('/league-table', [LeagueTableController::class, 'index'])
+        ->name('league-table.index');
+    
+    Route::get('/api/league-table', [LeagueTableController::class, 'getData'])
+        ->name('league-table.data');
 
     Route::get('/activity', [ActivityFeedController::class, 'index'])
         ->name('activity.index');
+    
+    Route::get('/api/activity-feed', [ActivityFeedController::class, 'getFeedData'])
+        ->name('activity.feed');
+    
+    Route::get('/api/trending-activities', [ActivityFeedController::class, 'getTrendingActivities'])
+        ->name('activity.trending');
 
     Route::get('/notifications', [App\Http\Controllers\NotificationsController::class, 'index'])
         ->name('notifications.index');

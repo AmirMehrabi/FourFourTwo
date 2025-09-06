@@ -35,6 +35,13 @@ class AchievementService
             if ($this->meetsRequirements($user, $definition['criteria'], $userStats)) {
                 if ($user->awardBadge($key, ['trigger' => $trigger, 'stats' => $userStats])) {
                     $awardedBadges[] = $key;
+                    
+                    // Create activity feed entry for badge awards
+                    $badge = \App\Models\Badge::findByKey($key);
+                    if ($badge) {
+                        \App\Models\ActivityFeed::createBadgeActivity($user, $badge, ['trigger' => $trigger]);
+                    }
+                    
                     Log::info("Badge awarded", [
                         'user_id' => $user->id,
                         'badge_key' => $key,

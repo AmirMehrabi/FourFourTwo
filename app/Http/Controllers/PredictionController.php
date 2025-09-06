@@ -41,7 +41,7 @@ class PredictionController extends Controller
             }
 
             try {
-                Prediction::updateOrCreate(
+                $prediction = Prediction::updateOrCreate(
                     [
                         'user_id' => Auth::id(),
                         'fixture_id' => $predictionData['fixture_id'],
@@ -51,6 +51,13 @@ class PredictionController extends Controller
                         'away_score_predicted' => $predictionData['away_score'],
                     ]
                 );
+                
+                // Create activity feed entry for new predictions
+                if ($prediction->wasRecentlyCreated) {
+                    $prediction->load('fixture.homeTeam', 'fixture.awayTeam');
+                    \App\Models\ActivityFeed::createPredictionActivity(Auth::user(), $prediction);
+                }
+                
                 $savedCount++;
             } catch (\Exception $e) {
                 $errors[] = "خطا در ذخیره پیش‌بینی.";

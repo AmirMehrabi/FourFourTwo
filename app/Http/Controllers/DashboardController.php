@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Fixture;
 use App\Models\User;
+use App\Models\LeagueTable;
+use App\Models\Season;
+use App\Services\LeagueTableService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -71,6 +74,39 @@ class DashboardController extends Controller
         // Get top 5 for display
         $topLeaderboard = $leaderboard->take(5);
 
+        // 4. Get activity feed data
+        $activityFeed = $user->getFollowingActivityFeed(8);
+        
+        // If no activities from following, get some trending activities
+        if ($activityFeed->isEmpty()) {
+            $activityFeed = \App\Models\ActivityFeed::with('user')
+                                                  ->public()
+                                                  ->recent(7)
+                                                  ->orderBy('activity_date', 'desc')
+                                                  ->limit(8)
+                                                  ->get();
+        }
+
+        // 5. Get league table data
+        $currentSeason = Season::where('is_active', true)->first();
+        $leagueTable = collect([]);
+        
+        if ($currentSeason) {
+            $leagueTableService = new LeagueTableService();
+            $leagueTable = $leagueTableService->getLiveTable($currentSeason->id);
+        }
+
+        // 6. Get user stats for gamification
+        $userStats = [
+            'current_streak' => $user->getCurrentPredictionStreak(),
+            'best_streak' => $user->getBestPredictionStreak(),
+            'accuracy' => $user->getPredictionAccuracy(),
+            'badges_count' => $user->getBadgesCount(),
+            'recent_badges' => $user->getRecentBadges(3),
+            'following_count' => $user->following()->count(),
+            'followers_count' => $user->followers()->count(),
+        ];
+
         return Inertia::render('Dashboard/Index', [
             'upcomingFixtures' => $upcomingFixtures,
             'recentPredictions' => $recentPredictions,
@@ -78,6 +114,9 @@ class DashboardController extends Controller
             'userPoints' => $userPoints,
             'topLeaderboard' => $topLeaderboard,
             'totalUsers' => $leaderboard->count(),
+            'activityFeed' => $activityFeed,
+            'userStats' => $userStats,
+            'leagueTable' => $leagueTable,
         ]);
     }
 }
